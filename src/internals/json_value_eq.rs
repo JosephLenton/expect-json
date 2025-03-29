@@ -1,6 +1,9 @@
+use super::BooleanType;
 use super::Context;
 use super::JsonValueEqError;
 use super::JsonValueEqResult;
+use super::NumberType;
+use super::StringType;
 use super::ValueType;
 use serde_json::Number;
 use serde_json::Value;
@@ -19,8 +22,8 @@ pub fn json_value_eq(context: Context, expected: Value, other: Value) -> JsonVal
         }
         (e, o) => Err(JsonValueEqError::DifferentTypes {
             context,
-            expected_type: ValueType::type_of(&e),
-            received_type: ValueType::type_of(&o),
+            expected: ValueType::type_of(e),
+            received: ValueType::type_of(o),
         }),
     }
 }
@@ -31,10 +34,10 @@ fn json_value_eq_boolean(
     received: bool,
 ) -> JsonValueEqResult<()> {
     if expected != received {
-        return Err(JsonValueEqError::DifferentBooleanValues {
+        return Err(JsonValueEqError::DifferentTypes {
             context,
-            expected,
-            received,
+            expected: BooleanType::from(expected).into(),
+            received: BooleanType::from(received).into(),
         });
     }
 
@@ -43,14 +46,20 @@ fn json_value_eq_boolean(
 
 fn json_value_eq_number(
     context: Context,
-    expected: Number,
-    received: Number,
+    expected_number: Number,
+    received_number: Number,
 ) -> JsonValueEqResult<()> {
-    // if expected != received {
-    //     return Err(JsonValueEqError::DifferentBooleanValues { context, expected, received });
-    // }
+    if expected_number != received_number {
+        let expected = NumberType::from(expected_number);
+        let received = NumberType::from(received_number);
 
-    unimplemented!("todo, eq number");
+        return Err(JsonValueEqError::DifferentTypes {
+            context,
+            expected: expected.into(),
+            received: received.into(),
+        });
+    }
+
     Ok(())
 }
 
@@ -60,10 +69,10 @@ fn json_value_eq_string(
     received: String,
 ) -> JsonValueEqResult<()> {
     if expected != received {
-        return Err(JsonValueEqError::DifferentStringValues {
+        return Err(JsonValueEqError::DifferentTypes {
             context,
-            expected,
-            received,
+            expected: StringType::from(expected).into(),
+            received: StringType::from(received).into(),
         });
     }
 
