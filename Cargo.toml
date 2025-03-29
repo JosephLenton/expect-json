@@ -1,0 +1,28 @@
+[package]
+name = "expect-json"
+authors = ["Joseph Lenton <josephlenton@gmail.com>"]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.83"
+license = "MIT"
+description = "For testing "
+keywords = ["testing", "test", "json", "serde_json"]
+categories = ["development-tools::testing", "development-tools"]
+repository = "https://github.com/JosephLenton/expect-json"
+documentation = "https://docs.rs/expect-json"
+readme = "README.md"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[features]
+default = []
+
+[dependencies]
+serde = "1.0"
+serde_json = "1.0"
+thiserror = "2.0"
+
+[dev-dependencies]
+pretty_assertions = "1.4"
