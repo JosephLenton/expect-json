@@ -12,19 +12,28 @@ pub enum JsonValueEqError {
     received {received}"
     )]
     DifferentTypes {
-        context: Context,
+        context: Context<'static>,
         expected: ValueType,
         received: ValueType,
     },
 
     #[error(
         "At {context},
-    expected '{expected}',
-    received '{received}'"
+    expected object key '{expected_key}',
+    but it was not found"
     )]
-    DifferentBooleanValues {
-        context: Context,
-        expected: bool,
-        received: bool,
+    ObjectKeyMissing {
+        context: Context<'static>,
+        expected_key: String,
+    },
+
+    #[error(
+        "At {context},
+    expected array index at '{expected_index}',
+    but it was not found"
+    )]
+    ArrayIndexMissing {
+        context: Context<'static>,
+        expected_index: usize,
     },
 }

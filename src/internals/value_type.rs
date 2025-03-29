@@ -1,5 +1,7 @@
+use super::ArrayType;
 use super::BooleanType;
 use super::NumberType;
+use super::ObjectType;
 use super::StringType;
 use serde_json::Value;
 use std::fmt::Display;
@@ -12,8 +14,8 @@ pub enum ValueType {
     String(StringType),
     Number(NumberType),
     Boolean(BooleanType),
-    Array,
-    Object,
+    Array(ArrayType),
+    Object(ObjectType),
 }
 
 impl ValueType {
@@ -23,9 +25,15 @@ impl ValueType {
             Value::String(inner) => Self::String(inner.into()),
             Value::Number(n) => Self::Number(n.into()),
             Value::Bool(inner) => Self::Boolean(inner.into()),
-            Value::Array(_) => Self::Array,
-            Value::Object(_) => Self::Object,
+            Value::Array(inner) => Self::Array(inner.into()),
+            Value::Object(inner) => Self::Object(inner.into()),
         }
+    }
+}
+
+impl From<ArrayType> for ValueType {
+    fn from(inner: ArrayType) -> Self {
+        Self::Array(inner)
     }
 }
 
@@ -47,6 +55,12 @@ impl From<NumberType> for ValueType {
     }
 }
 
+impl From<ObjectType> for ValueType {
+    fn from(inner: ObjectType) -> Self {
+        Self::Object(inner)
+    }
+}
+
 impl Display for ValueType {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> FmtResult {
         match self {
@@ -54,8 +68,8 @@ impl Display for ValueType {
             Self::String(inner) => write!(formatter, "{inner}"),
             Self::Number(n) => write!(formatter, "{n}"),
             Self::Boolean(inner) => write!(formatter, "{inner}"),
-            Self::Array => write!(formatter, "array"),
-            Self::Object => write!(formatter, "object"),
+            Self::Array(inner) => write!(formatter, "{inner}"),
+            Self::Object(inner) => write!(formatter, "{inner}"),
         }
     }
 }

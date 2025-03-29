@@ -14,7 +14,8 @@ where
     let other =
         serde_json::to_value(other_raw).map_err(ExpectJsonEqError::FailedToSerialiseOther)?;
 
-    json_value_eq(Context::Root, expected, other)?;
+    let mut context = Context::new();
+    json_value_eq(&mut context, &expected, &other)?;
 
     Ok(())
 }
