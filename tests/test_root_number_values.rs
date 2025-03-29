@@ -56,7 +56,7 @@ fn it_should_not_be_equal_for_different_float_values() {
         .to_string();
     assert_eq!(
         output,
-        "At root,
+        "Json at root is not equal,
     expected float 123.456,
     received float 456.789"
     );
@@ -69,7 +69,7 @@ fn it_should_not_be_equal_for_different_u64_values() {
         .to_string();
     assert_eq!(
         output,
-        "At root,
+        "Json at root is not equal,
     expected integer 123,
     received integer 456"
     );
@@ -82,7 +82,7 @@ fn it_should_not_be_equal_for_different_positive_and_negative_values() {
         .to_string();
     assert_eq!(
         output,
-        "At root,
+        "Json at root is not equal,
     expected integer 100,
     received integer -100"
     );
@@ -92,7 +92,7 @@ fn it_should_not_be_equal_for_different_positive_and_negative_values() {
         .to_string();
     assert_eq!(
         output,
-        "At root,
+        "Json at root is not equal,
     expected integer -100,
     received integer 100"
     );
@@ -105,7 +105,7 @@ fn it_should_not_be_equal_for_different_zero_types() {
         .to_string();
     assert_eq!(
         output,
-        "At root,
+        "Json at root is not equal,
     expected integer 0,
     received float 0.0"
     );
@@ -115,7 +115,7 @@ fn it_should_not_be_equal_for_different_zero_types() {
         .to_string();
     assert_eq!(
         output,
-        "At root,
+        "Json at root is not equal,
     expected float 0.0,
     received integer 0"
     );

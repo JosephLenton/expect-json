@@ -1,9 +1,9 @@
-use crate::internals::ContextPathPart;
+use crate::internals::context::ContextPathPart;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;
 
-#[derive(Default, Debug)]
+#[derive(Clone, Default, Debug, PartialEq)]
 pub struct Context<'a> {
     stack: Vec<ContextPathPart<'a>>,
 }
@@ -33,12 +33,10 @@ impl<'a> Context<'a> {
 
 impl Display for Context<'_> {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> FmtResult {
-        if self.stack.is_empty() {
-            return write!(formatter, "root");
-        }
+        write!(formatter, "root")?;
 
         for path in &self.stack {
-            write!(formatter, ".{path}")?;
+            write!(formatter, "{path}")?;
         }
 
         Ok(())

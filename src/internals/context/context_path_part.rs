@@ -3,7 +3,7 @@ use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum ContextPathPart<'a> {
     String(Cow<'a, String>),
     Index(usize),
@@ -25,8 +25,8 @@ impl ContextPathPart<'_> {
 impl Display for ContextPathPart<'_> {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> FmtResult {
         match self {
-            Self::String(inner) => write!(formatter, "{inner}"),
-            Self::Index(inner) => write!(formatter, "{inner}"),
+            Self::String(inner) => write!(formatter, ".{inner}"),
+            Self::Index(inner) => write!(formatter, "[{inner}]"),
         }
     }
 }

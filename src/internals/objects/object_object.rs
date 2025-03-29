@@ -1,19 +1,19 @@
-use super::JsonObject;
+use crate::internals::JsonObject;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct ObjectType(JsonObject);
+pub struct ObjectObject(JsonObject);
 
-impl From<JsonObject> for ObjectType {
+impl From<JsonObject> for ObjectObject {
     fn from(inner: JsonObject) -> Self {
         Self(inner)
     }
 }
 
-impl Display for ObjectType {
+impl Display for ObjectObject {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> FmtResult {
-        write!(formatter, r#"object {:?}"#, self.0)
+        write!(formatter, r#"{:?}"#, self.0)
     }
 }

@@ -1,13 +1,13 @@
-use super::ArrayType;
-use super::BooleanType;
-use super::Context;
+use super::objects::ArrayObject;
+use super::objects::BooleanObject;
+use super::objects::NumberObject;
+use super::objects::ObjectObject;
+use super::objects::StringObject;
 use super::JsonObject;
 use super::JsonValueEqError;
 use super::JsonValueEqResult;
-use super::NumberType;
-use super::ObjectType;
-use super::StringType;
-use super::ValueType;
+use crate::internals::context::Context;
+use crate::internals::types::ValueType;
 use serde_json::Number;
 use serde_json::Value;
 
@@ -39,8 +39,8 @@ fn json_value_eq_boolean(
     if expected != received {
         return Err(JsonValueEqError::DifferentTypes {
             context: context.to_static(),
-            expected: BooleanType::from(expected).into(),
-            received: BooleanType::from(received).into(),
+            expected: BooleanObject::from(expected).into(),
+            received: BooleanObject::from(received).into(),
         });
     }
 
@@ -53,8 +53,8 @@ fn json_value_eq_number(
     received_number: &Number,
 ) -> JsonValueEqResult<()> {
     if expected_number != received_number {
-        let expected = NumberType::from(expected_number);
-        let received = NumberType::from(received_number);
+        let expected = NumberObject::from(expected_number);
+        let received = NumberObject::from(received_number);
 
         return Err(JsonValueEqError::DifferentTypes {
             context: context.to_static(),
@@ -74,8 +74,8 @@ fn json_value_eq_string(
     if expected != received {
         return Err(JsonValueEqError::DifferentTypes {
             context: context.to_static(),
-            expected: StringType::from(expected.to_string()).into(),
-            received: StringType::from(received.to_string()).into(),
+            expected: StringObject::from(expected.to_string()).into(),
+            received: StringObject::from(received.to_string()).into(),
         });
     }
 
@@ -90,8 +90,8 @@ fn json_value_eq_object<'a>(
     if expected.len() != received.len() {
         return Err(JsonValueEqError::DifferentTypes {
             context: context.to_static(),
-            expected: ObjectType::from(expected.clone()).into(),
-            received: ObjectType::from(received.clone()).into(),
+            expected: ObjectObject::from(expected.clone()).into(),
+            received: ObjectObject::from(received.clone()).into(),
         });
     }
 
@@ -114,28 +114,34 @@ fn json_value_eq_object<'a>(
 
 fn json_value_eq_array<'a>(
     context: &mut Context<'a>,
-    expected: &'a [Value],
-    received: &'a [Value],
+    expected_array: &'a [Value],
+    received_array: &'a [Value],
 ) -> JsonValueEqResult<()> {
-    if expected.len() != received.len() {
+    if expected_array.len() != received_array.len() {
         return Err(JsonValueEqError::DifferentTypes {
             context: context.to_static(),
-            expected: ArrayType::from(expected.to_owned()).into(),
-            received: ArrayType::from(received.to_owned()).into(),
+            expected: ArrayObject::from(expected_array.to_owned()).into(),
+            received: ArrayObject::from(received_array.to_owned()).into(),
         });
     }
 
-    for (expected_index, expected_value) in expected.iter().enumerate() {
-        let received_value =
-            received
-                .get(expected_index)
-                .ok_or_else(|| JsonValueEqError::ArrayIndexMissing {
-                    context: context.to_static(),
-                    expected_index,
-                })?;
+    for (expected_index, expected_value) in expected_array.iter().enumerate() {
+        let received_value = received_array.get(expected_index).ok_or_else(|| {
+            JsonValueEqError::ArrayIndexMissing {
+                context: context.to_static(),
+                expected_index,
+            }
+        })?;
 
         context.push(expected_index);
-        json_value_eq(context, expected_value, received_value)?;
+        json_value_eq(context, expected_value, received_value).map_err(|source_error| {
+            JsonValueEqError::array_index_missing(
+                context,
+                source_error,
+                expected_array,
+                received_array,
+            )
+        })?;
         context.pop();
     }
 

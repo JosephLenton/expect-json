@@ -18,7 +18,7 @@ fn it_should_be_not_equal_for_different_boolean_values() {
         .to_string();
     assert_eq!(
         output,
-        "At root,
+        "Json at root is not equal,
     expected boolean true,
     received boolean false"
     );
@@ -28,7 +28,7 @@ fn it_should_be_not_equal_for_different_boolean_values() {
         .to_string();
     assert_eq!(
         output,
-        "At root,
+        "Json at root is not equal,
     expected boolean false,
     received boolean true"
     );
