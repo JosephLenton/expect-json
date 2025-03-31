@@ -1,3 +1,4 @@
+use super::json_apply_expect_op;
 use super::objects::ArrayObject;
 use super::objects::BooleanObject;
 use super::objects::NumberObject;
@@ -8,15 +9,20 @@ use super::JsonValueEqError;
 use super::JsonValueEqResult;
 use crate::internals::context::Context;
 use crate::internals::types::ValueType;
+use crate::SerializeExpect;
 use serde_json::Number;
 use serde_json::Value;
 
 pub fn json_value_eq<'a>(
     context: &mut Context<'a>,
-    expected: &'a Value,
     received: &'a Value,
+    expected: &'a Value,
 ) -> JsonValueEqResult<()> {
-    match (expected, received) {
+    if let Some(expect_op) = SerializeExpect::maybe_parse(expected) {
+        return json_apply_expect_op(context, received, expect_op);
+    }
+
+    match (received, expected) {
         (Value::Null, Value::Null) => Ok(()),
         (Value::Number(l), Value::Number(r)) => json_value_eq_number(context, l, r),
         (Value::String(l), Value::String(r)) => json_value_eq_string(context, l, r),
@@ -25,22 +31,22 @@ pub fn json_value_eq<'a>(
         (Value::Object(l), Value::Object(r)) => json_value_eq_object(context, l, r),
         (e, o) => Err(JsonValueEqError::DifferentTypes {
             context: context.to_static(),
-            expected: ValueType::type_of(e.clone()),
             received: ValueType::type_of(o.clone()),
+            expected: ValueType::type_of(e.clone()),
         }),
     }
 }
 
 fn json_value_eq_boolean(
     context: &mut Context,
-    expected: bool,
     received: bool,
+    expected: bool,
 ) -> JsonValueEqResult<()> {
     if expected != received {
         return Err(JsonValueEqError::DifferentTypes {
             context: context.to_static(),
-            expected: BooleanObject::from(expected).into(),
             received: BooleanObject::from(received).into(),
+            expected: BooleanObject::from(expected).into(),
         });
     }
 
@@ -49,17 +55,17 @@ fn json_value_eq_boolean(
 
 fn json_value_eq_number(
     context: &mut Context,
-    expected_number: &Number,
     received_number: &Number,
+    expected_number: &Number,
 ) -> JsonValueEqResult<()> {
-    if expected_number != received_number {
-        let expected = NumberObject::from(expected_number);
+    if received_number != expected_number {
         let received = NumberObject::from(received_number);
+        let expected = NumberObject::from(expected_number);
 
         return Err(JsonValueEqError::DifferentTypes {
             context: context.to_static(),
-            expected: expected.into(),
             received: received.into(),
+            expected: expected.into(),
         });
     }
 
@@ -68,14 +74,14 @@ fn json_value_eq_number(
 
 fn json_value_eq_string(
     context: &mut Context,
-    expected: &str,
     received: &str,
+    expected: &str,
 ) -> JsonValueEqResult<()> {
-    if expected != received {
+    if received != expected {
         return Err(JsonValueEqError::DifferentTypes {
             context: context.to_static(),
-            expected: StringObject::from(expected.to_string()).into(),
             received: StringObject::from(received.to_string()).into(),
+            expected: StringObject::from(expected.to_string()).into(),
         });
     }
 
@@ -84,14 +90,14 @@ fn json_value_eq_string(
 
 fn json_value_eq_object<'a>(
     context: &mut Context<'a>,
-    expected: &'a JsonObject,
     received: &'a JsonObject,
+    expected: &'a JsonObject,
 ) -> JsonValueEqResult<()> {
-    if expected.len() != received.len() {
+    if received.len() != expected.len() {
         return Err(JsonValueEqError::DifferentTypes {
             context: context.to_static(),
-            expected: ObjectObject::from(expected.clone()).into(),
             received: ObjectObject::from(received.clone()).into(),
+            expected: ObjectObject::from(expected.clone()).into(),
         });
     }
 
@@ -105,7 +111,7 @@ fn json_value_eq_object<'a>(
                 })?;
 
         context.push(expected_key);
-        json_value_eq(context, expected_value, received_value)?;
+        json_value_eq(context, received_value, expected_value)?;
         context.pop();
     }
 
@@ -114,14 +120,14 @@ fn json_value_eq_object<'a>(
 
 fn json_value_eq_array<'a>(
     context: &mut Context<'a>,
-    expected_array: &'a [Value],
     received_array: &'a [Value],
+    expected_array: &'a [Value],
 ) -> JsonValueEqResult<()> {
     if expected_array.len() != received_array.len() {
         return Err(JsonValueEqError::DifferentTypes {
             context: context.to_static(),
-            expected: ArrayObject::from(expected_array.to_owned()).into(),
             received: ArrayObject::from(received_array.to_owned()).into(),
+            expected: ArrayObject::from(expected_array.to_owned()).into(),
         });
     }
 
@@ -134,12 +140,12 @@ fn json_value_eq_array<'a>(
         })?;
 
         context.push(expected_index);
-        json_value_eq(context, expected_value, received_value).map_err(|source_error| {
+        json_value_eq(context, received_value, expected_value).map_err(|source_error| {
             JsonValueEqError::array_index_missing(
                 context,
                 source_error,
-                expected_array,
                 received_array,
+                expected_array,
             )
         })?;
         context.pop();

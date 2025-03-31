@@ -15,8 +15,8 @@ pub enum JsonValueEqError {
     )]
     DifferentTypes {
         context: Context<'static>,
-        expected: ValueType,
         received: ValueType,
+        expected: ValueType,
     },
 
     #[error(
@@ -28,10 +28,10 @@ pub enum JsonValueEqError {
     )]
     DifferentArrayTypes {
         context: Context<'static>,
-        expected: ValueType,
-        expected_full_array: ArrayObject,
         received: ValueType,
         received_full_array: ArrayObject,
+        expected: ValueType,
+        expected_full_array: ArrayObject,
     },
 
     #[error(
@@ -68,8 +68,8 @@ impl JsonValueEqError {
     pub fn array_index_missing<'a>(
         context: &mut Context<'a>,
         source_error: Self,
-        expected_array: &'a [Value],
         received_array: &'a [Value],
+        expected_array: &'a [Value],
     ) -> Self {
         // If the source is deeper, then it takes precedence
         if context != source_error.context() {
@@ -79,13 +79,13 @@ impl JsonValueEqError {
         match source_error {
             Self::ArrayIndexMissing { .. } => panic!("Logic error, an array index missing within an array index missing should not be possible, with the same context"),
             Self::DifferentArrayTypes { .. } => panic!("Logic error, different array types within an array index missing should not be possible, with the same context"),
-            Self::DifferentTypes { context, expected, received } => {
+            Self::DifferentTypes { context, received, expected } => {
                 Self::DifferentArrayTypes {
                     context,
-                    expected,
-                    expected_full_array: ArrayObject::from(expected_array.to_owned()),
                     received,
                     received_full_array: ArrayObject::from(received_array.to_owned()),
+                    expected,
+                    expected_full_array: ArrayObject::from(expected_array.to_owned()),
                 }
             },
             Self::ObjectKeyMissing { .. } => {

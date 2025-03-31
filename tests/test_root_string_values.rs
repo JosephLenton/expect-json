@@ -19,8 +19,8 @@ fn it_should_be_not_equal_for_different_short_strings() {
     assert_eq!(
         output,
         r#"Json at root is not equal,
-    expected string "aaa",
-    received string "bbb""#
+    expected string "bbb",
+    received string "aaa""#
     );
 }
 
@@ -36,7 +36,7 @@ fn it_should_be_not_equal_for_different_long_strings() {
     assert_eq!(
         output,
         r#"Json at root is not equal,
-    expected string "aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa",
-    received string "bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb""#
+    expected string "bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb",
+    received string "aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa""#
     );
 }

@@ -4,18 +4,18 @@ use crate::ExpectJsonEqError;
 use crate::ExpectJsonEqResult;
 use serde::Serialize;
 
-pub fn expect_json_eq<E, O>(expected_raw: &E, other_raw: &O) -> ExpectJsonEqResult<()>
+pub fn expect_json_eq<R, E>(received_raw: &R, expected_raw: &E) -> ExpectJsonEqResult<()>
 where
+    R: Serialize,
     E: Serialize,
-    O: Serialize,
 {
+    let received =
+        serde_json::to_value(received_raw).map_err(ExpectJsonEqError::FailedToSerialiseOther)?;
     let expected =
         serde_json::to_value(expected_raw).map_err(ExpectJsonEqError::FailedToSerialiseExpected)?;
-    let other =
-        serde_json::to_value(other_raw).map_err(ExpectJsonEqError::FailedToSerialiseOther)?;
 
     let mut context = Context::new();
-    json_value_eq(&mut context, &expected, &other)?;
+    json_value_eq(&mut context, &received, &expected)?;
 
     Ok(())
 }

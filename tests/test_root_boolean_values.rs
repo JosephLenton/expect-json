@@ -19,8 +19,8 @@ fn it_should_be_not_equal_for_different_boolean_values() {
     assert_eq!(
         output,
         "Json at root is not equal,
-    expected boolean true,
-    received boolean false"
+    expected boolean false,
+    received boolean true"
     );
 
     let output = expect_json_eq(&json!(false), &json!(true))
@@ -29,7 +29,7 @@ fn it_should_be_not_equal_for_different_boolean_values() {
     assert_eq!(
         output,
         "Json at root is not equal,
-    expected boolean false,
-    received boolean true"
+    expected boolean true,
+    received boolean false"
     );
 }

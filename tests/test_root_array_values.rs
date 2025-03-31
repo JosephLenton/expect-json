@@ -32,9 +32,9 @@ fn it_should_not_be_equal_for_different_numeric_arrays() {
     assert_eq!(
         output,
         "Json at root[0] is not equal,
-    expected integer 1,
-        full array [1, 2, 3]
-    received integer 4
-        full array [4, 5, 6]"
+    expected integer 4,
+        full array [4, 5, 6]
+    received integer 1
+        full array [1, 2, 3]"
     );
 }
