@@ -1,3 +1,4 @@
+use super::ExpectOp;
 use crate::expects::Contains;
 use serde_json::Value;
 
@@ -5,11 +6,11 @@ use serde_json::Value;
 pub struct Expect;
 
 impl Expect {
-    pub fn contains<I, V>(self, values: I) -> Contains
+    pub fn contains<I, V>(self, values: I) -> ExpectOp<Contains>
     where
         I: IntoIterator<Item = V>,
         V: Into<Value>,
     {
-        Contains::new(values)
+        ExpectOp::new(Contains::new(values))
     }
 }

@@ -34,3 +34,18 @@ fn it_should_not_be_equal_for_different_numeric_arrays() {
         full array [1, 2, 3]"
     );
 }
+
+#[test]
+fn it_should_not_be_equal_for_arrays_of_different_types() {
+    let output = expect_json_eq(&json!([1, 2, 3]), &json!(["1", "2", "3"]))
+        .unwrap_err()
+        .to_string();
+    assert_eq!(
+        output,
+        r#"Json at root[0] is not equal,
+    expected string "1",
+        full array ["1", "2", "3"]
+    received integer 1
+        full array [1, 2, 3]"#
+    );
+}

@@ -12,6 +12,13 @@ pub struct SerializeExpect {
 }
 
 impl SerializeExpect {
+    pub fn new(inner: SerializeExpectOp) -> Self {
+        Self {
+            magic_id: ExpectMagicId::__ExpectJson_MagicId_0ABDBD14_93D1_4D73_8E26_0177D8A280A4__,
+            inner,
+        }
+    }
+
     pub fn maybe_parse(value: &Value) -> Option<Self> {
         if !Self::has_magic_id(value) {
             return None;
@@ -33,14 +40,14 @@ impl SerializeExpect {
     }
 }
 
-impl<V> From<V> for SerializeExpect
+impl<S> From<S> for SerializeExpect
 where
-    V: Into<SerializeExpectOp>,
+    SerializeExpectOp: From<S>,
 {
-    fn from(something: V) -> Self {
+    fn from(inner: S) -> Self {
         Self {
             magic_id: Default::default(),
-            inner: something.into(),
+            inner: SerializeExpectOp::from(inner),
         }
     }
 }
@@ -53,13 +60,13 @@ pub enum SerializeExpectOp {
 
 #[cfg(test)]
 mod test_serialize {
-    use crate::expects::Contains;
+    use crate::expect;
     use assert_json_diff::assert_json_eq;
     use serde_json::json;
 
     #[test]
     fn it_should_serialize_into_expected_structure_with_magic_id() {
-        let output = json!(Contains::new([1, 2, 3]));
+        let output = json!(expect.contains([1, 2, 3]));
         let expected = json!({
             "magic_id": "__ExpectJson_MagicId_0ABDBD14_93D1_4D73_8E26_0177D8A280A4__",
             "inner": {

@@ -1,11 +1,9 @@
 use super::SerializeExpectOp;
-use crate::expects::SerializeExpect;
 use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(into = "SerializeExpect")]
 pub struct Contains {
     pub values: Vec<Value>,
 }
