@@ -1,6 +1,8 @@
 use super::objects::ArrayObject;
+use super::types::ValueType;
 use crate::internals::context::Context;
-use crate::internals::types::ValueType;
+use crate::internals::types::ValueTypeObject;
+use crate::SerializeExpectOp;
 use serde_json::Value;
 use thiserror::Error;
 
@@ -15,8 +17,21 @@ pub enum JsonValueEqError {
     )]
     DifferentTypes {
         context: Context<'static>,
-        received: ValueType,
-        expected: ValueType,
+        received: ValueTypeObject,
+        expected: ValueTypeObject,
+    },
+
+    // TODO, this error message should include which operations it _can_ be performed on.
+    // The underlying problem might be the server returned different data to what we expected.
+    #[error(
+        "Json comparison on unsupported type.
+    expected operation {} cannot be performed on type {received_type}",
+    <&'static str>::from(expected_operation)
+    )]
+    UnsupportedOperation {
+        context: Context<'static>,
+        received_type: ValueType,
+        expected_operation: SerializeExpectOp,
     },
 
     #[error(
@@ -28,9 +43,9 @@ pub enum JsonValueEqError {
     )]
     DifferentArrayTypes {
         context: Context<'static>,
-        received: ValueType,
+        received: ValueTypeObject,
         received_full_array: ArrayObject,
-        expected: ValueType,
+        expected: ValueTypeObject,
         expected_full_array: ArrayObject,
     },
 
@@ -61,7 +76,7 @@ pub enum JsonValueEqError {
     )]
     ArrayContainsNotFound {
         context: Context<'static>,
-        expected: ValueType,
+        expected: ValueTypeObject,
         received_full_array: ArrayObject,
     },
 }
@@ -69,6 +84,7 @@ pub enum JsonValueEqError {
 impl JsonValueEqError {
     pub fn context(&self) -> &Context<'static> {
         match self {
+            Self::UnsupportedOperation { context, .. } => context,
             Self::ArrayIndexMissing { context, .. } => context,
             Self::DifferentArrayTypes { context, .. } => context,
             Self::DifferentTypes { context, .. } => context,
@@ -89,6 +105,7 @@ impl JsonValueEqError {
         }
 
         match source_error {
+            Self::UnsupportedOperation { .. } => panic!("Logic error, unsupported operation within an array index should not be possible, with the same context"),
             Self::ArrayIndexMissing { .. } => panic!("Logic error, an array index missing within an array index missing should not be possible, with the same context"),
             Self::DifferentArrayTypes { .. } => panic!("Logic error, different array types within an array index missing should not be possible, with the same context"),
             Self::DifferentTypes { context, received, expected } => {

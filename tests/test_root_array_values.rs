@@ -22,10 +22,6 @@ fn it_should_be_equal_for_identical_numeric_arrays() {
 
 #[test]
 fn it_should_not_be_equal_for_different_numeric_arrays() {
-    use assert_json_diff::assert_json_eq;
-    // assert_json_eq!(json!(1), json!(2));
-    // assert_json_eq!(json!([1, 2, 3]), json!([4, 5, 6]),);
-
     let output = expect_json_eq(&json!([1, 2, 3]), &json!([4, 5, 6]))
         .unwrap_err()
         .to_string();

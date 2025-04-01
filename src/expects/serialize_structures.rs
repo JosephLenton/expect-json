@@ -1,17 +1,17 @@
+use super::Contains;
 use super::ExpectMagicId;
 use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
-use std::borrow::Cow;
+use strum::IntoStaticStr;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct SerializeExpect<'a> {
+pub struct SerializeExpect {
     pub magic_id: ExpectMagicId,
-    pub inner: SerializeExpectOp<'a>,
-    pub is_not: bool,
+    pub inner: SerializeExpectOp,
 }
 
-impl SerializeExpect<'static> {
+impl SerializeExpect {
     pub fn maybe_parse(value: &Value) -> Option<Self> {
         if !Self::has_magic_id(value) {
             return None;
@@ -23,7 +23,7 @@ impl SerializeExpect<'static> {
     }
 }
 
-impl SerializeExpect<'_> {
+impl SerializeExpect {
     pub fn has_magic_id(value: &Value) -> bool {
         value
             .as_object()
@@ -33,10 +33,22 @@ impl SerializeExpect<'_> {
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+impl<V> From<V> for SerializeExpect
+where
+    V: Into<SerializeExpectOp>,
+{
+    fn from(something: V) -> Self {
+        Self {
+            magic_id: Default::default(),
+            inner: something.into(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, IntoStaticStr)]
 #[serde(tag = "type")]
-pub enum SerializeExpectOp<'a> {
-    Contains { values: Cow<'a, Vec<Value>> },
+pub enum SerializeExpectOp {
+    Contains(Contains),
 }
 
 #[cfg(test)]
@@ -54,7 +66,6 @@ mod test_serialize {
                 "type": "Contains",
                 "values": [1, 2, 3],
             },
-            "is_not": false,
         });
 
         assert_json_eq!(output, expected);

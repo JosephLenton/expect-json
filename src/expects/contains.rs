@@ -1,12 +1,13 @@
 use super::SerializeExpectOp;
 use crate::expects::SerializeExpect;
+use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
-use std::borrow::Cow;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(into = "SerializeExpect")]
 pub struct Contains {
-    values: Vec<Value>,
+    pub values: Vec<Value>,
 }
 
 impl Contains {
@@ -21,25 +22,9 @@ impl Contains {
     }
 }
 
-impl Serialize for Contains {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        SerializeExpect {
-            magic_id: Default::default(),
-            inner: SerializeExpectOp::from(self),
-            is_not: false,
-        }
-        .serialize(serializer)
-    }
-}
-
-impl<'a> From<&'a Contains> for SerializeExpectOp<'a> {
-    fn from(contains: &'a Contains) -> Self {
-        SerializeExpectOp::Contains {
-            values: Cow::Borrowed(&contains.values),
-        }
+impl From<Contains> for SerializeExpectOp {
+    fn from(contains: Contains) -> Self {
+        SerializeExpectOp::Contains(contains)
     }
 }
 

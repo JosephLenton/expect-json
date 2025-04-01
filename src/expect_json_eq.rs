@@ -1,5 +1,5 @@
-use crate::internals::context::Context;
-use crate::internals::json_value_eq;
+use crate::internals::json_eq;
+use crate::internals::Context;
 use crate::ExpectJsonEqError;
 use crate::ExpectJsonEqResult;
 use serde::Serialize;
@@ -15,7 +15,7 @@ where
         serde_json::to_value(expected_raw).map_err(ExpectJsonEqError::FailedToSerialiseExpected)?;
 
     let mut context = Context::new();
-    json_value_eq(&mut context, &received, &expected)?;
+    json_eq(&mut context, &received, &expected)?;
 
     Ok(())
 }
