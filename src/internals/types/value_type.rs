@@ -13,8 +13,8 @@ use std::fmt::Result as FmtResult;
 #[derive(Clone, Debug, PartialEq)]
 pub struct ValueType(ValueObject);
 
-impl ValueType {
-    pub fn type_of(value: Value) -> Self {
+impl From<Value> for ValueType {
+    fn from(value: Value) -> Self {
         match value {
             Value::Null => Self(NullObject.into()),
             Value::String(inner) => Self(StringObject::from(inner).into()),

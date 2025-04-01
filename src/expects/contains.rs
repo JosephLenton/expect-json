@@ -47,6 +47,7 @@ impl<'a> From<&'a Contains> for SerializeExpectOp<'a> {
 mod test_contains {
     use crate::expect;
     use crate::expect_json_eq;
+    use pretty_assertions::assert_eq;
     use serde_json::json;
 
     #[test]
@@ -56,5 +57,37 @@ mod test_contains {
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
+    }
+
+    #[test]
+    fn it_should_be_equal_for_reversed_identical_numeric_arrays() {
+        let left = json!([1, 2, 3]);
+        let right = json!(expect.contains([3, 2, 1]));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok());
+    }
+
+    #[test]
+    fn it_should_be_equal_for_partial_contains() {
+        let left = json!([0, 1, 2, 3, 4, 5]);
+        let right = json!(expect.contains([1, 2, 3]));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok());
+    }
+
+    #[test]
+    fn it_should_error_for_totall_different_values() {
+        let left = json!([0, 1, 2, 3]);
+        let right = json!(expect.contains([4, 5, 6]));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            r#"Json array at root does not contain value,
+    expected array to include the integer 4, but it was not found.
+    received [0, 1, 2, 3]"#
+        );
     }
 }

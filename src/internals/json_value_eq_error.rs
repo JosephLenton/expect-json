@@ -53,6 +53,17 @@ pub enum JsonValueEqError {
         context: Context<'static>,
         expected_index: usize,
     },
+
+    #[error(
+        "Json array at {context} does not contain value,
+    expected array to include the {expected}, but it was not found.
+    received {received_full_array}"
+    )]
+    ArrayContainsNotFound {
+        context: Context<'static>,
+        expected: ValueType,
+        received_full_array: ArrayObject,
+    },
 }
 
 impl JsonValueEqError {
@@ -62,6 +73,7 @@ impl JsonValueEqError {
             Self::DifferentArrayTypes { context, .. } => context,
             Self::DifferentTypes { context, .. } => context,
             Self::ObjectKeyMissing { context, .. } => context,
+            Self::ArrayContainsNotFound { context, .. } => context,
         }
     }
 
@@ -89,6 +101,9 @@ impl JsonValueEqError {
                 }
             },
             Self::ObjectKeyMissing { .. } => {
+                panic!("Logic error, object key missing within an array index missing should not be possible, with the same context")
+            },
+            Self::ArrayContainsNotFound { .. } => {
                 panic!("Logic error, object key missing within an array index missing should not be possible, with the same context")
             },
         }

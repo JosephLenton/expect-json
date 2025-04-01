@@ -1,17 +1,10 @@
-use super::objects::ArrayObject;
-use super::objects::BooleanObject;
-use super::objects::NumberObject;
-use super::objects::ObjectObject;
-use super::objects::StringObject;
-use super::JsonObject;
 use super::JsonValueEqError;
 use super::JsonValueEqResult;
 use crate::internals::context::Context;
-use crate::internals::types::ValueType;
 use crate::SerializeExpect;
 use crate::SerializeExpectOp;
-use serde_json::Number;
 use serde_json::Value;
+use std::collections::HashSet;
 
 pub fn json_apply_expect_op<'a>(
     context: &mut Context<'a>,
@@ -42,13 +35,20 @@ fn json_apply_expect_op_array<'a>(
 
 fn json_expect_array_contains<'a>(
     context: &mut Context<'a>,
-    received: &'a Vec<Value>,
-    expected: Vec<Value>,
+    received_values: &'a Vec<Value>,
+    expected_values: Vec<Value>,
 ) -> JsonValueEqResult<()> {
-    for value in expected {
-        if !received.contains(&value) {
-            panic!("dkdkdk")
+    let received_items_in_set = received_values.into_iter().collect::<HashSet<&'a Value>>();
+
+    for expected in expected_values {
+        if !received_items_in_set.contains(&expected) {
+            return Err(JsonValueEqError::ArrayContainsNotFound {
+                context: context.to_static(),
+                expected: expected.into(),
+                received_full_array: received_values.clone().into(),
+            });
         }
     }
+
     Ok(())
 }

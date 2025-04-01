@@ -31,8 +31,8 @@ pub fn json_value_eq<'a>(
         (Value::Object(l), Value::Object(r)) => json_value_eq_object(context, l, r),
         (e, o) => Err(JsonValueEqError::DifferentTypes {
             context: context.to_static(),
-            received: ValueType::type_of(o.clone()),
-            expected: ValueType::type_of(e.clone()),
+            received: ValueType::from(o.clone()),
+            expected: ValueType::from(e.clone()),
         }),
     }
 }
