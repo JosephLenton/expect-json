@@ -10,7 +10,7 @@ pub fn json_eq<'a>(
     received: &'a Value,
     expected: &'a Value,
 ) -> JsonValueEqResult<()> {
-    if let Some(expected_op) = SerializeExpect::maybe_parse(&expected) {
+    if let Some(expected_op) = SerializeExpect::maybe_parse(expected) {
         json_op_eq(context, received, expected_op)
     } else {
         json_value_eq(context, received, expected)

@@ -8,7 +8,7 @@ use std::collections::HashSet;
 
 pub fn json_op_eq_array<'a>(
     context: &mut Context<'a>,
-    received: &'a Vec<Value>,
+    received: &'a [Value],
     expected_operation: SerializeExpectOp,
 ) -> JsonValueEqResult<()> {
     match expected_operation {
@@ -27,17 +27,17 @@ pub fn json_op_eq_array<'a>(
 
 fn json_expect_array_contains<'a>(
     context: &mut Context<'a>,
-    received_values: &'a Vec<Value>,
+    received_values: &'a [Value],
     expected_values: Vec<Value>,
 ) -> JsonValueEqResult<()> {
-    let received_items_in_set = received_values.into_iter().collect::<HashSet<&'a Value>>();
+    let received_items_in_set = received_values.iter().collect::<HashSet<&'a Value>>();
 
     for expected in expected_values {
         if !received_items_in_set.contains(&expected) {
             return Err(JsonValueEqError::ArrayContainsNotFound {
                 context: context.to_static(),
                 expected: expected.into(),
-                received_full_array: received_values.clone().into(),
+                received_full_array: received_values.to_owned().into(),
             });
         }
     }

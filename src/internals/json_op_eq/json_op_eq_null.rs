@@ -4,8 +4,8 @@ use crate::internals::types::ValueType;
 use crate::internals::JsonValueEqError;
 use crate::SerializeExpectOp;
 
-pub fn json_op_eq_null<'a>(
-    context: &mut Context<'a>,
+pub fn json_op_eq_null(
+    context: &mut Context<'_>,
     expected_operation: SerializeExpectOp,
 ) -> JsonValueEqResult<()> {
     match expected_operation {

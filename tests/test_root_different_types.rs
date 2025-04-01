@@ -10,8 +10,8 @@ fn it_should_error_if_expected_null_and_received_integer() {
     assert_eq!(
         output,
         "Json at root is not equal,
-    expected null,
-    received integer 123"
+    expected integer 123,
+    received null"
     );
 }
 
@@ -23,8 +23,8 @@ fn it_should_error_if_expected_null_and_received_string() {
     assert_eq!(
         output,
         r#"Json at root is not equal,
-    expected null,
-    received string "🦊""#
+    expected string "🦊",
+    received null"#
     );
 }
 
@@ -36,8 +36,8 @@ fn it_should_error_if_received_null_when_not_expected() {
     assert_eq!(
         output,
         "Json at root is not equal,
-    expected float 123.456,
-    received null"
+    expected null,
+    received float 123.456"
     );
 }
 
@@ -49,7 +49,7 @@ fn it_should_error_if_expected_string_and_received_null() {
     assert_eq!(
         output,
         r#"Json at root is not equal,
-    expected string "🦊",
-    received null"#
+    expected null,
+    received string "🦊""#
     );
 }
