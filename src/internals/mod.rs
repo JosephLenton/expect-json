@@ -2,7 +2,9 @@ mod context;
 mod objects;
 mod types;
 
-mod json_op_eq;
+mod json_expect_op;
+pub use self::json_expect_op::*;
+
 mod json_value_eq;
 use json_value_eq::*;
 

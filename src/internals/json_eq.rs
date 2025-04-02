@@ -1,4 +1,3 @@
-use super::json_op_eq::json_op_eq;
 use super::json_value_eq;
 use crate::internals::context::Context;
 use crate::internals::JsonValueEqResult;
@@ -11,7 +10,7 @@ pub fn json_eq<'a>(
     expected: &'a Value,
 ) -> JsonValueEqResult<()> {
     if let Some(expected_op) = SerializeExpect::maybe_parse(expected) {
-        json_op_eq(context, received, expected_op)
+        expected_op.inner.on_any(context, received)
     } else {
         json_value_eq(context, received, expected)
     }

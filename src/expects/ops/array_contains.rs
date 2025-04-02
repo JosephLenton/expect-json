@@ -1,14 +1,19 @@
-use super::SerializeExpectOp;
+use crate::expects::SerializeExpectOp;
+use crate::internals::Context;
+use crate::internals::JsonExpectOp;
+use crate::internals::JsonValueEqError;
+use crate::internals::JsonValueEqResult;
 use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
+use std::collections::HashSet;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Contains {
+pub struct ArrayContains {
     pub values: Vec<Value>,
 }
 
-impl Contains {
+impl ArrayContains {
     pub(crate) fn new<I, V>(values: I) -> Self
     where
         I: IntoIterator<Item = V>,
@@ -20,8 +25,30 @@ impl Contains {
     }
 }
 
-impl From<Contains> for SerializeExpectOp {
-    fn from(contains: Contains) -> Self {
+impl JsonExpectOp for ArrayContains {
+    fn on_array<'a>(
+        self,
+        context: &mut Context<'a>,
+        received_values: &'a [Value],
+    ) -> JsonValueEqResult<()> {
+        let received_items_in_set = received_values.iter().collect::<HashSet<&'a Value>>();
+
+        for expected in self.values {
+            if !received_items_in_set.contains(&expected) {
+                return Err(JsonValueEqError::ArrayContainsNotFound {
+                    context: context.to_static(),
+                    expected: expected.into(),
+                    received_full_array: received_values.to_owned().into(),
+                });
+            }
+        }
+
+        Ok(())
+    }
+}
+
+impl From<ArrayContains> for SerializeExpectOp {
+    fn from(contains: ArrayContains) -> Self {
         SerializeExpectOp::Contains(contains)
     }
 }

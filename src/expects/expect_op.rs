@@ -1,5 +1,5 @@
-use super::SerializeExpect;
-use super::SerializeExpectOp;
+use crate::expects::SerializeExpect;
+use crate::expects::SerializeExpectOp;
 use serde::Serialize;
 use std::fmt::Debug;
 use std::ops::Deref;

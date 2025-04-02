@@ -1,9 +1,8 @@
-use super::Contains;
 use super::ExpectMagicId;
+use crate::expects::SerializeExpectOp;
 use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
-use strum::IntoStaticStr;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SerializeExpect {
@@ -50,12 +49,6 @@ where
             inner: SerializeExpectOp::from(inner),
         }
     }
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize, IntoStaticStr)]
-#[serde(tag = "type")]
-pub enum SerializeExpectOp {
-    Contains(Contains),
 }
 
 #[cfg(test)]
