@@ -1,6 +1,6 @@
 mod context;
-mod objects;
-mod types;
+pub mod objects;
+pub mod types;
 
 mod json_expect_op;
 pub use self::json_expect_op::*;

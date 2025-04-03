@@ -90,7 +90,7 @@ mod test_array_contains {
         assert_eq!(
             output,
             r#"Json array at root does not contain expected value,
-    expected array to include the integer 4, but it was not found.
+    expected array to contain the integer 4, but it was not found.
     received [0, 1, 2, 3]"#
         );
     }

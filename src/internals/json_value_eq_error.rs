@@ -91,6 +91,18 @@ pub enum JsonValueEqError {
         expected: StringObject,
         received_full_string: StringObject,
     },
+
+    #[error(
+        r#"Json object at {context} has extra field .{received_extra_field},
+    expected {expected_obj},
+    received {received_obj}"#
+    )]
+    ObjectReceivedHasExtraKey {
+        context: Context<'static>,
+        received_extra_field: String,
+        received_obj: ValueTypeObject,
+        expected_obj: ValueTypeObject,
+    },
 }
 
 impl JsonValueEqError {
@@ -103,6 +115,7 @@ impl JsonValueEqError {
             Self::ObjectKeyMissing { context, .. } => context,
             Self::ArrayContainsNotFound { context, .. } => context,
             Self::StringContainsNotFound { context, .. } => context,
+            Self::ObjectReceivedHasExtraKey { context, .. } => context,
         }
     }
 
@@ -137,6 +150,9 @@ impl JsonValueEqError {
                 panic!("Logic error, object key missing within an array index missing should not be possible, with the same context")
             },
             Self::StringContainsNotFound { .. } => {
+                panic!("Logic error, object key missing within an array index missing should not be possible, with the same context")
+            },
+            Self::ObjectReceivedHasExtraKey { .. } => {
                 panic!("Logic error, object key missing within an array index missing should not be possible, with the same context")
             },
         }

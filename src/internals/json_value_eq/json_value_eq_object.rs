@@ -10,6 +10,22 @@ pub fn json_value_eq_object<'a>(
     received: &'a JsonObject,
     expected: &'a JsonObject,
 ) -> JsonValueEqResult<()> {
+    let received_len = received.len();
+    let expected_len = expected.len();
+
+    if received_len > expected_len {
+        let maybe_extra_field = received.keys().find(|key| !expected.contains_key(*key));
+
+        if let Some(extra_field) = maybe_extra_field {
+            return Err(JsonValueEqError::ObjectReceivedHasExtraKey {
+                context: context.to_static(),
+                received_extra_field: extra_field.to_string(),
+                received_obj: ObjectObject::from(received.clone()).into(),
+                expected_obj: ObjectObject::from(expected.clone()).into(),
+            });
+        }
+    }
+
     if received.len() != expected.len() {
         return Err(JsonValueEqError::DifferentTypes {
             context: context.to_static(),

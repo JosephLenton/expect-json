@@ -9,7 +9,7 @@ fn it_should_be_equal_for_empty_arrays() {
 }
 
 #[test]
-fn it_should_be_equal_for_identical_numeric_arrays() {
+fn it_should_be_equal_for_identical_array_of_numbers() {
     let output = expect_json_eq(&json!([1, 2, 3]), &json!([1, 2, 3]));
     assert!(output.is_ok());
 
@@ -17,6 +17,18 @@ fn it_should_be_equal_for_identical_numeric_arrays() {
     assert!(output.is_ok());
 
     let output = expect_json_eq(&json!([-1, 0, 1]), &json!([-1, 0, 1]));
+    assert!(output.is_ok());
+}
+
+#[test]
+fn it_should_be_equal_for_identical_array_of_objects() {
+    let output = expect_json_eq(&json!([{}, {}]), &json!([{}, {}]));
+    assert!(output.is_ok());
+
+    let output = expect_json_eq(
+        &json!([{ "min": 1, "max": 2 }]),
+        &json!([{ "min": 1, "max": 2 }]),
+    );
     assert!(output.is_ok());
 }
 

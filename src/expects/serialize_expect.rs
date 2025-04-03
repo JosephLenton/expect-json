@@ -63,7 +63,7 @@ mod test_serialize {
         let expected = json!({
             "magic_id": "__ExpectJson_MagicId_0ABDBD14_93D1_4D73_8E26_0177D8A280A4__",
             "inner": {
-                "type": "Contains",
+                "type": "ArrayContains",
                 "values": [1, 2, 3],
             },
         });

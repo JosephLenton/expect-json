@@ -1,13 +1,14 @@
+use crate::expects::SerializeExpectOp;
+use crate::internals::types::ValueType;
+use serde::Deserialize;
+use serde::Serialize;
+use serde_json::Value;
+
 mod array_contains;
 pub use self::array_contains::*;
 
 mod string_contains;
 pub use self::string_contains::*;
-
-use crate::expects::SerializeExpectOp;
-use serde::Deserialize;
-use serde::Serialize;
-use serde_json::Value;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum Contains {
@@ -20,10 +21,16 @@ impl Contains {
     where
         V: Into<Value>,
     {
-        match Into::<Value>::into(values) {
+        let value = Into::<Value>::into(values);
+        match value {
             Value::Array(values_array) => Self::Array(ArrayContains::new(values_array)),
             Value::String(values_string) => Self::String(StringContains::new(values_string)),
-            _ => unimplemented!("todo"),
+            _ => {
+                let value_type = ValueType::from(&value);
+                panic!(
+                    ".contains expected to take array, string, or object. Received: {value_type}"
+                );
+            }
         }
     }
 }

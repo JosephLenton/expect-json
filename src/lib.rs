@@ -1,7 +1,7 @@
 #![forbid(unsafe_code)]
 #![cfg_attr(docsrs, feature(doc_cfg, doc_auto_cfg))]
 
-mod internals;
+pub(crate) mod internals;
 
 #[allow(non_upper_case_globals)]
 pub const expect: Expect = Expect;
