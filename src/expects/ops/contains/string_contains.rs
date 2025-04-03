@@ -79,7 +79,7 @@ mod test_string_contains {
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
-            r#"Json string at root does not contain expected value,
+            r#"Json string at root does not contain expected value:
     expected string to contain "a, b, c", but it was not found.
     received "1, 2, 3""#
         );

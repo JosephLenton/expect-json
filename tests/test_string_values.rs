@@ -1,5 +1,5 @@
+use expect_json::testing::assert_json_err;
 use expect_json::*;
-use pretty_assertions::assert_eq;
 use serde_json::json;
 
 #[test]
@@ -13,30 +13,22 @@ fn it_should_be_equal_for_same_string_values() {
 
 #[test]
 fn it_should_be_not_equal_for_different_short_strings() {
-    let output = expect_json_eq(&json!("aaa"), &json!("bbb"))
-        .unwrap_err()
-        .to_string();
-    assert_eq!(
-        output,
-        r#"Json at root is not equal,
-    expected string "bbb",
-    received string "aaa""#
+    assert_json_err(
+        &json!("aaa"),
+        &json!("bbb"),
+        r#"Json strings at root are not equal:
+    expected "bbb",
+    received "aaa""#,
     );
 }
 
 #[test]
 fn it_should_be_not_equal_for_different_long_strings() {
-    let output = expect_json_eq(
+    assert_json_err(
         &json!("aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa"),
         &json!("bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb"),
-    )
-    .unwrap_err()
-    .to_string();
-
-    assert_eq!(
-        output,
-        r#"Json at root is not equal,
-    expected string "bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb",
-    received string "aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa""#
+        r#"Json strings at root are not equal:
+    expected "bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb",
+    received "aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa""#,
     );
 }

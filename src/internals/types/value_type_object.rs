@@ -1,7 +1,8 @@
 use crate::internals::objects::ArrayObject;
 use crate::internals::objects::BooleanObject;
+use crate::internals::objects::FloatObject;
+use crate::internals::objects::IntegerObject;
 use crate::internals::objects::NullObject;
-use crate::internals::objects::NumberObject;
 use crate::internals::objects::ObjectObject;
 use crate::internals::objects::StringObject;
 use crate::internals::objects::ValueObject;
@@ -18,7 +19,7 @@ impl From<Value> for ValueTypeObject {
         match value {
             Value::Null => Self(NullObject.into()),
             Value::String(inner) => Self(StringObject::from(inner).into()),
-            Value::Number(n) => Self(NumberObject::from(n).into()),
+            Value::Number(inner) => Self(inner.into()),
             Value::Bool(inner) => Self(BooleanObject::from(inner).into()),
             Value::Array(inner) => Self(ArrayObject::from(inner).into()),
             Value::Object(inner) => Self(ObjectObject::from(inner).into()),
@@ -44,8 +45,14 @@ impl From<StringObject> for ValueTypeObject {
     }
 }
 
-impl From<NumberObject> for ValueTypeObject {
-    fn from(inner: NumberObject) -> Self {
+impl From<FloatObject> for ValueTypeObject {
+    fn from(inner: FloatObject) -> Self {
+        Self(inner.into())
+    }
+}
+
+impl From<IntegerObject> for ValueTypeObject {
+    fn from(inner: IntegerObject) -> Self {
         Self(inner.into())
     }
 }
@@ -56,16 +63,19 @@ impl From<ObjectObject> for ValueTypeObject {
     }
 }
 
+impl From<ValueObject> for ValueTypeObject {
+    fn from(inner: ValueObject) -> Self {
+        Self(inner)
+    }
+}
+
 impl Display for ValueTypeObject {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> FmtResult {
         match &self.0 {
             ValueObject::Null(inner) => write!(formatter, "{inner}"),
             ValueObject::String(inner) => write!(formatter, "string {inner}"),
-            ValueObject::Number(inner) => match inner {
-                NumberObject::Float(_) => write!(formatter, "float {inner}"),
-                NumberObject::PositiveInteger(_) => write!(formatter, "integer {inner}"),
-                NumberObject::NegativeInteger(_) => write!(formatter, "integer {inner}"),
-            },
+            ValueObject::Float(inner) => write!(formatter, "float {inner}"),
+            ValueObject::Integer(inner) => write!(formatter, "integer {inner}"),
             ValueObject::Boolean(inner) => write!(formatter, "boolean {inner}"),
             ValueObject::Array(inner) => write!(formatter, "array {inner}"),
             ValueObject::Object(inner) => write!(formatter, "object {inner}"),

@@ -89,7 +89,7 @@ mod test_array_contains {
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
-            r#"Json array at root does not contain expected value,
+            r#"Json array at root does not contain expected value:
     expected array to contain the integer 4, but it was not found.
     received [0, 1, 2, 3]"#
         );

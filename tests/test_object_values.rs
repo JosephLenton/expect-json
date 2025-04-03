@@ -1,5 +1,5 @@
+use expect_json::testing::assert_json_err;
 use expect_json::*;
-use pretty_assertions::assert_eq;
 use serde_json::json;
 
 #[test]
@@ -59,74 +59,59 @@ fn it_should_be_equal_for_identical_complex_objects_with_sub_objects() {
 
 #[test]
 fn it_should_error_if_expected_has_extra_field() {
-    let output = expect_json_eq(&json!({}), &json!({ "extra": "🦊" }))
-        .unwrap_err()
-        .to_string();
-
-    assert_eq!(
-        output,
-        r#"Json at root is not equal,
+    assert_json_err(
+        &json!({}),
+        &json!({ "extra": "🦊" }),
+        r#"Json at root is not equal:
     expected object {
         extra: "🦊",
     },
-    received object { }"#
+    received object { }"#,
     );
 }
 
 #[test]
 fn it_should_error_if_received_has_extra_field() {
-    let output = expect_json_eq(&json!({ "extra": "🦊" }), &json!({}))
-        .unwrap_err()
-        .to_string();
-
-    assert_eq!(
-        output,
-        r#"Json object at root has extra field .extra,
+    assert_json_err(
+        &json!({ "extra": "🦊" }),
+        &json!({}),
+        r#"Json object at root has extra field .extra:
     expected object { },
     received object {
         extra: "🦊",
-    }"#
+    }"#,
     );
 }
 
 #[test]
 fn it_should_error_if_fields_differ_in_value() {
-    let output = expect_json_eq(&json!({ "extra": "🦊" }), &json!({ "extra": "abc123" }))
-        .unwrap_err()
-        .to_string();
-
-    assert_eq!(
-        output,
-        r#"Json at root.extra is not equal,
-    expected string "abc123",
-    received string "🦊""#
+    assert_json_err(
+        &json!({ "extra": "🦊" }),
+        &json!({ "extra": "abc123" }),
+        r#"Json strings at root.extra are not equal:
+    expected "abc123",
+    received "🦊""#,
     );
 }
 
 #[test]
 fn it_should_error_if_fields_differ_in_type() {
-    let output = expect_json_eq(&json!({ "extra": "🦊" }), &json!({ "extra": 123 }))
-        .unwrap_err()
-        .to_string();
-
-    assert_eq!(
-        output,
-        r#"Json at root.extra is not equal,
+    assert_json_err(
+        &json!({ "extra": "🦊" }),
+        &json!({ "extra": 123 }),
+        r#"Json at root.extra is not equal:
     expected integer 123,
-    received string "🦊""#
+    received string "🦊""#,
     );
 }
 
 #[test]
 fn it_should_error_if_fields_differ_in_numeric_type() {
-    let output = expect_json_eq(&json!({ "extra": 123 }), &json!({ "extra": 123.456 }))
-        .unwrap_err()
-        .to_string();
-
-    assert_eq!(
-        output,
-        r#"Json at root.extra is not equal,
+    assert_json_err(
+        &json!({ "extra": 123 }),
+        &json!({ "extra": 123.456 }),
+        r#"Json at root.extra is not equal:
     expected float 123.456,
-    received integer 123"#
+    received integer 123"#,
     );
 }

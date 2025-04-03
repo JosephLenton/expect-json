@@ -1,5 +1,6 @@
 use crate::internals::objects::ArrayObject;
 use crate::internals::objects::StringObject;
+use crate::internals::objects::ValueObject;
 use crate::internals::types::ValueType;
 use crate::internals::types::ValueTypeObject;
 use crate::internals::Context;
@@ -12,7 +13,7 @@ pub type JsonValueEqResult<V> = Result<V, JsonValueEqError>;
 #[derive(Debug, Error)]
 pub enum JsonValueEqError {
     #[error(
-        "Json at {context} is not equal,
+        "Json values at {context} are not equal:
     expected {expected},
     received {received}"
     )]
@@ -22,10 +23,22 @@ pub enum JsonValueEqError {
         expected: ValueTypeObject,
     },
 
+    #[error(
+        "Json {json_type}s at {context} are not equal:
+    expected {expected},
+    received {received}"
+    )]
+    DifferentValues {
+        context: Context<'static>,
+        json_type: ValueType,
+        received: ValueObject,
+        expected: ValueObject,
+    },
+
     // TODO, this error message should include which operations it _can_ be performed on.
     // The underlying problem might be the server returned different data to what we expected.
     #[error(
-        "Json comparison on unsupported type.
+        "Json comparison on unsupported type:
     expected operation {} cannot be performed on type {received_type}",
     <&'static str>::from(expected_operation)
     )]
@@ -36,7 +49,7 @@ pub enum JsonValueEqError {
     },
 
     #[error(
-        "Json at {context} is not equal,
+        "Json arrays at {context} are not equal:
     expected {expected},
         full array {expected_full_array}
     received {received}
@@ -51,7 +64,7 @@ pub enum JsonValueEqError {
     },
 
     #[error(
-        "Json at {context} is not equal,
+        "Json at {context} is not equal:
     expected object key '{expected_key}',
     but it was not found"
     )]
@@ -61,7 +74,7 @@ pub enum JsonValueEqError {
     },
 
     #[error(
-        "Json at {context} is not equal,
+        "Json at {context} is not equal:
     expected array index at '{expected_index}',
     but it was not found"
     )]
@@ -71,7 +84,7 @@ pub enum JsonValueEqError {
     },
 
     #[error(
-        "Json array at {context} does not contain expected value,
+        "Json array at {context} does not contain expected value:
     expected array to contain the {expected}, but it was not found.
     received {received_full_array}"
     )]
@@ -82,7 +95,7 @@ pub enum JsonValueEqError {
     },
 
     #[error(
-        "Json string at {context} does not contain expected value,
+        "Json string at {context} does not contain expected value:
     expected string to contain {expected}, but it was not found.
     received {received_full_string}"
     )]
@@ -93,7 +106,7 @@ pub enum JsonValueEqError {
     },
 
     #[error(
-        r#"Json object at {context} has extra field .{received_extra_field},
+        r#"Json object at {context} has extra field .{received_extra_field}:
     expected {expected_obj},
     received {received_obj}"#
     )]
@@ -112,6 +125,7 @@ impl JsonValueEqError {
             Self::ArrayIndexMissing { context, .. } => context,
             Self::DifferentArrayTypes { context, .. } => context,
             Self::DifferentTypes { context, .. } => context,
+            Self::DifferentValues { context, .. } => context,
             Self::ObjectKeyMissing { context, .. } => context,
             Self::ArrayContainsNotFound { context, .. } => context,
             Self::StringContainsNotFound { context, .. } => context,
@@ -131,30 +145,18 @@ impl JsonValueEqError {
         }
 
         match source_error {
-            Self::UnsupportedOperation { .. } => panic!("Logic error, unsupported operation within an array index should not be possible, with the same context"),
-            Self::ArrayIndexMissing { .. } => panic!("Logic error, an array index missing within an array index missing should not be possible, with the same context"),
-            Self::DifferentArrayTypes { .. } => panic!("Logic error, different array types within an array index missing should not be possible, with the same context"),
-            Self::DifferentTypes { context, received, expected } => {
-                Self::DifferentArrayTypes {
-                    context,
-                    received,
-                    received_full_array: ArrayObject::from(received_array.to_owned()),
-                    expected,
-                    expected_full_array: ArrayObject::from(expected_array.to_owned()),
-                }
+            Self::DifferentTypes {
+                context,
+                received,
+                expected,
+            } => Self::DifferentArrayTypes {
+                context,
+                received,
+                received_full_array: ArrayObject::from(received_array.to_owned()),
+                expected,
+                expected_full_array: ArrayObject::from(expected_array.to_owned()),
             },
-            Self::ObjectKeyMissing { .. } => {
-                panic!("Logic error, object key missing within an array index missing should not be possible, with the same context")
-            },
-            Self::ArrayContainsNotFound { .. } => {
-                panic!("Logic error, object key missing within an array index missing should not be possible, with the same context")
-            },
-            Self::StringContainsNotFound { .. } => {
-                panic!("Logic error, object key missing within an array index missing should not be possible, with the same context")
-            },
-            Self::ObjectReceivedHasExtraKey { .. } => {
-                panic!("Logic error, object key missing within an array index missing should not be possible, with the same context")
-            },
+            _ => source_error,
         }
     }
 }

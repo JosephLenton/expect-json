@@ -10,6 +10,9 @@ pub use self::null_object::*;
 mod number_object;
 pub use self::number_object::*;
 
+mod integer_object;
+pub use self::integer_object::*;
+
 mod object_object;
 pub use self::object_object::*;
 

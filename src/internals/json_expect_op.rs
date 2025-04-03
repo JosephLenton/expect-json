@@ -32,7 +32,7 @@ pub trait JsonExpectOp: Into<SerializeExpectOp> {
     fn on_number<'a>(self, context: &mut Context<'a>, received: Number) -> JsonValueEqResult<()> {
         Err(JsonValueEqError::UnsupportedOperation {
             context: context.to_static(),
-            received_type: ValueType::Number,
+            received_type: ValueType::from(&received),
             expected_operation: self.into(),
         })
     }

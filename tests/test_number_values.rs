@@ -1,5 +1,5 @@
+use expect_json::testing::assert_json_err;
 use expect_json::*;
-use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::f64;
 use std::i64;
@@ -51,72 +51,60 @@ fn it_should_be_equal_for_same_i64_values() {
 
 #[test]
 fn it_should_not_be_equal_for_different_float_values() {
-    let output = expect_json_eq(&json!(123.456), &json!(456.789))
-        .unwrap_err()
-        .to_string();
-    assert_eq!(
-        output,
-        "Json at root is not equal,
+    assert_json_err(
+        &json!(123.456),
+        &json!(456.789),
+        "Json at root are not equal:
     expected float 456.789,
-    received float 123.456"
+    received float 123.456",
     );
 }
 
 #[test]
 fn it_should_not_be_equal_for_different_u64_values() {
-    let output = expect_json_eq(&json!(123), &json!(456))
-        .unwrap_err()
-        .to_string();
-    assert_eq!(
-        output,
-        "Json at root is not equal,
+    assert_json_err(
+        &json!(123),
+        &json!(456),
+        "Json at root is not equal:
     expected integer 456,
-    received integer 123"
+    received integer 123",
     );
 }
 
 #[test]
 fn it_should_not_be_equal_for_different_positive_and_negative_values() {
-    let output = expect_json_eq(&json!(100), &json!(-100))
-        .unwrap_err()
-        .to_string();
-    assert_eq!(
-        output,
-        "Json at root is not equal,
+    assert_json_err(
+        &json!(100),
+        &json!(-100),
+        "Json at root is not equal:
     expected integer -100,
-    received integer 100"
+    received integer 100",
     );
 
-    let output = expect_json_eq(&json!(-100), &json!(100))
-        .unwrap_err()
-        .to_string();
-    assert_eq!(
-        output,
-        "Json at root is not equal,
+    assert_json_err(
+        &json!(-100),
+        &json!(100),
+        "Json at root is not equal:
     expected integer 100,
-    received integer -100"
+    received integer -100",
     );
 }
 
 #[test]
 fn it_should_not_be_equal_for_different_zero_types() {
-    let output = expect_json_eq(&json!(0), &json!(0.0))
-        .unwrap_err()
-        .to_string();
-    assert_eq!(
-        output,
-        "Json at root is not equal,
+    assert_json_err(
+        &json!(0),
+        &json!(0.0),
+        "Json at root is not equal:
     expected float 0.0,
-    received integer 0"
+    received integer 0",
     );
 
-    let output = expect_json_eq(&json!(0.0), &json!(0))
-        .unwrap_err()
-        .to_string();
-    assert_eq!(
-        output,
-        "Json at root is not equal,
+    assert_json_err(
+        &json!(0.0),
+        &json!(0),
+        "Json at root is not equal:
     expected integer 0,
-    received float 0.0"
+    received float 0.0",
     );
 }

@@ -1,9 +1,11 @@
 use crate::internals::objects::ArrayObject;
 use crate::internals::objects::BooleanObject;
+use crate::internals::objects::FloatObject;
+use crate::internals::objects::IntegerObject;
 use crate::internals::objects::NullObject;
-use crate::internals::objects::NumberObject;
 use crate::internals::objects::ObjectObject;
 use crate::internals::objects::StringObject;
+use serde_json::Number;
 use serde_json::Value;
 use std::fmt::Display;
 use std::fmt::Formatter;
@@ -13,7 +15,8 @@ use std::fmt::Result as FmtResult;
 pub enum ValueObject {
     Null(NullObject),
     String(StringObject),
-    Number(NumberObject),
+    Float(FloatObject),
+    Integer(IntegerObject),
     Boolean(BooleanObject),
     Array(ArrayObject),
     Object(ObjectObject),
@@ -24,10 +27,31 @@ impl From<Value> for ValueObject {
         match value {
             Value::Null => Self::Null(NullObject),
             Value::String(inner) => Self::String(inner.into()),
-            Value::Number(n) => Self::Number(n.into()),
+            Value::Number(number) => number.into(),
             Value::Bool(inner) => Self::Boolean(inner.into()),
             Value::Array(inner) => Self::Array(inner.into()),
             Value::Object(inner) => Self::Object(inner.into()),
+        }
+    }
+}
+
+impl From<Number> for ValueObject {
+    fn from(number: Number) -> Self {
+        if number.is_f64() {
+            let n = number
+                .as_f64()
+                .expect("Expected to convert serde_json::Number to f64");
+            Self::Float(n.into())
+        } else if number.is_u64() {
+            let n = number
+                .as_u64()
+                .expect("Expected to convert serde_json::Number to u64");
+            Self::Integer(n.into())
+        } else {
+            let n = number
+                .as_i64()
+                .expect("Expected to convert serde_json::Number to i64");
+            Self::Integer(n.into())
         }
     }
 }
@@ -56,9 +80,15 @@ impl From<StringObject> for ValueObject {
     }
 }
 
-impl From<NumberObject> for ValueObject {
-    fn from(inner: NumberObject) -> Self {
-        Self::Number(inner)
+impl From<FloatObject> for ValueObject {
+    fn from(inner: FloatObject) -> Self {
+        Self::Float(inner)
+    }
+}
+
+impl From<IntegerObject> for ValueObject {
+    fn from(inner: IntegerObject) -> Self {
+        Self::Integer(inner)
     }
 }
 
@@ -73,7 +103,8 @@ impl Display for ValueObject {
         match self {
             Self::Null(inner) => write!(formatter, "{inner}"),
             Self::String(inner) => write!(formatter, "{inner}"),
-            Self::Number(inner) => write!(formatter, "{inner}"),
+            Self::Float(inner) => write!(formatter, "{inner}"),
+            Self::Integer(inner) => write!(formatter, "{inner}"),
             Self::Boolean(inner) => write!(formatter, "{inner}"),
             Self::Array(inner) => write!(formatter, "{inner}"),
             Self::Object(inner) => write!(formatter, "{inner}"),
