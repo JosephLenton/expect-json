@@ -10,18 +10,12 @@ use std::collections::HashSet;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ArrayContains {
-    pub values: Vec<Value>,
+    values: Vec<Value>,
 }
 
 impl ArrayContains {
-    pub(crate) fn new<I, V>(values: I) -> Self
-    where
-        I: IntoIterator<Item = V>,
-        V: Into<Value>,
-    {
-        Self {
-            values: values.into_iter().map(Into::into).collect(),
-        }
+    pub(crate) fn new(values: Vec<Value>) -> Self {
+        Self { values }
     }
 }
 
@@ -49,12 +43,12 @@ impl JsonExpectOp for ArrayContains {
 
 impl From<ArrayContains> for SerializeExpectOp {
     fn from(contains: ArrayContains) -> Self {
-        SerializeExpectOp::Contains(contains)
+        SerializeExpectOp::ArrayContains(contains)
     }
 }
 
 #[cfg(test)]
-mod test_contains {
+mod test_array_contains {
     use crate::expect;
     use crate::expect_json_eq;
     use pretty_assertions::assert_eq;
@@ -95,7 +89,7 @@ mod test_contains {
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
-            r#"Json array at root does not contain value,
+            r#"Json array at root does not contain expected value,
     expected array to include the integer 4, but it was not found.
     received [0, 1, 2, 3]"#
         );

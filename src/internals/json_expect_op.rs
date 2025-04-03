@@ -1,8 +1,8 @@
-use super::json_object::JsonObject;
-use super::types::ValueType;
-use super::Context;
-use super::JsonValueEqError;
-use super::JsonValueEqResult;
+use crate::internals::types::ValueType;
+use crate::internals::Context;
+use crate::internals::JsonObject;
+use crate::internals::JsonValueEqError;
+use crate::internals::JsonValueEqResult;
 use crate::SerializeExpectOp;
 use serde_json::Number;
 use serde_json::Value;

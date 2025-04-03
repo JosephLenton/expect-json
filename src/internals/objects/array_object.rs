@@ -1,4 +1,4 @@
-use super::ValueObject;
+use crate::internals::objects::ValueObject;
 use serde_json::Value;
 use std::fmt::Display;
 use std::fmt::Formatter;

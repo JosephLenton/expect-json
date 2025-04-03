@@ -1,4 +1,5 @@
 use crate::expects::ops::ArrayContains;
+use crate::expects::ops::StringContains;
 use crate::internals::Context;
 use crate::internals::JsonExpectOp;
 use crate::internals::JsonValueEqResult;
@@ -10,7 +11,8 @@ use strum::IntoStaticStr;
 #[derive(Clone, Debug, Serialize, Deserialize, IntoStaticStr)]
 #[serde(tag = "type")]
 pub enum SerializeExpectOp {
-    Contains(ArrayContains),
+    ArrayContains(ArrayContains),
+    StringContains(StringContains),
 }
 
 impl SerializeExpectOp {
@@ -20,7 +22,8 @@ impl SerializeExpectOp {
         received: &'a Value,
     ) -> JsonValueEqResult<()> {
         match self {
-            Self::Contains(inner) => inner.on_any(context, received),
+            Self::ArrayContains(inner) => inner.on_any(context, received),
+            Self::StringContains(inner) => inner.on_any(context, received),
         }
     }
 }

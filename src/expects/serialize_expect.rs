@@ -1,4 +1,4 @@
-use super::ExpectMagicId;
+use crate::expects::ExpectMagicId;
 use crate::expects::SerializeExpectOp;
 use serde::Deserialize;
 use serde::Serialize;

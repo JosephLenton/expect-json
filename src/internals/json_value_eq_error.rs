@@ -1,7 +1,8 @@
-use super::objects::ArrayObject;
-use super::types::ValueType;
-use crate::internals::context::Context;
+use crate::internals::objects::ArrayObject;
+use crate::internals::objects::StringObject;
+use crate::internals::types::ValueType;
 use crate::internals::types::ValueTypeObject;
+use crate::internals::Context;
 use crate::SerializeExpectOp;
 use serde_json::Value;
 use thiserror::Error;
@@ -70,14 +71,25 @@ pub enum JsonValueEqError {
     },
 
     #[error(
-        "Json array at {context} does not contain value,
-    expected array to include the {expected}, but it was not found.
+        "Json array at {context} does not contain expected value,
+    expected array to contain the {expected}, but it was not found.
     received {received_full_array}"
     )]
     ArrayContainsNotFound {
         context: Context<'static>,
         expected: ValueTypeObject,
         received_full_array: ArrayObject,
+    },
+
+    #[error(
+        "Json string at {context} does not contain expected value,
+    expected string to contain {expected}, but it was not found.
+    received {received_full_string}"
+    )]
+    StringContainsNotFound {
+        context: Context<'static>,
+        expected: StringObject,
+        received_full_string: StringObject,
     },
 }
 
@@ -90,6 +102,7 @@ impl JsonValueEqError {
             Self::DifferentTypes { context, .. } => context,
             Self::ObjectKeyMissing { context, .. } => context,
             Self::ArrayContainsNotFound { context, .. } => context,
+            Self::StringContainsNotFound { context, .. } => context,
         }
     }
 
@@ -121,6 +134,9 @@ impl JsonValueEqError {
                 panic!("Logic error, object key missing within an array index missing should not be possible, with the same context")
             },
             Self::ArrayContainsNotFound { .. } => {
+                panic!("Logic error, object key missing within an array index missing should not be possible, with the same context")
+            },
+            Self::StringContainsNotFound { .. } => {
                 panic!("Logic error, object key missing within an array index missing should not be possible, with the same context")
             },
         }
