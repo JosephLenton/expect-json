@@ -49,6 +49,16 @@ pub enum JsonValueEqError {
     },
 
     #[error(
+        "Json at {context} is not equal:
+    expected object key '{expected_key}',
+    but it was not found"
+    )]
+    ObjectKeyMissing {
+        context: Context<'static>,
+        expected_key: String,
+    },
+
+    #[error(
         "Json arrays at {context} are not equal:
     expected {expected},
         full array {expected_full_array}
@@ -64,13 +74,14 @@ pub enum JsonValueEqError {
     },
 
     #[error(
-        "Json at {context} is not equal:
-    expected object key '{expected_key}',
-    but it was not found"
+        "Json arrays at {context} are not equal:
+    expected {expected_array},
+    received {received_array}"
     )]
-    ObjectKeyMissing {
+    ArrayValuesAreDifferent {
         context: Context<'static>,
-        expected_key: String,
+        received_array: ArrayObject,
+        expected_array: ArrayObject,
     },
 
     #[error(
@@ -179,6 +190,7 @@ impl JsonValueEqError {
         match self {
             Self::UnsupportedOperation { context, .. } => context,
 
+            Self::ArrayValuesAreDifferent { context, .. } => context,
             Self::ArrayIndexMissing { context, .. } => context,
             Self::ArrayMissingAtEnd { context, .. } => context,
             Self::ArrayMissingAtStart { context, .. } => context,

@@ -1,17 +1,26 @@
+use crate::internals::objects::IntegerObject;
+use crate::internals::objects::ValueObject;
 use crate::internals::types::ValueType;
 use crate::internals::Context;
 use crate::internals::JsonObject;
 use crate::internals::JsonValueEqError;
 use crate::internals::JsonValueEqResult;
 use crate::SerializeExpectOp;
-use serde_json::Number;
 use serde_json::Value;
 
 pub trait JsonExpectOp: Into<SerializeExpectOp> {
     fn on_any<'a>(self, context: &mut Context<'a>, received: &'a Value) -> JsonValueEqResult<()> {
         match received {
             Value::Null => self.on_null(context),
-            Value::Number(received_number) => self.on_number(context, received_number.clone()),
+            Value::Number(received_number) => {
+                let value_num = ValueObject::from(received_number.clone());
+
+                match value_num {
+                    ValueObject::Float(received_float) => self.on_float(context, received_float.into()),
+                    ValueObject::Integer(received_integer) => self.on_integer(context, received_integer),
+                    _ => panic!("Unexpected non-number value, expected a float or an integer, found {value_num:?}. (This is a bug, please report at: https://github.com/JosephLenton/expect-json/issues)"),
+                }
+            }
             Value::String(received_string) => self.on_string(context, received_string),
             Value::Bool(received_boolean) => self.on_boolean(context, *received_boolean),
             Value::Array(received_array) => self.on_array(context, received_array),
@@ -29,10 +38,23 @@ pub trait JsonExpectOp: Into<SerializeExpectOp> {
     }
 
     #[allow(unused_variables)]
-    fn on_number<'a>(self, context: &mut Context<'a>, received: Number) -> JsonValueEqResult<()> {
+    fn on_float<'a>(self, context: &mut Context<'a>, received: f64) -> JsonValueEqResult<()> {
         Err(JsonValueEqError::UnsupportedOperation {
             context: context.to_static(),
-            received_type: ValueType::from(&received),
+            received_type: ValueType::Float,
+            expected_operation: self.into(),
+        })
+    }
+
+    #[allow(unused_variables)]
+    fn on_integer<'a>(
+        self,
+        context: &mut Context<'a>,
+        received: IntegerObject,
+    ) -> JsonValueEqResult<()> {
+        Err(JsonValueEqError::UnsupportedOperation {
+            context: context.to_static(),
+            received_type: ValueType::Integer,
             expected_operation: self.into(),
         })
     }

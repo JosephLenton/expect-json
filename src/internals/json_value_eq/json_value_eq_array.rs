@@ -12,7 +12,7 @@ pub fn json_value_eq_array<'a>(
 ) -> JsonValueEqResult<()> {
     // The Expected array is longer,
     //
-    // For this we can have a special case for when all the items match and received is missing items.
+    // Add some special cases to give better error messages.
     if expected_array.len() > received_array.len() {
         if let Some(missing_in_received) = has_more_at_end(received_array, expected_array) {
             return Err(JsonValueEqError::ArrayMissingAtEnd {
@@ -32,13 +32,16 @@ pub fn json_value_eq_array<'a>(
             });
         }
 
-        return Err(JsonValueEqError::DifferentTypes {
+        return Err(JsonValueEqError::ArrayValuesAreDifferent {
             context: context.to_static(),
-            received: ArrayObject::from(received_array.to_owned()).into(),
-            expected: ArrayObject::from(expected_array.to_owned()).into(),
+            received_array: ArrayObject::from(received_array.to_owned()),
+            expected_array: ArrayObject::from(expected_array.to_owned()),
         });
     }
 
+    // The Expected array is longer,
+    //
+    // Add some special cases to give better error messages.
     if expected_array.len() < received_array.len() {
         if let Some(extra_in_received) = has_more_at_end(expected_array, received_array) {
             return Err(JsonValueEqError::ArrayExtraAtEnd {
@@ -58,10 +61,10 @@ pub fn json_value_eq_array<'a>(
             });
         }
 
-        return Err(JsonValueEqError::DifferentTypes {
+        return Err(JsonValueEqError::ArrayValuesAreDifferent {
             context: context.to_static(),
-            received: ArrayObject::from(received_array.to_owned()).into(),
-            expected: ArrayObject::from(expected_array.to_owned()).into(),
+            received_array: ArrayObject::from(received_array.to_owned()),
+            expected_array: ArrayObject::from(expected_array.to_owned()),
         });
     }
 
