@@ -22,6 +22,15 @@ pub enum ValueObject {
     Object(ObjectObject),
 }
 
+impl ValueObject {
+    pub fn is_number(&self) -> bool {
+        match self {
+            Self::Integer(_) | Self::Float(_) => true,
+            _ => false,
+        }
+    }
+}
+
 impl From<Value> for ValueObject {
     fn from(value: Value) -> Self {
         match value {

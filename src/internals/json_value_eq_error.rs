@@ -12,9 +12,10 @@ pub type JsonValueEqResult<V> = Result<V, JsonValueEqError>;
 #[derive(Debug, Error)]
 pub enum JsonValueEqError {
     #[error(
-        "Json values at {context} are not equal:
+        "Json {} at {context} are not equal:
     expected {expected}
     received {received}"
+    , value_or_number_type_name(&received, &expected)
     )]
     DifferentTypes {
         context: Context<'static>,
@@ -274,5 +275,13 @@ fn pluralise_item_word(len: usize) -> &'static str {
         "item"
     } else {
         "items"
+    }
+}
+
+fn value_or_number_type_name(left: &ValueTypeObject, right: &ValueTypeObject) -> &'static str {
+    if left.is_number() && right.is_number() {
+        "numbers"
+    } else {
+        "values"
     }
 }

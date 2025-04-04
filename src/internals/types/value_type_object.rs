@@ -14,6 +14,12 @@ use std::fmt::Result as FmtResult;
 #[derive(Clone, Debug, PartialEq)]
 pub struct ValueTypeObject(ValueObject);
 
+impl ValueTypeObject {
+    pub fn is_number(&self) -> bool {
+        self.0.is_number()
+    }
+}
+
 impl From<Value> for ValueTypeObject {
     fn from(value: Value) -> Self {
         match value {

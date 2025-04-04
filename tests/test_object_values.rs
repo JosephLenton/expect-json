@@ -110,7 +110,7 @@ fn it_should_error_if_fields_differ_in_numeric_type() {
     assert_json_err(
         &json!({ "extra": 123 }),
         &json!({ "extra": 123.456 }),
-        r#"Json values at root.extra are not equal:
+        r#"Json numbers at root.extra are not equal:
     expected float 123.456
     received integer 123"#,
     );
