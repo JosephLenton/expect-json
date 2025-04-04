@@ -53,12 +53,12 @@ pub enum JsonValueEqError {
     expected {expected},
         full array {expected_full_array}
     received {received}
-        full array {received_full_array}"
+        full array {received_array}"
     )]
     DifferentArrayTypes {
         context: Context<'static>,
         received: ValueTypeObject,
-        received_full_array: ArrayObject,
+        received_array: ArrayObject,
         expected: ValueTypeObject,
         expected_full_array: ArrayObject,
     },
@@ -84,14 +84,70 @@ pub enum JsonValueEqError {
     },
 
     #[error(
+        "Json arrays at {context} are not equal, missing {} {} at the end:
+    expected {expected_array},
+    received {received_array}
+     missing {missing_in_received}"
+     , missing_in_received.len(), pluralise_item_word(missing_in_received.len())
+    )]
+    ArrayMissingAtEnd {
+        context: Context<'static>,
+        expected_array: ArrayObject,
+        received_array: ArrayObject,
+        missing_in_received: ArrayObject,
+    },
+
+    #[error(
+        "Json arrays at {context} are not equal, missing {} {} from the start:
+    expected {expected_array},
+    received {received_array}
+     missing {missing_in_received}"
+     , missing_in_received.len(), pluralise_item_word(missing_in_received.len())
+    )]
+    ArrayMissingAtStart {
+        context: Context<'static>,
+        expected_array: ArrayObject,
+        received_array: ArrayObject,
+        missing_in_received: ArrayObject,
+    },
+
+    #[error(
+        "Json arrays at {context} are not equal, received has {} extra {} at the end:
+    expected {expected_array},
+    received {received_array}
+       extra {extra_in_received}"
+     , extra_in_received.len(), pluralise_item_word(extra_in_received.len())
+    )]
+    ArrayExtraAtEnd {
+        context: Context<'static>,
+        expected_array: ArrayObject,
+        received_array: ArrayObject,
+        extra_in_received: ArrayObject,
+    },
+
+    #[error(
+        "Json arrays at {context} are not equal, received has {} extra {} at the start:
+    expected {expected_array},
+    received {received_array}
+       extra {extra_in_received}"
+     , extra_in_received.len(), pluralise_item_word(extra_in_received.len())
+    )]
+    ArrayExtraAtStart {
+        context: Context<'static>,
+        expected_array: ArrayObject,
+        received_array: ArrayObject,
+        extra_in_received: ArrayObject,
+    },
+
+    #[error(
         "Json array at {context} does not contain expected value:
     expected array to contain the {expected}, but it was not found.
-    received {received_full_array}"
+    received {received_array}"
     )]
     ArrayContainsNotFound {
         context: Context<'static>,
         expected: ValueTypeObject,
-        received_full_array: ArrayObject,
+        received_array: ArrayObject,
     },
 
     #[error(
@@ -122,12 +178,19 @@ impl JsonValueEqError {
     pub fn context(&self) -> &Context<'static> {
         match self {
             Self::UnsupportedOperation { context, .. } => context,
+
             Self::ArrayIndexMissing { context, .. } => context,
+            Self::ArrayMissingAtEnd { context, .. } => context,
+            Self::ArrayMissingAtStart { context, .. } => context,
+            Self::ArrayExtraAtEnd { context, .. } => context,
+            Self::ArrayExtraAtStart { context, .. } => context,
+            Self::ArrayContainsNotFound { context, .. } => context,
+
             Self::DifferentArrayTypes { context, .. } => context,
             Self::DifferentTypes { context, .. } => context,
             Self::DifferentValues { context, .. } => context,
+
             Self::ObjectKeyMissing { context, .. } => context,
-            Self::ArrayContainsNotFound { context, .. } => context,
             Self::StringContainsNotFound { context, .. } => context,
             Self::ObjectReceivedHasExtraKey { context, .. } => context,
         }
@@ -152,11 +215,19 @@ impl JsonValueEqError {
             } => Self::DifferentArrayTypes {
                 context,
                 received,
-                received_full_array: ArrayObject::from(received_array.to_owned()),
+                received_array: ArrayObject::from(received_array.to_owned()),
                 expected,
                 expected_full_array: ArrayObject::from(expected_array.to_owned()),
             },
             _ => source_error,
         }
+    }
+}
+
+fn pluralise_item_word(len: usize) -> &'static str {
+    if len == 1 {
+        "item"
+    } else {
+        "items"
     }
 }

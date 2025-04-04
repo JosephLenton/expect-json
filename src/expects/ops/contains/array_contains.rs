@@ -32,7 +32,7 @@ impl JsonExpectOp for ArrayContains {
                 return Err(JsonValueEqError::ArrayContainsNotFound {
                     context: context.to_static(),
                     expected: expected.into(),
-                    received_full_array: received_values.to_owned().into(),
+                    received_array: received_values.to_owned().into(),
                 });
             }
         }
