@@ -62,11 +62,11 @@ fn it_should_error_if_expected_has_extra_field() {
     assert_json_err(
         &json!({}),
         &json!({ "extra": "🦊" }),
-        r#"Json at root is not equal:
-    expected object {
+        r#"Json objects at root are not equal:
+    expected {
         extra: "🦊",
-    },
-    received object { }"#,
+    }
+    received { }"#,
     );
 }
 
@@ -76,8 +76,8 @@ fn it_should_error_if_received_has_extra_field() {
         &json!({ "extra": "🦊" }),
         &json!({}),
         r#"Json object at root has extra field .extra:
-    expected object { },
-    received object {
+    expected { }
+    received {
         extra: "🦊",
     }"#,
     );
@@ -89,7 +89,7 @@ fn it_should_error_if_fields_differ_in_value() {
         &json!({ "extra": "🦊" }),
         &json!({ "extra": "abc123" }),
         r#"Json strings at root.extra are not equal:
-    expected "abc123",
+    expected "abc123"
     received "🦊""#,
     );
 }
@@ -99,8 +99,8 @@ fn it_should_error_if_fields_differ_in_type() {
     assert_json_err(
         &json!({ "extra": "🦊" }),
         &json!({ "extra": 123 }),
-        r#"Json at root.extra is not equal:
-    expected integer 123,
+        r#"Json values at root.extra are not equal:
+    expected integer 123
     received string "🦊""#,
     );
 }
@@ -110,8 +110,8 @@ fn it_should_error_if_fields_differ_in_numeric_type() {
     assert_json_err(
         &json!({ "extra": 123 }),
         &json!({ "extra": 123.456 }),
-        r#"Json at root.extra is not equal:
-    expected float 123.456,
+        r#"Json values at root.extra are not equal:
+    expected float 123.456
     received integer 123"#,
     );
 }

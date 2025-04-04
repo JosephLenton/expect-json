@@ -14,7 +14,7 @@ pub type JsonValueEqResult<V> = Result<V, JsonValueEqError>;
 pub enum JsonValueEqError {
     #[error(
         "Json values at {context} are not equal:
-    expected {expected},
+    expected {expected}
     received {received}"
     )]
     DifferentTypes {
@@ -25,7 +25,7 @@ pub enum JsonValueEqError {
 
     #[error(
         "Json {json_type}s at {context} are not equal:
-    expected {expected},
+    expected {expected}
     received {received}"
     )]
     DifferentValues {
@@ -49,7 +49,7 @@ pub enum JsonValueEqError {
     },
 
     #[error(
-        "Json at {context} is not equal:
+        "Json at {context} are not equal:
     expected object key '{expected_key}',
     but it was not found"
     )]
@@ -60,12 +60,12 @@ pub enum JsonValueEqError {
 
     #[error(
         "Json arrays at {context} are not equal:
-    expected {expected},
+    expected {expected}
         full array {expected_full_array}
     received {received}
         full array {received_array}"
     )]
-    DifferentArrayTypes {
+    ArrayContainsDifferentTypes {
         context: Context<'static>,
         received: ValueTypeObject,
         received_array: ArrayObject,
@@ -74,8 +74,24 @@ pub enum JsonValueEqError {
     },
 
     #[error(
+        "Json {json_type}s at {context} are not equal:
+    expected {expected}
+        full array {expected_full_array}
+    received {received}
+        full array {received_array}"
+    )]
+    ArrayContainsDifferentValues {
+        context: Context<'static>,
+        json_type: ValueType,
+        received: ValueObject,
+        received_array: ArrayObject,
+        expected: ValueObject,
+        expected_full_array: ArrayObject,
+    },
+
+    #[error(
         "Json arrays at {context} are not equal:
-    expected {expected_array},
+    expected {expected_array}
     received {received_array}"
     )]
     ArrayValuesAreDifferent {
@@ -85,7 +101,7 @@ pub enum JsonValueEqError {
     },
 
     #[error(
-        "Json at {context} is not equal:
+        "Json at {context} are not equal:
     expected array index at '{expected_index}',
     but it was not found"
     )]
@@ -96,7 +112,7 @@ pub enum JsonValueEqError {
 
     #[error(
         "Json arrays at {context} are not equal, missing {} {} at the end:
-    expected {expected_array},
+    expected {expected_array}
     received {received_array}
      missing {missing_in_received}"
      , missing_in_received.len(), pluralise_item_word(missing_in_received.len())
@@ -110,7 +126,7 @@ pub enum JsonValueEqError {
 
     #[error(
         "Json arrays at {context} are not equal, missing {} {} from the start:
-    expected {expected_array},
+    expected {expected_array}
     received {received_array}
      missing {missing_in_received}"
      , missing_in_received.len(), pluralise_item_word(missing_in_received.len())
@@ -124,7 +140,7 @@ pub enum JsonValueEqError {
 
     #[error(
         "Json arrays at {context} are not equal, received has {} extra {} at the end:
-    expected {expected_array},
+    expected {expected_array}
     received {received_array}
        extra {extra_in_received}"
      , extra_in_received.len(), pluralise_item_word(extra_in_received.len())
@@ -138,7 +154,7 @@ pub enum JsonValueEqError {
 
     #[error(
         "Json arrays at {context} are not equal, received has {} extra {} at the start:
-    expected {expected_array},
+    expected {expected_array}
     received {received_array}
        extra {extra_in_received}"
      , extra_in_received.len(), pluralise_item_word(extra_in_received.len())
@@ -174,14 +190,14 @@ pub enum JsonValueEqError {
 
     #[error(
         r#"Json object at {context} has extra field .{received_extra_field}:
-    expected {expected_obj},
+    expected {expected_obj}
     received {received_obj}"#
     )]
     ObjectReceivedHasExtraKey {
         context: Context<'static>,
         received_extra_field: String,
-        received_obj: ValueTypeObject,
-        expected_obj: ValueTypeObject,
+        received_obj: ValueObject,
+        expected_obj: ValueObject,
     },
 }
 
@@ -197,8 +213,9 @@ impl JsonValueEqError {
             Self::ArrayExtraAtEnd { context, .. } => context,
             Self::ArrayExtraAtStart { context, .. } => context,
             Self::ArrayContainsNotFound { context, .. } => context,
+            Self::ArrayContainsDifferentTypes { context, .. } => context,
+            Self::ArrayContainsDifferentValues { context, .. } => context,
 
-            Self::DifferentArrayTypes { context, .. } => context,
             Self::DifferentTypes { context, .. } => context,
             Self::DifferentValues { context, .. } => context,
 
@@ -220,11 +237,24 @@ impl JsonValueEqError {
         }
 
         match source_error {
+            Self::DifferentValues {
+                context,
+                json_type,
+                received,
+                expected,
+            } => Self::ArrayContainsDifferentValues {
+                context,
+                json_type,
+                received,
+                received_array: ArrayObject::from(received_array.to_owned()),
+                expected,
+                expected_full_array: ArrayObject::from(expected_array.to_owned()),
+            },
             Self::DifferentTypes {
                 context,
                 received,
                 expected,
-            } => Self::DifferentArrayTypes {
+            } => Self::ArrayContainsDifferentTypes {
                 context,
                 received,
                 received_array: ArrayObject::from(received_array.to_owned()),

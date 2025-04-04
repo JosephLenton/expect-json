@@ -99,7 +99,7 @@ fn has_more_at_end<'a>(
     let is_all_equal_at_start = zipped_arrays_at_start.all(|(left, right)| left == right);
 
     if is_all_equal_at_start {
-        let missing_in_left = right[left.len()..].into_iter().cloned();
+        let missing_in_left = right[left.len()..].iter().cloned();
         return Some(missing_in_left);
     }
 
@@ -114,7 +114,7 @@ fn has_more_at_start<'a>(
     let is_all_equal_at_end = zipped_arrays_at_end.all(|(left, right)| left == right);
     if is_all_equal_at_end {
         let len_diff = right.len() - left.len();
-        let missing_in_left = right[0..len_diff].into_iter().cloned();
+        let missing_in_left = right[0..len_diff].iter().cloned();
         return Some(missing_in_left);
     }
 

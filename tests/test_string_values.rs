@@ -17,7 +17,7 @@ fn it_should_be_not_equal_for_different_short_strings() {
         &json!("aaa"),
         &json!("bbb"),
         r#"Json strings at root are not equal:
-    expected "bbb",
+    expected "bbb"
     received "aaa""#,
     );
 }
@@ -28,7 +28,7 @@ fn it_should_be_not_equal_for_different_long_strings() {
         &json!("aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa"),
         &json!("bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb"),
         r#"Json strings at root are not equal:
-    expected "bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb",
+    expected "bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb bbb"
     received "aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa aaa""#,
     );
 }

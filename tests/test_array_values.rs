@@ -37,9 +37,11 @@ fn it_should_not_be_equal_for_different_numeric_arrays() {
     assert_json_err(
         &json!([1, 2, 3]),
         &json!([4, 5, 6]),
-        "Json arrays at root are not equal:
-    expected [4, 5, 6],
-    received [1, 2, 3]",
+        "Json integers at root[0] are not equal:
+    expected 4
+        full array [4, 5, 6]
+    received 1
+        full array [1, 2, 3]",
     );
 }
 
@@ -49,9 +51,9 @@ fn it_should_not_be_equal_for_different_numeric_arrays_in_sub_arrays_with_one_it
         &json!([[1, 1, 1], [1, 2, 4], [3, 3, 3]]),
         &json!([[1, 1, 1], [1, 2, 3], [3, 3, 3]]),
         "Json integers at root[1][2] are not equal:
-    expected 3,
+    expected 3
         full array [1, 2, 3]
-    received 4,
+    received 4
         full array [1, 2, 4]",
     );
 }
@@ -61,11 +63,11 @@ fn it_should_not_be_equal_for_different_numeric_arrays_in_sub_arrays_with_many_d
     assert_json_err(
         &json!([[1, 1, 1], [6, 6, 6], [3, 3, 3]]),
         &json!([[1, 1, 1], [2, 2, 2], [3, 3, 3]]),
-        "Json arrays at root[1] are not equal:
-    expected [2, 2, 2],
-        full array [[1, 1, 1], [2, 2, 2], [3, 3, 3]]
-    received [6, 6, 6],
-        full array [[1, 1, 1], [6, 6, 6], [3, 3, 3]]",
+        "Json integers at root[1][0] are not equal:
+    expected 2
+        full array [2, 2, 2]
+    received 6
+        full array [6, 6, 6]",
     );
 }
 
@@ -75,7 +77,7 @@ fn it_should_not_be_equal_when_receiving_extra_values_at_the_end() {
         &json!([1, 2, 3]),
         &json!([1, 2]),
         "Json arrays at root are not equal, received has 1 extra item at the end:
-    expected [1, 2],
+    expected [1, 2]
     received [1, 2, 3]
        extra [3]",
     );
@@ -87,7 +89,7 @@ fn it_should_not_be_equal_when_receiving_extra_values_at_the_start() {
         &json!([0, 1, 2]),
         &json!([1, 2]),
         "Json arrays at root are not equal, received has 1 extra item at the start:
-    expected [1, 2],
+    expected [1, 2]
     received [0, 1, 2]
        extra [0]",
     );
@@ -99,7 +101,7 @@ fn it_should_not_be_equal_when_receiving_extra_values_in_the_middle() {
         &json!([1, 2, 2, 3]),
         &json!([1, 2, 3]),
         "Json arrays at root are not equal:
-    expected [1, 2, 3],
+    expected [1, 2, 3]
     received [1, 2, 2, 3]",
     );
 }
@@ -110,7 +112,7 @@ fn it_should_not_be_equal_when_missing_expected_value_at_the_end() {
         &json!([1, 2, 3]),
         &json!([1, 2, 3, 4]),
         "Json arrays at root are not equal, missing 1 item at the end:
-    expected [1, 2, 3, 4],
+    expected [1, 2, 3, 4]
     received [1, 2, 3]
      missing [4]",
     );
@@ -122,7 +124,7 @@ fn it_should_not_be_equal_when_missing_expected_value_at_the_start() {
         &json!([2, 3, 4]),
         &json!([1, 2, 3, 4]),
         "Json arrays at root are not equal, missing 1 item from the start:
-    expected [1, 2, 3, 4],
+    expected [1, 2, 3, 4]
     received [2, 3, 4]
      missing [1]",
     );
@@ -134,7 +136,7 @@ fn it_should_not_be_equal_for_arrays_of_different_types() {
         &json!([1, 2, 3]),
         &json!(["1", "2", "3"]),
         r#"Json arrays at root[0] are not equal:
-    expected string "1",
+    expected string "1"
         full array ["1", "2", "3"]
     received integer 1
         full array [1, 2, 3]"#,

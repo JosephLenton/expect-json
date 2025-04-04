@@ -17,7 +17,7 @@ fn it_should_be_not_equal_for_different_boolean_values() {
         &json!(true),
         &json!(false),
         "Json booleans at root are not equal:
-    expected false,
+    expected false
     received true",
     );
 
@@ -25,7 +25,7 @@ fn it_should_be_not_equal_for_different_boolean_values() {
         &json!(false),
         &json!(true),
         "Json booleans at root are not equal:
-    expected true,
+    expected true
     received false",
     );
 }

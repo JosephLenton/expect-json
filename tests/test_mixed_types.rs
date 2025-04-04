@@ -7,7 +7,7 @@ fn it_should_error_if_expected_null_and_received_integer() {
         &json!(null),
         &json!(123),
         r#"Json values at root are not equal:
-    expected integer 123,
+    expected integer 123
     received null"#,
     );
 }
@@ -18,7 +18,7 @@ fn it_should_error_if_expected_null_and_received_string() {
         &json!(null),
         &json!("🦊"),
         r#"Json values at root are not equal:
-    expected string "🦊",
+    expected string "🦊"
     received null"#,
     );
 }
@@ -29,7 +29,7 @@ fn it_should_error_if_received_null_when_not_expected() {
         &json!(123.456),
         &json!(null),
         r#"Json values at root are not equal:
-    expected null,
+    expected null
     received float 123.456"#,
     );
 }
@@ -40,7 +40,7 @@ fn it_should_error_if_expected_string_and_received_null() {
         &json!("🦊"),
         &json!(null),
         r#"Json values at root are not equal:
-    expected null,
+    expected null
     received string "🦊""#,
     );
 }

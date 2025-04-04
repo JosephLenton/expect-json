@@ -14,7 +14,6 @@ pub trait JsonExpectOp: Into<SerializeExpectOp> {
             Value::Null => self.on_null(context),
             Value::Number(received_number) => {
                 let value_num = ValueObject::from(received_number.clone());
-
                 match value_num {
                     ValueObject::Float(received_float) => self.on_float(context, received_float.into()),
                     ValueObject::Integer(received_integer) => self.on_integer(context, received_integer),
@@ -29,7 +28,7 @@ pub trait JsonExpectOp: Into<SerializeExpectOp> {
     }
 
     #[allow(unused_variables)]
-    fn on_null<'a>(self, context: &mut Context<'a>) -> JsonValueEqResult<()> {
+    fn on_null(self, context: &mut Context<'_>) -> JsonValueEqResult<()> {
         Err(JsonValueEqError::UnsupportedOperation {
             context: context.to_static(),
             received_type: ValueType::Null,
@@ -38,7 +37,7 @@ pub trait JsonExpectOp: Into<SerializeExpectOp> {
     }
 
     #[allow(unused_variables)]
-    fn on_float<'a>(self, context: &mut Context<'a>, received: f64) -> JsonValueEqResult<()> {
+    fn on_float(self, context: &mut Context<'_>, received: f64) -> JsonValueEqResult<()> {
         Err(JsonValueEqError::UnsupportedOperation {
             context: context.to_static(),
             received_type: ValueType::Float,
@@ -47,14 +46,32 @@ pub trait JsonExpectOp: Into<SerializeExpectOp> {
     }
 
     #[allow(unused_variables)]
-    fn on_integer<'a>(
+    fn on_integer(
         self,
-        context: &mut Context<'a>,
+        context: &mut Context<'_>,
         received: IntegerObject,
     ) -> JsonValueEqResult<()> {
         Err(JsonValueEqError::UnsupportedOperation {
             context: context.to_static(),
             received_type: ValueType::Integer,
+            expected_operation: self.into(),
+        })
+    }
+
+    #[allow(unused_variables)]
+    fn on_boolean(self, context: &mut Context<'_>, received: bool) -> JsonValueEqResult<()> {
+        Err(JsonValueEqError::UnsupportedOperation {
+            context: context.to_static(),
+            received_type: ValueType::Boolean,
+            expected_operation: self.into(),
+        })
+    }
+
+    #[allow(unused_variables)]
+    fn on_string<'a>(self, context: &mut Context<'a>, received: &'a str) -> JsonValueEqResult<()> {
+        Err(JsonValueEqError::UnsupportedOperation {
+            context: context.to_static(),
+            received_type: ValueType::String,
             expected_operation: self.into(),
         })
     }
@@ -68,24 +85,6 @@ pub trait JsonExpectOp: Into<SerializeExpectOp> {
         Err(JsonValueEqError::UnsupportedOperation {
             context: context.to_static(),
             received_type: ValueType::Array,
-            expected_operation: self.into(),
-        })
-    }
-
-    #[allow(unused_variables)]
-    fn on_boolean<'a>(self, context: &mut Context<'a>, received: bool) -> JsonValueEqResult<()> {
-        Err(JsonValueEqError::UnsupportedOperation {
-            context: context.to_static(),
-            received_type: ValueType::Boolean,
-            expected_operation: self.into(),
-        })
-    }
-
-    #[allow(unused_variables)]
-    fn on_string<'a>(self, context: &mut Context<'a>, received: &'a str) -> JsonValueEqResult<()> {
-        Err(JsonValueEqError::UnsupportedOperation {
-            context: context.to_static(),
-            received_type: ValueType::String,
             expected_operation: self.into(),
         })
     }

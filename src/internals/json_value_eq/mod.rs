@@ -25,14 +25,14 @@ pub fn json_value_eq<'a>(
 
             match (l_value, r_value) {
                 (ValueObject::Float(l_float), ValueObject::Float(r_float)) => {
-                    return json_value_eq_float::json_value_eq_float(
+                    json_value_eq_float::json_value_eq_float(
                         context,
                         l_float.into(),
                         r_float.into(),
-                    );
+                    )
                 }
                 (ValueObject::Integer(l_int), ValueObject::Integer(r_int)) => {
-                    return json_value_eq_integer::json_value_eq_integer(context, l_int, r_int);
+                    json_value_eq_integer::json_value_eq_integer(context, l_int, r_int)
                 }
                 (l_value, r_value) => Err(JsonValueEqError::DifferentTypes {
                     context: context.to_static(),

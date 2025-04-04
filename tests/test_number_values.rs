@@ -54,9 +54,9 @@ fn it_should_not_be_equal_for_different_float_values() {
     assert_json_err(
         &json!(123.456),
         &json!(456.789),
-        "Json at root are not equal:
-    expected float 456.789,
-    received float 123.456",
+        "Json floats at root are not equal:
+    expected 456.789
+    received 123.456",
     );
 }
 
@@ -65,9 +65,9 @@ fn it_should_not_be_equal_for_different_u64_values() {
     assert_json_err(
         &json!(123),
         &json!(456),
-        "Json at root is not equal:
-    expected integer 456,
-    received integer 123",
+        "Json integers at root are not equal:
+    expected 456
+    received 123",
     );
 }
 
@@ -76,17 +76,17 @@ fn it_should_not_be_equal_for_different_positive_and_negative_values() {
     assert_json_err(
         &json!(100),
         &json!(-100),
-        "Json at root is not equal:
-    expected integer -100,
-    received integer 100",
+        "Json integers at root are not equal:
+    expected -100
+    received 100",
     );
 
     assert_json_err(
         &json!(-100),
         &json!(100),
-        "Json at root is not equal:
-    expected integer 100,
-    received integer -100",
+        "Json integers at root are not equal:
+    expected 100
+    received -100",
     );
 }
 
@@ -95,16 +95,16 @@ fn it_should_not_be_equal_for_different_zero_types() {
     assert_json_err(
         &json!(0),
         &json!(0.0),
-        "Json at root is not equal:
-    expected float 0.0,
+        "Json values at root are not equal:
+    expected float 0.0
     received integer 0",
     );
 
     assert_json_err(
         &json!(0.0),
         &json!(0),
-        "Json at root is not equal:
-    expected integer 0,
+        "Json values at root are not equal:
+    expected integer 0
     received float 0.0",
     );
 }
