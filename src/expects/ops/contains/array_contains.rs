@@ -1,4 +1,6 @@
 use crate::expects::SerializeExpectOp;
+use crate::internals::objects::ArrayObject;
+use crate::internals::types::ValueType;
 use crate::internals::Context;
 use crate::internals::JsonExpectOp;
 use crate::internals::JsonValueEqError;
@@ -29,10 +31,11 @@ impl JsonExpectOp for ArrayContains {
 
         for expected in self.values {
             if !received_items_in_set.contains(&expected) {
-                return Err(JsonValueEqError::ArrayContainsNotFound {
+                return Err(JsonValueEqError::ContainsNotFound {
                     context: context.to_static(),
+                    json_type: ValueType::Array,
                     expected: expected.into(),
-                    received_array: received_values.to_owned().into(),
+                    received: ArrayObject::from(received_values.to_owned()).into(),
                 });
             }
         }
@@ -90,8 +93,17 @@ mod test_array_contains {
         assert_eq!(
             output,
             r#"Json array at root does not contain expected value:
-    expected array to contain the integer 4, but it was not found.
+    expected array to contain 4, but it was not found.
     received [0, 1, 2, 3]"#
         );
+    }
+
+    #[test]
+    fn it_should_be_ok_for_empty_contains() {
+        let left = json!([0, 1, 2, 3]);
+        let right = json!(expect.contains(&[] as &'static [u32]));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok());
     }
 }

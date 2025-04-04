@@ -4,7 +4,7 @@
 pub(crate) mod internals;
 
 #[allow(non_upper_case_globals)]
-pub const expect: Expect = Expect;
+pub const expect: Expect = Expect::new();
 
 mod expects;
 pub use self::expects::*;

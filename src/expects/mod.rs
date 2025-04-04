@@ -6,6 +6,9 @@ pub use self::expect_magic_id::*;
 mod expect;
 pub use self::expect::*;
 
+mod expect_not;
+pub use self::expect_not::*;
+
 mod expect_op;
 pub use self::expect_op::*;
 

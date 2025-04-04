@@ -1,5 +1,4 @@
 use crate::internals::objects::ArrayObject;
-use crate::internals::objects::StringObject;
 use crate::internals::objects::ValueObject;
 use crate::internals::types::ValueType;
 use crate::internals::types::ValueTypeObject;
@@ -167,28 +166,6 @@ pub enum JsonValueEqError {
     },
 
     #[error(
-        "Json array at {context} does not contain expected value:
-    expected array to contain the {expected}, but it was not found.
-    received {received_array}"
-    )]
-    ArrayContainsNotFound {
-        context: Context<'static>,
-        expected: ValueTypeObject,
-        received_array: ArrayObject,
-    },
-
-    #[error(
-        "Json string at {context} does not contain expected value:
-    expected string to contain {expected}, but it was not found.
-    received {received_full_string}"
-    )]
-    StringContainsNotFound {
-        context: Context<'static>,
-        expected: StringObject,
-        received_full_string: StringObject,
-    },
-
-    #[error(
         r#"Json object at {context} has extra field .{received_extra_field}:
     expected {expected_obj}
     received {received_obj}"#
@@ -198,6 +175,30 @@ pub enum JsonValueEqError {
         received_extra_field: String,
         received_obj: ValueObject,
         expected_obj: ValueObject,
+    },
+
+    #[error(
+        "Json {json_type} at {context} contains value was expecting to not be there:
+    expected {json_type} to not contain {expected}, but it was found.
+    received {received}"
+    )]
+    ContainsFound {
+        context: Context<'static>,
+        json_type: ValueType,
+        expected: ValueObject,
+        received: ValueObject,
+    },
+
+    #[error(
+        "Json {json_type} at {context} does not contain expected value:
+    expected {json_type} to contain {expected}, but it was not found.
+    received {received}"
+    )]
+    ContainsNotFound {
+        context: Context<'static>,
+        json_type: ValueType,
+        expected: ValueObject,
+        received: ValueObject,
     },
 }
 
@@ -212,7 +213,6 @@ impl JsonValueEqError {
             Self::ArrayMissingAtStart { context, .. } => context,
             Self::ArrayExtraAtEnd { context, .. } => context,
             Self::ArrayExtraAtStart { context, .. } => context,
-            Self::ArrayContainsNotFound { context, .. } => context,
             Self::ArrayContainsDifferentTypes { context, .. } => context,
             Self::ArrayContainsDifferentValues { context, .. } => context,
 
@@ -220,8 +220,11 @@ impl JsonValueEqError {
             Self::DifferentValues { context, .. } => context,
 
             Self::ObjectKeyMissing { context, .. } => context,
-            Self::StringContainsNotFound { context, .. } => context,
             Self::ObjectReceivedHasExtraKey { context, .. } => context,
+
+            // Operations
+            Self::ContainsFound { context, .. } => context,
+            Self::ContainsNotFound { context, .. } => context,
         }
     }
 

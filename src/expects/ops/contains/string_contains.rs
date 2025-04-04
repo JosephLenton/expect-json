@@ -1,4 +1,6 @@
 use crate::expects::SerializeExpectOp;
+use crate::internals::objects::StringObject;
+use crate::internals::types::ValueType;
 use crate::internals::Context;
 use crate::internals::JsonExpectOp;
 use crate::internals::JsonValueEqError;
@@ -20,10 +22,11 @@ impl StringContains {
 impl JsonExpectOp for StringContains {
     fn on_string<'a>(self, context: &mut Context<'a>, received: &'a str) -> JsonValueEqResult<()> {
         if !received.contains(&self.content) {
-            return Err(JsonValueEqError::StringContainsNotFound {
+            return Err(JsonValueEqError::ContainsNotFound {
                 context: context.to_static(),
-                expected: self.content.into(),
-                received_full_string: received.to_owned().into(),
+                json_type: ValueType::String,
+                expected: StringObject::from(self.content).into(),
+                received: StringObject::from(received.to_owned()).into(),
             });
         }
 
@@ -63,7 +66,7 @@ mod test_string_contains {
     }
 
     #[test]
-    fn it_should_be_equal_for_empty_match() {
+    fn it_should_be_ok_for_empty_contains() {
         let left = json!("0, 1, 2, 3, 4, 5");
         let right = json!(expect.contains(""));
 
