@@ -64,7 +64,20 @@ fn it_should_error_if_expected_has_extra_field() {
         &json!({ "extra": "🦊" }),
         r#"Json objects at root are not equal:
     expected {
-        extra: "🦊",
+        "extra": "🦊",
+    }
+    received { }"#,
+    );
+}
+
+#[test]
+fn it_should_have_appropriate_error_message_on_fields_with_spaces() {
+    assert_json_err(
+        &json!({}),
+        &json!({ "something extra with spaces": "🦊" }),
+        r#"Json objects at root are not equal:
+    expected {
+        "something extra with spaces": "🦊",
     }
     received { }"#,
     );
@@ -75,10 +88,10 @@ fn it_should_error_if_received_has_extra_field() {
     assert_json_err(
         &json!({ "extra": "🦊" }),
         &json!({}),
-        r#"Json object at root has extra field .extra:
+        r#"Json object at root has extra field "extra":
     expected { }
     received {
-        extra: "🦊",
+        "extra": "🦊",
     }"#,
     );
 }

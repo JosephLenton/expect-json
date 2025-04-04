@@ -23,7 +23,7 @@ impl Display for ObjectObject {
         for (key, value) in &self.0 {
             // TODO, remove this clone
             let value_obj = ValueObject::from(value.clone());
-            writeln!(formatter, r#"        {key}: {value_obj},"#)?;
+            writeln!(formatter, r#"        "{key}": {value_obj},"#)?;
         }
         write!(formatter, "    }}")
     }

@@ -167,7 +167,7 @@ pub enum JsonValueEqError {
     },
 
     #[error(
-        r#"Json object at {context} has extra field .{received_extra_field}:
+        r#"Json object at {context} has extra field "{received_extra_field}":
     expected {expected_obj}
     received {received_obj}"#
     )]
