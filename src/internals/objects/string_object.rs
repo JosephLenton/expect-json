@@ -5,9 +5,12 @@ use std::fmt::Result as FmtResult;
 #[derive(Clone, Debug, PartialEq)]
 pub struct StringObject(String);
 
-impl From<String> for StringObject {
-    fn from(inner: String) -> Self {
-        Self(inner)
+impl<S> From<S> for StringObject
+where
+    S: Into<String>,
+{
+    fn from(inner: S) -> Self {
+        Self(inner.into())
     }
 }
 

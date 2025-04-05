@@ -1,3 +1,4 @@
+use crate::internals::utils::is_unquotable_js_identifier;
 use std::borrow::Cow;
 use std::fmt::Display;
 use std::fmt::Formatter;
@@ -25,7 +26,13 @@ impl ContextPathPart<'_> {
 impl Display for ContextPathPart<'_> {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> FmtResult {
         match self {
-            Self::String(inner) => write!(formatter, ".{inner}"),
+            Self::String(inner) => {
+                if is_unquotable_js_identifier(inner.as_str()) {
+                    write!(formatter, ".{inner}")
+                } else {
+                    write!(formatter, r#"."{inner}""#)
+                }
+            }
             Self::Index(inner) => write!(formatter, "[{inner}]"),
         }
     }
@@ -40,5 +47,42 @@ impl<'a> From<&'a String> for ContextPathPart<'a> {
 impl From<usize> for ContextPathPart<'_> {
     fn from(inner: usize) -> Self {
         Self::Index(inner)
+    }
+}
+
+#[cfg(test)]
+mod test_fmt {
+    use super::*;
+
+    #[test]
+    fn it_should_print_whole_paths_without_quotes_when_an_identifier() {
+        let path = ContextPathPart::String(std::borrow::Cow::Owned("example".to_string()));
+        let output = format!("{path}");
+
+        assert_eq!(output, r#".example"#);
+    }
+
+    #[test]
+    fn it_should_print_paths_with_quotes_when_not_an_identifier() {
+        let path = ContextPathPart::String(std::borrow::Cow::Owned("my-example".to_string()));
+        let output = format!("{path}");
+
+        assert_eq!(output, r#"."my-example""#);
+    }
+
+    #[test]
+    fn it_should_print_empty_paths_as_quotes() {
+        let path = ContextPathPart::String(std::borrow::Cow::Owned("".to_string()));
+        let output = format!("{path}");
+
+        assert_eq!(output, r#"."""#);
+    }
+
+    #[test]
+    fn it_should_print_paths_with_spaces_with_quotes() {
+        let path = ContextPathPart::String(std::borrow::Cow::Owned("".to_string()));
+        let output = format!("{path}");
+
+        assert_eq!(output, r#"."""#);
     }
 }

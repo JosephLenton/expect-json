@@ -24,10 +24,7 @@ pub enum ValueObject {
 
 impl ValueObject {
     pub fn is_number(&self) -> bool {
-        match self {
-            Self::Integer(_) | Self::Float(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Integer(_) | Self::Float(_))
     }
 }
 
@@ -118,5 +115,195 @@ impl Display for ValueObject {
             Self::Array(inner) => write!(formatter, "{inner}"),
             Self::Object(inner) => write!(formatter, "{inner}"),
         }
+    }
+}
+
+#[cfg(test)]
+mod test_from {
+    use super::*;
+    use serde_json::json;
+    use std::f64;
+    use std::iter::empty;
+
+    #[test]
+    fn it_should_convert_from_json_null() {
+        let output = ValueObject::from(json!(null));
+        assert_eq!(output, ValueObject::Null(NullObject));
+    }
+
+    #[test]
+    fn it_should_convert_from_json_boolean() {
+        let output = ValueObject::from(json!(true));
+        assert_eq!(output, ValueObject::Boolean(BooleanObject::from(true)));
+
+        let output = ValueObject::from(json!(false));
+        assert_eq!(output, ValueObject::Boolean(BooleanObject::from(false)));
+    }
+
+    #[test]
+    fn it_should_convert_from_json_floats() {
+        let output = ValueObject::from(json!(0.0));
+        assert_eq!(output, ValueObject::Float(FloatObject::from(0.0)));
+
+        let output = ValueObject::from(json!(123.456));
+        assert_eq!(output, ValueObject::Float(FloatObject::from(123.456)));
+
+        let output = ValueObject::from(json!(f64::MAX));
+        assert_eq!(output, ValueObject::Float(FloatObject::from(f64::MAX)));
+
+        let output = ValueObject::from(json!(f64::MIN));
+        assert_eq!(output, ValueObject::Float(FloatObject::from(f64::MIN)));
+
+        let output = ValueObject::from(json!(f64::consts::PI));
+        assert_eq!(
+            output,
+            ValueObject::Float(FloatObject::from(f64::consts::PI))
+        );
+    }
+
+    #[test]
+    fn it_should_convert_from_json_integers() {
+        let output = ValueObject::from(json!(0));
+        assert_eq!(output, ValueObject::Integer(IntegerObject::from(0_u64)));
+
+        let output = ValueObject::from(json!(123));
+        assert_eq!(output, ValueObject::Integer(IntegerObject::from(123_u64)));
+
+        let output = ValueObject::from(json!(u64::MAX));
+        assert_eq!(output, ValueObject::Integer(IntegerObject::from(u64::MAX)));
+
+        let output = ValueObject::from(json!(u64::MIN));
+        assert_eq!(output, ValueObject::Integer(IntegerObject::from(u64::MIN)));
+
+        let output = ValueObject::from(json!(i64::MAX));
+        assert_eq!(
+            output,
+            ValueObject::Integer(IntegerObject::from(i64::MAX as u64))
+        );
+
+        let output = ValueObject::from(json!(i64::MIN));
+        assert_eq!(output, ValueObject::Integer(IntegerObject::from(i64::MIN)));
+    }
+
+    #[test]
+    fn it_should_convert_from_json_strings() {
+        let output = ValueObject::from(json!(""));
+        assert_eq!(output, ValueObject::String(StringObject::from("")));
+
+        let output = ValueObject::from(json!("abc123"));
+        assert_eq!(output, ValueObject::String(StringObject::from("abc123")));
+    }
+
+    #[test]
+    fn it_should_convert_from_json_arrays() {
+        let output = ValueObject::from(json!([]));
+        assert_eq!(output, ValueObject::Array(ArrayObject::from(empty())));
+
+        let output = ValueObject::from(json!([0, 123.456, "something"]));
+        assert_eq!(
+            output,
+            ValueObject::Array(ArrayObject::from([
+                json!(0),
+                json!(123.456),
+                json!("something")
+            ]))
+        );
+    }
+
+    #[test]
+    fn it_should_convert_from_json_objects() {
+        let output = ValueObject::from(json!({}));
+        assert_eq!(
+            output,
+            ValueObject::Object(ObjectObject::from_iter(empty()))
+        );
+
+        let output = ValueObject::from(json!({
+            "age": 30,
+            "name": "Joe",
+            "ids": [1, 2, 3],
+        }));
+        assert_eq!(
+            output,
+            ValueObject::Object(ObjectObject::from_iter([
+                ("age".to_string(), json!(30)),
+                ("name".to_string(), json!("Joe")),
+                ("ids".to_string(), json!([1, 2, 3])),
+            ]))
+        );
+    }
+}
+
+#[cfg(test)]
+mod test_fmt {
+    use super::*;
+    use serde_json::Map;
+    use std::iter::empty;
+
+    #[test]
+    fn it_should_display_null() {
+        let output = format!("{}", ValueObject::from(NullObject));
+        assert_eq!(output, "null");
+    }
+
+    #[test]
+    fn it_should_display_boolean() {
+        let output = format!("{}", ValueObject::from(BooleanObject::from(true)));
+        assert_eq!(output, "true");
+
+        let output = format!("{}", ValueObject::from(BooleanObject::from(false)));
+        assert_eq!(output, "false");
+    }
+
+    #[test]
+    fn it_should_display_integer_type() {
+        let output = format!("{}", ValueObject::from(IntegerObject::from(0_u64)));
+        assert_eq!(output, "0");
+
+        let output = format!("{}", ValueObject::from(IntegerObject::from(123_u64)));
+        assert_eq!(output, "123");
+
+        let output = format!("{}", ValueObject::from(IntegerObject::from(0_i64)));
+        assert_eq!(output, "0");
+
+        let output = format!("{}", ValueObject::from(IntegerObject::from(123_i64)));
+        assert_eq!(output, "123");
+
+        let output = format!("{}", ValueObject::from(IntegerObject::from(-123_i64)));
+        assert_eq!(output, "-123");
+    }
+
+    #[test]
+    fn it_should_display_float_type() {
+        let output = format!("{}", ValueObject::from(FloatObject::from(0.0)));
+        assert_eq!(output, "0.0");
+
+        let output = format!("{}", ValueObject::from(FloatObject::from(123.456)));
+        assert_eq!(output, "123.456");
+
+        let output = format!("{}", ValueObject::from(FloatObject::from(-123.456)));
+        assert_eq!(output, "-123.456");
+    }
+
+    #[test]
+    fn it_should_display_string_type() {
+        let output = format!("{}", ValueObject::from(StringObject::from("")));
+        assert_eq!(output, r#""""#);
+
+        let output = format!("{}", ValueObject::from(StringObject::from("something")));
+        assert_eq!(output, r#""something""#);
+    }
+
+    #[test]
+    fn it_should_display_array_type() {
+        let output = format!("{}", ValueObject::from(ArrayObject::from(empty())));
+        assert_eq!(output, "[]");
+    }
+
+    #[test]
+    fn it_should_display_object_type() {
+        let obj = Map::from_iter(empty());
+        let output = format!("{}", ValueObject::from(ObjectObject::from(obj)));
+        assert_eq!(output, "{ }");
     }
 }
