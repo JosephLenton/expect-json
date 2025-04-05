@@ -52,3 +52,29 @@ where
         SerializeExpect::from(inner)
     }
 }
+
+#[cfg(test)]
+mod test_deref {
+    use super::*;
+    use crate::ops::Contains;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_return_item_inside() {
+        let op = ExpectOp::new(Contains::new(json!("something")));
+        assert_eq!(op.deref(), &Contains::new(json!("something")));
+    }
+}
+
+#[cfg(test)]
+mod test_deref_mut {
+    use super::*;
+    use crate::ops::Contains;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_return_item_inside() {
+        let mut op = ExpectOp::new(Contains::new(json!("something")));
+        assert_eq!(op.deref_mut(), &mut Contains::new(json!("something")));
+    }
+}

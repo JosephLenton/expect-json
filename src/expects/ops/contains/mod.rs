@@ -10,7 +10,7 @@ pub use self::array_contains::*;
 mod string_contains;
 pub use self::string_contains::*;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub enum Contains {
     Array(ArrayContains),
     String(StringContains),
