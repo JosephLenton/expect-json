@@ -10,7 +10,7 @@ use serde::Serialize;
 use serde_json::Value;
 use std::collections::HashSet;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct ArrayContainsNot {
     values: Vec<Value>,
 }

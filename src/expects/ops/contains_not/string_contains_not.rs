@@ -8,7 +8,7 @@ use crate::internals::JsonValueEqResult;
 use serde::Deserialize;
 use serde::Serialize;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct StringContainsNot {
     content: String,
 }

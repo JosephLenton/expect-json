@@ -102,3 +102,152 @@ pub trait JsonExpectOp: Into<SerializeExpectOp> {
         })
     }
 }
+
+#[cfg(test)]
+mod test_on_any {
+    use super::*;
+    use crate::ops::StringContains;
+    use serde_json::json;
+
+    // An empty implementation which will hit the errors by default.
+    struct TestJsonExpectOp;
+    impl JsonExpectOp for TestJsonExpectOp {}
+    impl From<TestJsonExpectOp> for SerializeExpectOp {
+        fn from(_: TestJsonExpectOp) -> Self {
+            SerializeExpectOp::StringContains(StringContains::new("example"))
+        }
+    }
+
+    #[test]
+    fn it_should_error_by_default_against_json_null() {
+        let mut context = Context::new();
+        let received = json!(null);
+        let output = TestJsonExpectOp
+            .on_any(&mut context, &received)
+            .unwrap_err();
+        assert_eq!(
+            output,
+            JsonValueEqError::UnsupportedOperation {
+                context: context.to_static(),
+                received_type: ValueType::Null,
+                expected_operation: SerializeExpectOp::StringContains(StringContains::new(
+                    "example"
+                )),
+            }
+        );
+    }
+
+    #[test]
+    fn it_should_error_by_default_against_json_boolean() {
+        let mut context = Context::new();
+        let received = json!(true);
+        let output = TestJsonExpectOp
+            .on_any(&mut context, &received)
+            .unwrap_err();
+        assert_eq!(
+            output,
+            JsonValueEqError::UnsupportedOperation {
+                context: context.to_static(),
+                received_type: ValueType::Boolean,
+                expected_operation: SerializeExpectOp::StringContains(StringContains::new(
+                    "example"
+                )),
+            }
+        );
+    }
+
+    #[test]
+    fn it_should_error_by_default_against_json_integer() {
+        let mut context = Context::new();
+        let received = json!(123);
+        let output = TestJsonExpectOp
+            .on_any(&mut context, &received)
+            .unwrap_err();
+        assert_eq!(
+            output,
+            JsonValueEqError::UnsupportedOperation {
+                context: context.to_static(),
+                received_type: ValueType::Integer,
+                expected_operation: SerializeExpectOp::StringContains(StringContains::new(
+                    "example"
+                )),
+            }
+        );
+    }
+
+    #[test]
+    fn it_should_error_by_default_against_json_float() {
+        let mut context = Context::new();
+        let received = json!(123.456);
+        let output = TestJsonExpectOp
+            .on_any(&mut context, &received)
+            .unwrap_err();
+        assert_eq!(
+            output,
+            JsonValueEqError::UnsupportedOperation {
+                context: context.to_static(),
+                received_type: ValueType::Float,
+                expected_operation: SerializeExpectOp::StringContains(StringContains::new(
+                    "example"
+                )),
+            }
+        );
+    }
+
+    #[test]
+    fn it_should_error_by_default_against_json_string() {
+        let mut context = Context::new();
+        let received = json!("🦊");
+        let output = TestJsonExpectOp
+            .on_any(&mut context, &received)
+            .unwrap_err();
+        assert_eq!(
+            output,
+            JsonValueEqError::UnsupportedOperation {
+                context: context.to_static(),
+                received_type: ValueType::String,
+                expected_operation: SerializeExpectOp::StringContains(StringContains::new(
+                    "example"
+                )),
+            }
+        );
+    }
+
+    #[test]
+    fn it_should_error_by_default_against_json_array() {
+        let mut context = Context::new();
+        let received = json!([]);
+        let output = TestJsonExpectOp
+            .on_any(&mut context, &received)
+            .unwrap_err();
+        assert_eq!(
+            output,
+            JsonValueEqError::UnsupportedOperation {
+                context: context.to_static(),
+                received_type: ValueType::Array,
+                expected_operation: SerializeExpectOp::StringContains(StringContains::new(
+                    "example"
+                )),
+            }
+        );
+    }
+
+    #[test]
+    fn it_should_error_by_default_against_json_object() {
+        let mut context = Context::new();
+        let received = json!({});
+        let output = TestJsonExpectOp
+            .on_any(&mut context, &received)
+            .unwrap_err();
+        assert_eq!(
+            output,
+            JsonValueEqError::UnsupportedOperation {
+                context: context.to_static(),
+                received_type: ValueType::Object,
+                expected_operation: SerializeExpectOp::StringContains(StringContains::new(
+                    "example"
+                )),
+            }
+        );
+    }
+}

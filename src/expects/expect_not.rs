@@ -2,7 +2,7 @@ use crate::expects::ops::ContainsNot;
 use crate::expects::ExpectOp;
 use serde_json::Value;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct ExpectNot;
 
 impl ExpectNot {

@@ -9,13 +9,13 @@ use thiserror::Error;
 
 pub type JsonValueEqResult<V> = Result<V, JsonValueEqError>;
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, PartialEq)]
 pub enum JsonValueEqError {
     #[error(
         "Json {} at {context} are not equal:
     expected {expected}
-    received {received}"
-    , value_or_number_type_name(&received, &expected)
+    received {received}",
+        value_or_number_type_name(received, expected)
     )]
     DifferentTypes {
         context: Context<'static>,

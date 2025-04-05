@@ -14,8 +14,13 @@ pub struct StringContains {
 }
 
 impl StringContains {
-    pub(crate) fn new(content: String) -> Self {
-        Self { content }
+    pub(crate) fn new<S>(content: S) -> Self
+    where
+        S: Into<String>,
+    {
+        Self {
+            content: content.into(),
+        }
     }
 }
 

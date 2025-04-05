@@ -10,7 +10,7 @@ use serde::Serialize;
 use serde_json::Value;
 use strum::IntoStaticStr;
 
-#[derive(Clone, Debug, Serialize, Deserialize, IntoStaticStr)]
+#[derive(Clone, Debug, Serialize, Deserialize, IntoStaticStr, PartialEq)]
 #[serde(tag = "type")]
 pub enum SerializeExpectOp {
     ArrayContains(ArrayContains),

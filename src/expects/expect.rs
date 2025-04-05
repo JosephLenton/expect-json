@@ -3,7 +3,7 @@ use crate::expects::ExpectOp;
 use crate::ExpectNot;
 use serde_json::Value;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Expect {
     pub not: ExpectNot,
 }
@@ -18,5 +18,16 @@ impl Expect {
         V: Into<Value>,
     {
         ExpectOp::new(Contains::new(values))
+    }
+}
+
+#[cfg(test)]
+mod test_new {
+    use super::*;
+
+    #[test]
+    fn it_should_return_correct_structure() {
+        let expect = Expect::new();
+        assert_eq!(expect, Expect { not: ExpectNot });
     }
 }
