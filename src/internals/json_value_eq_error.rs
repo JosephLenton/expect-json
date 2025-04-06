@@ -2,9 +2,11 @@ use crate::internals::objects::ArrayObject;
 use crate::internals::objects::ValueObject;
 use crate::internals::types::ValueType;
 use crate::internals::types::ValueTypeObject;
+use crate::internals::utils::is_unquotable_js_identifier;
 use crate::internals::Context;
 use crate::SerializeExpectOp;
 use serde_json::Value;
+use std::fmt::Write;
 use thiserror::Error;
 
 pub type JsonValueEqResult<V> = Result<V, JsonValueEqError>;
@@ -40,7 +42,7 @@ pub enum JsonValueEqError {
     expected null
     received {received}"
     )]
-    ExpectedNull {
+    ReceivedIsNotNull {
         context: Context<'static>,
         received: ValueTypeObject,
     },
@@ -50,7 +52,7 @@ pub enum JsonValueEqError {
     expected {expected}
     received null"
     )]
-    ReceivedNull {
+    ReceivedIsNull {
         context: Context<'static>,
         expected: ValueTypeObject,
     },
@@ -189,11 +191,31 @@ pub enum JsonValueEqError {
     #[error(
         r#"Json object at {context} has extra field "{received_extra_field}":
     expected {expected_obj}
-    received {received_obj}"#
+    received {received_obj}
+
+    extra field in received:
+        {received_extra_field}
+"#
     )]
     ObjectReceivedHasExtraKey {
         context: Context<'static>,
         received_extra_field: String,
+        received_obj: ValueObject,
+        expected_obj: ValueObject,
+    },
+
+    #[error(
+        r#"Json object at {context} has many extra fields over expected:
+    expected {expected_obj}
+    received {received_obj}
+
+    extra fields in received:
+{}"#,
+        format_extra_fields(received_extra_fields)
+    )]
+    ObjectReceivedHasExtraKeys {
+        context: Context<'static>,
+        received_extra_fields: Vec<String>,
         received_obj: ValueObject,
         expected_obj: ValueObject,
     },
@@ -240,11 +262,12 @@ impl JsonValueEqError {
             Self::DifferentTypes { context, .. } => context,
             Self::DifferentValues { context, .. } => context,
 
-            Self::ExpectedNull { context, .. } => context,
-            Self::ReceivedNull { context, .. } => context,
+            Self::ReceivedIsNotNull { context, .. } => context,
+            Self::ReceivedIsNull { context, .. } => context,
 
             Self::ObjectKeyMissing { context, .. } => context,
             Self::ObjectReceivedHasExtraKey { context, .. } => context,
+            Self::ObjectReceivedHasExtraKeys { context, .. } => context,
 
             // Operations
             Self::ContainsFound { context, .. } => context,
@@ -307,4 +330,18 @@ fn value_or_number_type_name(left: &ValueTypeObject, right: &ValueTypeObject) ->
     } else {
         "values"
     }
+}
+
+fn format_extra_fields(received_extra_fields: &[String]) -> String {
+    let mut output = String::new();
+
+    for field in received_extra_fields {
+        if is_unquotable_js_identifier(field) {
+            let _ = writeln!(output, "        {field},");
+        } else {
+            let _ = writeln!(output, r#"        "{field}","#);
+        }
+    }
+
+    output
 }

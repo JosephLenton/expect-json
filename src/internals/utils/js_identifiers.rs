@@ -1,12 +1,8 @@
-use std::borrow::Borrow;
-
 pub fn is_unquotable_js_identifier<S>(js_identifier: S) -> bool
 where
-    S: Borrow<str>,
+    S: AsRef<str>,
 {
-    let js_str: &str = js_identifier.borrow();
-
-    let mut js_chars = js_str.chars();
+    let mut js_chars = js_identifier.as_ref().chars();
     let maybe_first = js_chars.next();
     match maybe_first {
         None => return false,

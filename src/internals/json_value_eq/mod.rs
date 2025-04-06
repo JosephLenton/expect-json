@@ -19,11 +19,11 @@ pub fn json_value_eq<'a>(
 ) -> JsonValueEqResult<()> {
     match (received, expected) {
         (Value::Null, Value::Null) => Ok(()),
-        (_, Value::Null) => Err(JsonValueEqError::ExpectedNull {
+        (_, Value::Null) => Err(JsonValueEqError::ReceivedIsNotNull {
             context: context.to_static(),
             received: received.clone().into(),
         }),
-        (Value::Null, _) => Err(JsonValueEqError::ReceivedNull {
+        (Value::Null, _) => Err(JsonValueEqError::ReceivedIsNull {
             context: context.to_static(),
             expected: expected.clone().into(),
         }),

@@ -130,8 +130,51 @@ fn it_should_error_if_fields_differ_in_numeric_type() {
 }
 
 #[test]
-#[ignore]
-fn it_should_pretty_print_big_objects_when_fields_are_missing() {
+fn it_should_pretty_print_big_objects_when_it_has_one_extra_field() {
+    let received_obj = json!({
+        "obj_of_obj": {
+            "inner": {
+                "string": "abc123",
+                "int": 123,
+                "integers": [1, 2, 3],
+                "float": 123,
+                "floats": [1.1, 2.2, 3.3],
+                "truthy": true,
+                "falsy": false,
+                "nullable": null,
+            }
+        },
+    });
+    let expected_obj = json!({});
+
+    assert_json_err(
+        &received_obj,
+        &expected_obj,
+        r#"Json object at root has extra field "obj_of_obj":
+    expected { }
+    received {
+        "obj_of_obj": {
+            "inner": {
+                "falsy": false,
+                "float": 123,
+                "floats": [1.1, 2.2, 3.3],
+                "int": 123,
+                "integers": [1, 2, 3],
+                "nullable": null,
+                "string": "abc123",
+                "truthy": true,
+            },
+        },
+    },
+
+    extra field in received:
+        obj_of_obj
+"#,
+    );
+}
+
+#[test]
+fn it_should_pretty_print_big_objects_when_it_has_many_extra_fields() {
     let simple_obj = json!({
         "string": "abc123",
         "int": 123,
@@ -158,7 +201,7 @@ fn it_should_pretty_print_big_objects_when_fields_are_missing() {
     assert_json_err(
         &received_obj,
         &expected_obj,
-        r#"Json object at root has extra field "array_of_array_of_object":
+        r#"Json object at root has many extra fields over expected:
     expected { }
     received {
         "array_of_array_of_object": [
@@ -225,6 +268,13 @@ fn it_should_pretty_print_big_objects_when_fields_are_missing() {
                 "truthy": true,
             },
         },
-    }"#,
+    },
+
+    extra fields in received:
+        array_of_array_of_object,
+        array_of_object,
+        obj_array_of_obj,
+        obj_of_obj,
+"#,
     );
 }

@@ -14,7 +14,9 @@ pub fn json_value_eq_object<'a>(
     let received_len = received.len();
     let expected_len = expected.len();
 
-    if received_len > expected_len {
+    // We have a special error case when there is only one extra field,
+    // for prettier error output.
+    if received_len == expected_len + 1 {
         let maybe_extra_field = received.keys().find(|key| !expected.contains_key(*key));
 
         if let Some(extra_field) = maybe_extra_field {
@@ -25,6 +27,22 @@ pub fn json_value_eq_object<'a>(
                 expected_obj: ObjectObject::from(expected.clone()).into(),
             });
         }
+    }
+
+    // For when received has many extra field over what is expected.
+    if received_len > expected_len {
+        let extra_fields = received
+            .keys()
+            .filter(|key| !expected.contains_key(*key))
+            .cloned()
+            .collect();
+
+        return Err(JsonValueEqError::ObjectReceivedHasExtraKeys {
+            context: context.to_static(),
+            received_extra_fields: extra_fields,
+            received_obj: ObjectObject::from(received.clone()).into(),
+            expected_obj: ObjectObject::from(expected.clone()).into(),
+        });
     }
 
     if received.len() != expected.len() {
