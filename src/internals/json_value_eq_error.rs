@@ -12,7 +12,7 @@ pub type JsonValueEqResult<V> = Result<V, JsonValueEqError>;
 #[derive(Debug, Error, PartialEq)]
 pub enum JsonValueEqError {
     #[error(
-        "Json {} at {context} are not equal:
+        "Json {} at {context} are different types:
     expected {expected}
     received {received}",
         value_or_number_type_name(received, expected)
@@ -33,6 +33,26 @@ pub enum JsonValueEqError {
         json_type: ValueType,
         received: ValueObject,
         expected: ValueObject,
+    },
+
+    #[error(
+        "Json is not null at {context}, expected null:
+    expected null
+    received {received}"
+    )]
+    ExpectedNull {
+        context: Context<'static>,
+        received: ValueTypeObject,
+    },
+
+    #[error(
+        "Json null received at {context}, expected not null:
+    expected {expected}
+    received null"
+    )]
+    ReceivedNull {
+        context: Context<'static>,
+        expected: ValueTypeObject,
     },
 
     // TODO, this error message should include which operations it _can_ be performed on.
@@ -59,7 +79,7 @@ pub enum JsonValueEqError {
     },
 
     #[error(
-        "Json arrays at {context} are not equal:
+        "Json arrays at {context} contain different types:
     expected {expected}
         full array {expected_full_array}
     received {received}
@@ -219,6 +239,9 @@ impl JsonValueEqError {
 
             Self::DifferentTypes { context, .. } => context,
             Self::DifferentValues { context, .. } => context,
+
+            Self::ExpectedNull { context, .. } => context,
+            Self::ReceivedNull { context, .. } => context,
 
             Self::ObjectKeyMissing { context, .. } => context,
             Self::ObjectReceivedHasExtraKey { context, .. } => context,

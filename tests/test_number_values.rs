@@ -95,7 +95,7 @@ fn it_should_not_be_equal_for_different_zero_types() {
     assert_json_err(
         &json!(0),
         &json!(0.0),
-        "Json numbers at root are not equal:
+        "Json numbers at root are different types:
     expected float 0.0
     received integer 0",
     );
@@ -103,7 +103,7 @@ fn it_should_not_be_equal_for_different_zero_types() {
     assert_json_err(
         &json!(0.0),
         &json!(0),
-        "Json numbers at root are not equal:
+        "Json numbers at root are different types:
     expected integer 0
     received float 0.0",
     );

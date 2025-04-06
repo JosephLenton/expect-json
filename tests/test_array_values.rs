@@ -135,7 +135,7 @@ fn it_should_not_be_equal_for_arrays_of_different_types() {
     assert_json_err(
         &json!([1, 2, 3]),
         &json!(["1", "2", "3"]),
-        r#"Json arrays at root[0] are not equal:
+        r#"Json arrays at root[0] contain different types:
     expected string "1"
         full array ["1", "2", "3"]
     received integer 1

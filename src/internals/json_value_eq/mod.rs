@@ -19,6 +19,14 @@ pub fn json_value_eq<'a>(
 ) -> JsonValueEqResult<()> {
     match (received, expected) {
         (Value::Null, Value::Null) => Ok(()),
+        (_, Value::Null) => Err(JsonValueEqError::ExpectedNull {
+            context: context.to_static(),
+            received: received.clone().into(),
+        }),
+        (Value::Null, _) => Err(JsonValueEqError::ReceivedNull {
+            context: context.to_static(),
+            expected: expected.clone().into(),
+        }),
         (Value::Number(l), Value::Number(r)) => {
             let l_value = ValueObject::from(l.clone());
             let r_value = ValueObject::from(r.clone());

@@ -112,7 +112,7 @@ fn it_should_error_if_fields_differ_in_type() {
     assert_json_err(
         &json!({ "extra": "🦊" }),
         &json!({ "extra": 123 }),
-        r#"Json values at root.extra are not equal:
+        r#"Json values at root.extra are different types:
     expected integer 123
     received string "🦊""#,
     );
@@ -123,8 +123,108 @@ fn it_should_error_if_fields_differ_in_numeric_type() {
     assert_json_err(
         &json!({ "extra": 123 }),
         &json!({ "extra": 123.456 }),
-        r#"Json numbers at root.extra are not equal:
+        r#"Json numbers at root.extra are different types:
     expected float 123.456
     received integer 123"#,
+    );
+}
+
+#[test]
+#[ignore]
+fn it_should_pretty_print_big_objects_when_fields_are_missing() {
+    let simple_obj = json!({
+        "string": "abc123",
+        "int": 123,
+        "integers": [1, 2, 3],
+        "float": 123,
+        "floats": [1.1, 2.2, 3.3],
+        "truthy": true,
+        "falsy": false,
+        "nullable": null,
+    });
+
+    let received_obj = json!({
+        "array_of_object": [simple_obj],
+        "array_of_array_of_object": [[simple_obj], [simple_obj]],
+        "obj_of_obj": {
+            "inner": simple_obj
+        },
+        "obj_array_of_obj": {
+            "inner": [simple_obj]
+        },
+    });
+    let expected_obj = json!({});
+
+    assert_json_err(
+        &received_obj,
+        &expected_obj,
+        r#"Json object at root has extra field "array_of_array_of_object":
+    expected { }
+    received {
+        "array_of_array_of_object": [
+            [
+                {
+                    "falsy": false,
+                    "float": 123,
+                    "floats": [1.1, 2.2, 3.3],
+                    "int": 123,
+                    "integers": [1, 2, 3],
+                    "nullable": null,
+                    "string": "abc123",
+                    "truthy": true,
+                }
+            ],
+            [
+                {
+                    "falsy": false,
+                    "float": 123,
+                    "floats": [1.1, 2.2, 3.3],
+                    "int": 123,
+                    "integers": [1, 2, 3],
+                    "nullable": null,
+                    "string": "abc123",
+                    "truthy": true,
+                }
+            ]
+        ],
+        "array_of_object": [
+            {
+                "falsy": false,
+                "float": 123,
+                "floats": [1.1, 2.2, 3.3],
+                "int": 123,
+                "integers": [1, 2, 3],
+                "nullable": null,
+                "string": "abc123",
+                "truthy": true,
+            }
+        ],
+        "obj_array_of_obj": {
+            "inner": [
+                {
+                    "falsy": false,
+                    "float": 123,
+                    "floats": [1.1, 2.2, 3.3],
+                    "int": 123,
+                    "integers": [1, 2, 3],
+                    "nullable": null,
+                    "string": "abc123",
+                    "truthy": true,
+                }
+            ],
+        },
+        "obj_of_obj": {
+            "inner": {
+                "falsy": false,
+                "float": 123,
+                "floats": [1.1, 2.2, 3.3],
+                "int": 123,
+                "integers": [1, 2, 3],
+                "nullable": null,
+                "string": "abc123",
+                "truthy": true,
+            },
+        },
+    }"#,
     );
 }
