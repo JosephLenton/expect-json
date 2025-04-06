@@ -21,3 +21,6 @@ pub use self::string_object::*;
 
 mod value_object;
 pub use self::value_object::*;
+
+mod pretty_formatter;
+use self::pretty_formatter::*;

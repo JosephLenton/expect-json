@@ -1,3 +1,4 @@
+use crate::internals::objects::pretty_formatter::PrettyDisplay;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;
@@ -23,6 +24,8 @@ impl Display for FloatObject {
         write!(formatter, "{n_str}")
     }
 }
+
+impl PrettyDisplay for FloatObject {}
 
 fn format_f64_with_minimum_one_precision(n: f64) -> String {
     let float_str = format!("{n}");

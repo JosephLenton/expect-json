@@ -1,3 +1,5 @@
+use crate::internals::objects::pretty_formatter::PrettyDisplay;
+use crate::internals::objects::pretty_formatter::PrettyFormatter;
 use crate::internals::objects::ArrayObject;
 use crate::internals::objects::BooleanObject;
 use crate::internals::objects::FloatObject;
@@ -106,14 +108,23 @@ impl From<ObjectObject> for ValueObject {
 
 impl Display for ValueObject {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> FmtResult {
+        let mut pretty_formatter = PrettyFormatter::new(formatter);
+        self.pretty_fmt(&mut pretty_formatter)?;
+
+        Ok(())
+    }
+}
+
+impl PrettyDisplay for ValueObject {
+    fn pretty_fmt(&self, formatter: &mut PrettyFormatter<'_, '_>) -> FmtResult {
         match self {
-            Self::Null(inner) => write!(formatter, "{inner}"),
-            Self::String(inner) => write!(formatter, "{inner}"),
-            Self::Float(inner) => write!(formatter, "{inner}"),
-            Self::Integer(inner) => write!(formatter, "{inner}"),
-            Self::Boolean(inner) => write!(formatter, "{inner}"),
-            Self::Array(inner) => write!(formatter, "{inner}"),
-            Self::Object(inner) => write!(formatter, "{inner}"),
+            Self::Null(inner) => inner.pretty_fmt(formatter),
+            Self::String(inner) => inner.pretty_fmt(formatter),
+            Self::Float(inner) => inner.pretty_fmt(formatter),
+            Self::Integer(inner) => inner.pretty_fmt(formatter),
+            Self::Boolean(inner) => inner.pretty_fmt(formatter),
+            Self::Array(inner) => inner.pretty_fmt(formatter),
+            Self::Object(inner) => inner.pretty_fmt(formatter),
         }
     }
 }

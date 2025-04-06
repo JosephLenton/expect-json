@@ -1,3 +1,4 @@
+use crate::internals::objects::pretty_formatter::PrettyDisplay;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;
@@ -28,3 +29,5 @@ impl Display for IntegerObject {
         }
     }
 }
+
+impl PrettyDisplay for IntegerObject {}

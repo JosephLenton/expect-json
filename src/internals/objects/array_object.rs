@@ -1,3 +1,5 @@
+use crate::internals::objects::pretty_formatter::PrettyDisplay;
+use crate::internals::objects::pretty_formatter::PrettyFormatter;
 use crate::internals::objects::ValueObject;
 use serde_json::Value;
 use std::fmt::Display;
@@ -25,6 +27,15 @@ where
 
 impl Display for ArrayObject {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> FmtResult {
+        let mut pretty_formatter = PrettyFormatter::new(formatter);
+        self.pretty_fmt(&mut pretty_formatter)?;
+
+        Ok(())
+    }
+}
+
+impl PrettyDisplay for ArrayObject {
+    fn pretty_fmt(&self, formatter: &mut PrettyFormatter<'_, '_>) -> FmtResult {
         write!(formatter, "[")?;
 
         for (i, obj) in self.0.iter().enumerate() {

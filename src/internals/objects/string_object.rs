@@ -1,3 +1,4 @@
+use crate::internals::objects::pretty_formatter::PrettyDisplay;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;
@@ -19,3 +20,5 @@ impl Display for StringObject {
         write!(formatter, r#""{}""#, self.0)
     }
 }
+
+impl PrettyDisplay for StringObject {}

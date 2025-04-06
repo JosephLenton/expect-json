@@ -1,3 +1,5 @@
+use crate::internals::objects::pretty_formatter::PrettyDisplay;
+use crate::internals::objects::pretty_formatter::PrettyFormatter;
 use crate::internals::objects::ValueObject;
 use crate::internals::JsonObject;
 use serde_json::Map;
@@ -27,6 +29,15 @@ impl From<JsonObject> for ObjectObject {
 
 impl Display for ObjectObject {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> FmtResult {
+        let mut pretty_formatter = PrettyFormatter::new(formatter);
+        self.pretty_fmt(&mut pretty_formatter)?;
+
+        Ok(())
+    }
+}
+
+impl PrettyDisplay for ObjectObject {
+    fn pretty_fmt(&self, formatter: &mut PrettyFormatter<'_, '_>) -> FmtResult {
         if self.0.is_empty() {
             return write!(formatter, "{{ }}");
         }
@@ -37,6 +48,8 @@ impl Display for ObjectObject {
             let value_obj = ValueObject::from(value.clone());
             writeln!(formatter, r#"        "{key}": {value_obj},"#)?;
         }
-        write!(formatter, "    }}")
+        write!(formatter, "    }}")?;
+
+        Ok(())
     }
 }
