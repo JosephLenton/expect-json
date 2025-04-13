@@ -44,10 +44,7 @@ where
     SerializeExpectOp: From<S>,
 {
     fn from(inner: S) -> Self {
-        Self {
-            magic_id: Default::default(),
-            inner: SerializeExpectOp::from(inner),
-        }
+        Self::new(SerializeExpectOp::from(inner))
     }
 }
 

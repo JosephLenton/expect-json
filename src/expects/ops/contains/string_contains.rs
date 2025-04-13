@@ -46,6 +46,19 @@ impl From<StringContains> for SerializeExpectOp {
 }
 
 #[cfg(test)]
+mod test_from {
+    use super::*;
+
+    #[test]
+    fn it_should_convert_to_correct_op() {
+        let contains = StringContains::new("my-string".to_string());
+        let op: SerializeExpectOp = contains.clone().into();
+
+        assert_eq!(op, SerializeExpectOp::StringContains(contains));
+    }
+}
+
+#[cfg(test)]
 mod test_string_contains {
     use crate::expect;
     use crate::expect_json_eq;

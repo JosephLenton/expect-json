@@ -71,7 +71,7 @@ pub enum JsonValueEqError {
     },
 
     #[error(
-        "Json at {context} are not equal:
+        "Json objects at {context} are not equal:
     expected object key '{expected_key}',
     but it was not found"
     )]
@@ -123,7 +123,7 @@ pub enum JsonValueEqError {
     },
 
     #[error(
-        "Json at {context} are not equal:
+        "Json arrays at {context} are not equal:
     expected array index at '{expected_index}',
     but it was not found"
     )]

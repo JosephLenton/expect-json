@@ -68,15 +68,10 @@ pub fn json_value_eq_array<'a>(
         });
     }
 
-    for (expected_index, expected_value) in expected_array.iter().enumerate() {
-        let received_value = received_array.get(expected_index).ok_or_else(|| {
-            JsonValueEqError::ArrayIndexMissing {
-                context: context.to_static(),
-                expected_index,
-            }
-        })?;
-
-        context.push(expected_index);
+    for (index, (expected_value, received_value)) in
+        expected_array.iter().zip(received_array).enumerate()
+    {
+        context.push(index);
         json_eq(context, received_value, expected_value).map_err(|source_error| {
             JsonValueEqError::array_index_missing(
                 context,

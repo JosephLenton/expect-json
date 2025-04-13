@@ -331,3 +331,47 @@ mod test_fmt {
         assert_eq!(output, "{}");
     }
 }
+
+#[cfg(test)]
+mod test_is_indenting {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_defer_to_inside_for_indentation() {
+        let obj = ObjectObject::from_iter([("name".to_string(), json!("Joe"))]);
+        let value_obj: ValueObject = obj.clone().into();
+        assert_eq!(value_obj.is_indenting(), obj.is_indenting());
+        assert_eq!(value_obj.is_indenting(), true);
+
+        let obj = ArrayObject::from(vec![json!(123), json!(456)]);
+        let value_obj: ValueObject = obj.clone().into();
+        assert_eq!(value_obj.is_indenting(), obj.is_indenting());
+        assert_eq!(value_obj.is_indenting(), true);
+
+        let obj = FloatObject::from(123.456);
+        let value_obj: ValueObject = obj.clone().into();
+        assert_eq!(value_obj.is_indenting(), obj.is_indenting());
+        assert_eq!(value_obj.is_indenting(), false);
+
+        let obj = IntegerObject::from(123_u64);
+        let value_obj: ValueObject = obj.clone().into();
+        assert_eq!(value_obj.is_indenting(), obj.is_indenting());
+        assert_eq!(value_obj.is_indenting(), false);
+
+        let obj = BooleanObject::from(true);
+        let value_obj: ValueObject = obj.clone().into();
+        assert_eq!(value_obj.is_indenting(), obj.is_indenting());
+        assert_eq!(value_obj.is_indenting(), false);
+
+        let obj = StringObject::from("Joe".to_string());
+        let value_obj: ValueObject = obj.clone().into();
+        assert_eq!(value_obj.is_indenting(), obj.is_indenting());
+        assert_eq!(value_obj.is_indenting(), false);
+
+        let null = NullObject;
+        let value_obj: ValueObject = null.clone().into();
+        assert_eq!(value_obj.is_indenting(), null.is_indenting());
+        assert_eq!(value_obj.is_indenting(), false);
+    }
+}

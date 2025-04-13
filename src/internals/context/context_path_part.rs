@@ -86,3 +86,23 @@ mod test_fmt {
         assert_eq!(output, r#"."""#);
     }
 }
+
+#[cfg(test)]
+mod test_from {
+    use super::*;
+
+    #[test]
+    fn it_should_convert_strings_to_string_paths() {
+        let path_raw = format!("my_path");
+        let path = ContextPathPart::from(&path_raw);
+
+        assert_eq!(path, ContextPathPart::String(Cow::Borrowed(&path_raw)));
+    }
+
+    #[test]
+    fn it_should_convert_usize_to_index_paths() {
+        let path = ContextPathPart::from(123_usize);
+
+        assert_eq!(path, ContextPathPart::Index(123));
+    }
+}

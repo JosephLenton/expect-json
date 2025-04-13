@@ -43,3 +43,37 @@ impl From<Contains> for SerializeExpectOp {
         }
     }
 }
+
+#[cfg(test)]
+mod test_new {
+    use crate::expect;
+    use serde_json::json;
+
+    #[test]
+    #[should_panic]
+    fn it_should_error_if_given_not_an_array_or_string() {
+        expect.contains(json!(false));
+    }
+}
+
+#[cfg(test)]
+mod test_from {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_convert_array_to_correct_op() {
+        let contains = ArrayContains::new(vec![json!(123)]);
+        let op: SerializeExpectOp = Contains::Array(contains.clone()).into();
+
+        assert_eq!(op, SerializeExpectOp::ArrayContains(contains));
+    }
+
+    #[test]
+    fn it_should_convert_string_to_correct_op() {
+        let contains = StringContains::new("hello".to_string());
+        let op: SerializeExpectOp = Contains::String(contains.clone()).into();
+
+        assert_eq!(op, SerializeExpectOp::StringContains(contains));
+    }
+}

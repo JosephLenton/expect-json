@@ -43,3 +43,37 @@ impl From<ContainsNot> for SerializeExpectOp {
         }
     }
 }
+
+#[cfg(test)]
+mod test_new {
+    use crate::expect;
+    use serde_json::json;
+
+    #[test]
+    #[should_panic]
+    fn it_should_error_if_given_not_an_array_or_string() {
+        expect.not.contains(json!(false));
+    }
+}
+
+#[cfg(test)]
+mod test_from {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_convert_array_to_correct_op() {
+        let contains = ArrayContainsNot::new(vec![json!(123)]);
+        let op: SerializeExpectOp = ContainsNot::Array(contains.clone()).into();
+
+        assert_eq!(op, SerializeExpectOp::ArrayContainsNot(contains));
+    }
+
+    #[test]
+    fn it_should_convert_string_to_correct_op() {
+        let contains = StringContainsNot::new("hello".to_string());
+        let op: SerializeExpectOp = ContainsNot::String(contains.clone()).into();
+
+        assert_eq!(op, SerializeExpectOp::StringContainsNot(contains));
+    }
+}

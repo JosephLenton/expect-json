@@ -71,6 +71,17 @@ fn it_should_error_if_expected_has_extra_field() {
 }
 
 #[test]
+fn it_should_error_if_objects_have_same_number_but_different_fields() {
+    assert_json_err(
+        &json!({ "aaa": "🦊" }),
+        &json!({ "bbb": "🦊" }),
+        r#"Json objects at root are not equal:
+    expected object key 'bbb',
+    but it was not found"#,
+    );
+}
+
+#[test]
 fn it_should_have_appropriate_error_message_on_fields_with_spaces() {
     assert_json_err(
         &json!({}),

@@ -10,7 +10,7 @@ pub enum ExpectJsonEqError {
     FailedToSerialiseExpected(#[source] SerdeJsonError),
 
     #[error("Failed to serialise other value to Json")]
-    FailedToSerialiseOther(#[source] SerdeJsonError),
+    FailedToSerialiseReceived(#[source] SerdeJsonError),
 
     #[error("{0}")]
     JsonValueError(#[from] JsonValueEqError),
