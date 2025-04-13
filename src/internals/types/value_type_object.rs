@@ -214,6 +214,7 @@ mod test_from {
 #[cfg(test)]
 mod test_fmt {
     use super::*;
+    use pretty_assertions::assert_eq;
     use serde_json::Map;
     use std::iter::empty;
 
@@ -281,6 +282,6 @@ mod test_fmt {
     fn it_should_display_object_type() {
         let obj = Map::from_iter(empty());
         let output = format!("{}", ValueTypeObject::from(ObjectObject::from(obj)));
-        assert_eq!(output, "object { }");
+        assert_eq!(output, "object {}");
     }
 }

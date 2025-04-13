@@ -1,5 +1,6 @@
 mod context;
 pub mod objects;
+pub mod pretty_formatter;
 pub mod types;
 pub mod utils;
 

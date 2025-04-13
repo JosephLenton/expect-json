@@ -1,5 +1,3 @@
-use crate::internals::objects::pretty_formatter::PrettyDisplay;
-use crate::internals::objects::pretty_formatter::PrettyFormatter;
 use crate::internals::objects::ArrayObject;
 use crate::internals::objects::BooleanObject;
 use crate::internals::objects::FloatObject;
@@ -7,6 +5,8 @@ use crate::internals::objects::IntegerObject;
 use crate::internals::objects::NullObject;
 use crate::internals::objects::ObjectObject;
 use crate::internals::objects::StringObject;
+use crate::internals::pretty_formatter::PrettyDisplay;
+use crate::internals::pretty_formatter::PrettyFormatter;
 use serde_json::Number;
 use serde_json::Value;
 use std::fmt::Display;
@@ -125,6 +125,18 @@ impl PrettyDisplay for ValueObject {
             Self::Boolean(inner) => inner.pretty_fmt(formatter),
             Self::Array(inner) => inner.pretty_fmt(formatter),
             Self::Object(inner) => inner.pretty_fmt(formatter),
+        }
+    }
+
+    fn is_indenting(&self) -> bool {
+        match self {
+            Self::Null(inner) => inner.is_indenting(),
+            Self::String(inner) => inner.is_indenting(),
+            Self::Float(inner) => inner.is_indenting(),
+            Self::Integer(inner) => inner.is_indenting(),
+            Self::Boolean(inner) => inner.is_indenting(),
+            Self::Array(inner) => inner.is_indenting(),
+            Self::Object(inner) => inner.is_indenting(),
         }
     }
 }
@@ -248,6 +260,7 @@ mod test_from {
 #[cfg(test)]
 mod test_fmt {
     use super::*;
+    use pretty_assertions::assert_eq;
     use serde_json::Map;
     use std::iter::empty;
 
@@ -315,6 +328,6 @@ mod test_fmt {
     fn it_should_display_object_type() {
         let obj = Map::from_iter(empty());
         let output = format!("{}", ValueObject::from(ObjectObject::from(obj)));
-        assert_eq!(output, "{ }");
+        assert_eq!(output, "{}");
     }
 }

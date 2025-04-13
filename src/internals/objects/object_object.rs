@@ -1,6 +1,5 @@
-use crate::internals::objects::pretty_formatter::PrettyDisplay;
-use crate::internals::objects::pretty_formatter::PrettyFormatter;
-use crate::internals::objects::ValueObject;
+use crate::internals::pretty_formatter::PrettyDisplay;
+use crate::internals::pretty_formatter::PrettyFormatter;
 use crate::internals::JsonObject;
 use serde_json::Map;
 use serde_json::Value;
@@ -38,18 +37,10 @@ impl Display for ObjectObject {
 
 impl PrettyDisplay for ObjectObject {
     fn pretty_fmt(&self, formatter: &mut PrettyFormatter<'_, '_>) -> FmtResult {
-        if self.0.is_empty() {
-            return write!(formatter, "{{ }}");
-        }
+        formatter.write_fmt_object(&self.0)
+    }
 
-        writeln!(formatter, "{{")?;
-        for (key, value) in &self.0 {
-            // TODO, remove this clone
-            let value_obj = ValueObject::from(value.clone());
-            writeln!(formatter, r#"        "{key}": {value_obj},"#)?;
-        }
-        write!(formatter, "    }}")?;
-
-        Ok(())
+    fn is_indenting(&self) -> bool {
+        true
     }
 }

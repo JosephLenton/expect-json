@@ -64,9 +64,9 @@ fn it_should_error_if_expected_has_extra_field() {
         &json!({ "extra": "🦊" }),
         r#"Json objects at root are not equal:
     expected {
-        "extra": "🦊",
+        "extra": "🦊"
     }
-    received { }"#,
+    received {}"#,
     );
 }
 
@@ -77,9 +77,9 @@ fn it_should_have_appropriate_error_message_on_fields_with_spaces() {
         &json!({ "something extra with spaces": "🦊" }),
         r#"Json objects at root are not equal:
     expected {
-        "something extra with spaces": "🦊",
+        "something extra with spaces": "🦊"
     }
-    received { }"#,
+    received {}"#,
     );
 }
 
@@ -89,9 +89,9 @@ fn it_should_error_if_received_has_extra_field() {
         &json!({ "extra": "🦊" }),
         &json!({}),
         r#"Json object at root has extra field "extra":
-    expected { }
+    expected {}
     received {
-        "extra": "🦊",
+        "extra": "🦊"
     }"#,
     );
 }
@@ -151,7 +151,7 @@ fn it_should_pretty_print_big_objects_when_it_has_one_extra_field() {
         &received_obj,
         &expected_obj,
         r#"Json object at root has extra field "obj_of_obj":
-    expected { }
+    expected {}
     received {
         "obj_of_obj": {
             "inner": {
@@ -162,14 +162,10 @@ fn it_should_pretty_print_big_objects_when_it_has_one_extra_field() {
                 "integers": [1, 2, 3],
                 "nullable": null,
                 "string": "abc123",
-                "truthy": true,
-            },
-        },
-    },
-
-    extra field in received:
-        obj_of_obj
-"#,
+                "truthy": true
+            }
+        }
+    }"#,
     );
 }
 
@@ -202,7 +198,7 @@ fn it_should_pretty_print_big_objects_when_it_has_many_extra_fields() {
         &received_obj,
         &expected_obj,
         r#"Json object at root has many extra fields over expected:
-    expected { }
+    expected {}
     received {
         "array_of_array_of_object": [
             [
@@ -214,7 +210,7 @@ fn it_should_pretty_print_big_objects_when_it_has_many_extra_fields() {
                     "integers": [1, 2, 3],
                     "nullable": null,
                     "string": "abc123",
-                    "truthy": true,
+                    "truthy": true
                 }
             ],
             [
@@ -226,7 +222,7 @@ fn it_should_pretty_print_big_objects_when_it_has_many_extra_fields() {
                     "integers": [1, 2, 3],
                     "nullable": null,
                     "string": "abc123",
-                    "truthy": true,
+                    "truthy": true
                 }
             ]
         ],
@@ -239,7 +235,7 @@ fn it_should_pretty_print_big_objects_when_it_has_many_extra_fields() {
                 "integers": [1, 2, 3],
                 "nullable": null,
                 "string": "abc123",
-                "truthy": true,
+                "truthy": true
             }
         ],
         "obj_array_of_obj": {
@@ -252,9 +248,9 @@ fn it_should_pretty_print_big_objects_when_it_has_many_extra_fields() {
                     "integers": [1, 2, 3],
                     "nullable": null,
                     "string": "abc123",
-                    "truthy": true,
+                    "truthy": true
                 }
-            ],
+            ]
         },
         "obj_of_obj": {
             "inner": {
@@ -265,10 +261,10 @@ fn it_should_pretty_print_big_objects_when_it_has_many_extra_fields() {
                 "integers": [1, 2, 3],
                 "nullable": null,
                 "string": "abc123",
-                "truthy": true,
-            },
-        },
-    },
+                "truthy": true
+            }
+        }
+    }
 
     extra fields in received:
         array_of_array_of_object,

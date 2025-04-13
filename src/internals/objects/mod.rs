@@ -7,8 +7,8 @@ pub use self::boolean_object::*;
 mod null_object;
 pub use self::null_object::*;
 
-mod number_object;
-pub use self::number_object::*;
+mod float_object;
+pub use self::float_object::*;
 
 mod integer_object;
 pub use self::integer_object::*;
@@ -21,6 +21,3 @@ pub use self::string_object::*;
 
 mod value_object;
 pub use self::value_object::*;
-
-mod pretty_formatter;
-use self::pretty_formatter::*;

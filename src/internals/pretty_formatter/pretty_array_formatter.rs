@@ -1,3 +1,4 @@
+use crate::internals::pretty_formatter::PrettyDisplay;
 use std::fmt::Arguments;
 use std::fmt::Display;
 use std::fmt::Formatter;
@@ -54,11 +55,5 @@ impl<'a, 'b> Deref for PrettyFormatter<'a, 'b> {
 impl<'a, 'b> DerefMut for PrettyFormatter<'a, 'b> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         self.formatter
-    }
-}
-
-pub trait PrettyDisplay: Display {
-    fn pretty_fmt(&self, formatter: &mut PrettyFormatter<'_, '_>) -> FmtResult {
-        self.fmt(formatter)
     }
 }

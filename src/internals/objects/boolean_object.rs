@@ -1,4 +1,4 @@
-use crate::internals::objects::pretty_formatter::PrettyDisplay;
+use crate::internals::pretty_formatter::PrettyDisplay;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;

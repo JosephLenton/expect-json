@@ -1,6 +1,6 @@
-use crate::internals::objects::pretty_formatter::PrettyDisplay;
-use crate::internals::objects::pretty_formatter::PrettyFormatter;
 use crate::internals::objects::ValueObject;
+use crate::internals::pretty_formatter::PrettyDisplay;
+use crate::internals::pretty_formatter::PrettyFormatter;
 use serde_json::Value;
 use std::fmt::Display;
 use std::fmt::Formatter;
@@ -36,16 +36,10 @@ impl Display for ArrayObject {
 
 impl PrettyDisplay for ArrayObject {
     fn pretty_fmt(&self, formatter: &mut PrettyFormatter<'_, '_>) -> FmtResult {
-        write!(formatter, "[")?;
+        formatter.write_fmt_array(&self.0)
+    }
 
-        for (i, obj) in self.0.iter().enumerate() {
-            if i > 0 {
-                write!(formatter, ", ")?;
-            }
-
-            write!(formatter, "{obj}")?;
-        }
-
-        write!(formatter, "]")
+    fn is_indenting(&self) -> bool {
+        true
     }
 }
