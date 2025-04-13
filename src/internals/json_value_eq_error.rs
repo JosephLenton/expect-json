@@ -74,7 +74,7 @@ pub enum JsonValueEqError {
 
     #[error(
         "Json objects at {context} are not equal:
-    expected object key '{expected_key}',
+    expected field '{expected_key}',
     but it was not found"
     )]
     ObjectKeyMissing {

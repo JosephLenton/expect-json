@@ -76,7 +76,7 @@ fn it_should_error_if_objects_have_same_number_but_different_fields() {
         &json!({ "aaa": "🦊" }),
         &json!({ "bbb": "🦊" }),
         r#"Json objects at root are not equal:
-    expected object key 'bbb',
+    expected field 'bbb',
     but it was not found"#,
     );
 }

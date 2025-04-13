@@ -4,8 +4,8 @@
   </h1>
 
   <h3>
-    A testing library for comparing Json payloads<br/>
-    and ensuring you get what you expect
+    A testing library for comparing Json payloads,<br/>
+    and declaring you get what you expect
   </h3>
 
   [![crate](https://img.shields.io/crates/v/expect-json.svg)](https://crates.io/crates/expect-json)
