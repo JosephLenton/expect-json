@@ -1,4 +1,3 @@
-use expect_json::testing::assert_json_err;
 use expect_json::*;
 use serde_json::json;
 
@@ -13,17 +12,23 @@ fn it_should_be_equal_for_same_boolean_values() {
 
 #[test]
 fn it_should_be_not_equal_for_different_boolean_values() {
-    assert_json_err(
-        &json!(true),
-        &json!(false),
+    let output = expect_json_eq(&json!(true), &json!(false))
+        .unwrap_err()
+        .to_string();
+
+    assert_eq!(
+        output,
         "Json booleans at root are not equal:
     expected false
     received true",
     );
 
-    assert_json_err(
-        &json!(false),
-        &json!(true),
+    let output = expect_json_eq(&json!(false), &json!(true))
+        .unwrap_err()
+        .to_string();
+
+    assert_eq!(
+        output,
         "Json booleans at root are not equal:
     expected true
     received false",

@@ -1,4 +1,3 @@
-use expect_json::testing::assert_json_err;
 use expect_json::*;
 use serde_json::json;
 
@@ -59,9 +58,12 @@ fn it_should_be_equal_for_identical_complex_objects_with_sub_objects() {
 
 #[test]
 fn it_should_error_if_expected_has_extra_field() {
-    assert_json_err(
-        &json!({}),
-        &json!({ "extra": "🦊" }),
+    let output = expect_json_eq(&json!({}), &json!({ "extra": "🦊" }))
+        .unwrap_err()
+        .to_string();
+
+    assert_eq!(
+        output,
         r#"Json objects at root are not equal:
     expected {
         "extra": "🦊"
@@ -72,9 +74,12 @@ fn it_should_error_if_expected_has_extra_field() {
 
 #[test]
 fn it_should_error_if_objects_have_same_number_but_different_fields() {
-    assert_json_err(
-        &json!({ "aaa": "🦊" }),
-        &json!({ "bbb": "🦊" }),
+    let output = expect_json_eq(&json!({ "aaa": "🦊" }), &json!({ "bbb": "🦊" }))
+        .unwrap_err()
+        .to_string();
+
+    assert_eq!(
+        output,
         r#"Json objects at root are not equal:
     expected field 'bbb',
     but it was not found"#,
@@ -83,9 +88,12 @@ fn it_should_error_if_objects_have_same_number_but_different_fields() {
 
 #[test]
 fn it_should_have_appropriate_error_message_on_fields_with_spaces() {
-    assert_json_err(
-        &json!({}),
-        &json!({ "something extra with spaces": "🦊" }),
+    let output = expect_json_eq(&json!({}), &json!({ "something extra with spaces": "🦊" }))
+        .unwrap_err()
+        .to_string();
+
+    assert_eq!(
+        output,
         r#"Json objects at root are not equal:
     expected {
         "something extra with spaces": "🦊"
@@ -96,9 +104,12 @@ fn it_should_have_appropriate_error_message_on_fields_with_spaces() {
 
 #[test]
 fn it_should_error_if_received_has_extra_field() {
-    assert_json_err(
-        &json!({ "extra": "🦊" }),
-        &json!({}),
+    let output = expect_json_eq(&json!({ "extra": "🦊" }), &json!({}))
+        .unwrap_err()
+        .to_string();
+
+    assert_eq!(
+        output,
         r#"Json object at root has extra field "extra":
     expected {}
     received {
@@ -109,9 +120,12 @@ fn it_should_error_if_received_has_extra_field() {
 
 #[test]
 fn it_should_error_if_fields_differ_in_value() {
-    assert_json_err(
-        &json!({ "extra": "🦊" }),
-        &json!({ "extra": "abc123" }),
+    let output = expect_json_eq(&json!({ "extra": "🦊" }), &json!({ "extra": "abc123" }))
+        .unwrap_err()
+        .to_string();
+
+    assert_eq!(
+        output,
         r#"Json strings at root.extra are not equal:
     expected "abc123"
     received "🦊""#,
@@ -120,9 +134,12 @@ fn it_should_error_if_fields_differ_in_value() {
 
 #[test]
 fn it_should_error_if_fields_differ_in_type() {
-    assert_json_err(
-        &json!({ "extra": "🦊" }),
-        &json!({ "extra": 123 }),
+    let output = expect_json_eq(&json!({ "extra": "🦊" }), &json!({ "extra": 123 }))
+        .unwrap_err()
+        .to_string();
+
+    assert_eq!(
+        output,
         r#"Json values at root.extra are different types:
     expected integer 123
     received string "🦊""#,
@@ -131,9 +148,12 @@ fn it_should_error_if_fields_differ_in_type() {
 
 #[test]
 fn it_should_error_if_fields_differ_in_numeric_type() {
-    assert_json_err(
-        &json!({ "extra": 123 }),
-        &json!({ "extra": 123.456 }),
+    let output = expect_json_eq(&json!({ "extra": 123 }), &json!({ "extra": 123.456 }))
+        .unwrap_err()
+        .to_string();
+
+    assert_eq!(
+        output,
         r#"Json numbers at root.extra are different types:
     expected float 123.456
     received integer 123"#,
@@ -158,9 +178,12 @@ fn it_should_pretty_print_big_objects_when_it_has_one_extra_field() {
     });
     let expected_obj = json!({});
 
-    assert_json_err(
-        &received_obj,
-        &expected_obj,
+    let output = expect_json_eq(&received_obj, &expected_obj)
+        .unwrap_err()
+        .to_string();
+
+    assert_eq!(
+        output,
         r#"Json object at root has extra field "obj_of_obj":
     expected {}
     received {
@@ -205,9 +228,12 @@ fn it_should_pretty_print_big_objects_when_it_has_many_extra_fields() {
     });
     let expected_obj = json!({});
 
-    assert_json_err(
-        &received_obj,
-        &expected_obj,
+    let output = expect_json_eq(&received_obj, &expected_obj)
+        .unwrap_err()
+        .to_string();
+
+    assert_eq!(
+        output,
         r#"Json object at root has many extra fields over expected:
     expected {}
     received {
