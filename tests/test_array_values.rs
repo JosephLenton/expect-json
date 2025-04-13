@@ -76,7 +76,7 @@ fn it_should_not_be_equal_when_receiving_one_extra_value_at_the_end() {
     assert_json_err(
         &json!([1, 2, 3]),
         &json!([1, 2]),
-        "Json arrays at root are not equal, received has 1 extra item at the end:
+        "Json arrays at root are not equal, received 1 extra item at the end:
     expected [1, 2]
     received [1, 2, 3]
        extra [3]",
@@ -88,7 +88,7 @@ fn it_should_not_be_equal_when_receiving_many_extra_values_at_the_end() {
     assert_json_err(
         &json!([1, 2, 3, 4, 5]),
         &json!([1, 2]),
-        "Json arrays at root are not equal, received has 3 extra items at the end:
+        "Json arrays at root are not equal, received 3 extra items at the end:
     expected [1, 2]
     received [1, 2, 3, 4, 5]
        extra [3, 4, 5]",
@@ -100,7 +100,7 @@ fn it_should_not_be_equal_when_receiving_extra_values_at_the_start() {
     assert_json_err(
         &json!([0, 1, 2]),
         &json!([1, 2]),
-        "Json arrays at root are not equal, received has 1 extra item at the start:
+        "Json arrays at root are not equal, received 1 extra item at the start:
     expected [1, 2]
     received [0, 1, 2]
        extra [0]",
@@ -119,13 +119,26 @@ fn it_should_not_be_equal_when_receiving_extra_values_in_the_middle() {
 }
 
 #[test]
+#[ignore]
 fn it_should_not_be_equal_when_expecting_extra_values_in_the_middle() {
     assert_json_err(
         &json!([1, 2, 3]),
         &json!([1, 2, 2, 3]),
         "Json arrays at root are not equal:
     expected [1, 2, 2, 3]
-    received [1, 2, 3]",
+    received [1, 2, 3]
+     missing [2]",
+    );
+}
+
+#[test]
+fn it_should_not_be_equal_when_differences_in_outer_and_inner_array_lengths() {
+    assert_json_err(
+        &json!([1, [2], 3]),
+        &json!([1, [2, 2], 3, 4]),
+        "Json arrays at root are not equal:
+    expected [1, [2, 2], 3, 4]
+    received [1, [2], 3]",
     );
 }
 

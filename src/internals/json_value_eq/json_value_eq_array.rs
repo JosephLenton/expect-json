@@ -32,10 +32,16 @@ pub fn json_value_eq_array<'a>(
             });
         }
 
-        return Err(JsonValueEqError::ArrayValuesAreDifferent {
+        // let all_missing_values =
+        // let missing_in_received = expected_array.iter().zip(received_array).flat_map(|(received_value, expected_value)| {
+        //     json_eq(context, received_value, expected_value).is_err().then(|| expected_value.clone())
+        // }).collect::<Vec<_>>();
+
+        return Err(JsonValueEqError::ArrayMissingInMiddle {
             context: context.to_static(),
             received_array: ArrayObject::from(received_array.to_owned()),
             expected_array: ArrayObject::from(expected_array.to_owned()),
+            // missing_in_received: ArrayObject::from(missing_in_received),
         });
     }
 

@@ -118,6 +118,21 @@ pub enum JsonValueEqError {
     expected {expected_array}
     received {received_array}"
     )]
+    ArrayMissingInMiddle {
+        context: Context<'static>,
+        received_array: ArrayObject,
+        expected_array: ArrayObject,
+        // TODO, get this working.
+        // It should display all of the items found in Expected, and not in Received.
+        // Taking into account that some items might be missing as duplicates.
+        // missing_in_received: ArrayObject,
+    },
+
+    #[error(
+        "Json arrays at {context} are not equal:
+    expected {expected_array}
+    received {received_array}"
+    )]
     ArrayValuesAreDifferent {
         context: Context<'static>,
         received_array: ArrayObject,
@@ -163,7 +178,7 @@ pub enum JsonValueEqError {
     },
 
     #[error(
-        "Json arrays at {context} are not equal, received has {} extra {} at the end:
+        "Json arrays at {context} are not equal, received {} extra {} at the end:
     expected {expected_array}
     received {received_array}
        extra {extra_in_received}"
@@ -177,7 +192,7 @@ pub enum JsonValueEqError {
     },
 
     #[error(
-        "Json arrays at {context} are not equal, received has {} extra {} at the start:
+        "Json arrays at {context} are not equal, received {} extra {} at the start:
     expected {expected_array}
     received {received_array}
        extra {extra_in_received}"
@@ -252,6 +267,7 @@ impl JsonValueEqError {
             Self::ArrayIndexMissing { context, .. } => context,
             Self::ArrayMissingAtEnd { context, .. } => context,
             Self::ArrayMissingAtStart { context, .. } => context,
+            Self::ArrayMissingInMiddle { context, .. } => context,
             Self::ArrayExtraAtEnd { context, .. } => context,
             Self::ArrayExtraAtStart { context, .. } => context,
             Self::ArrayContainsDifferentTypes { context, .. } => context,

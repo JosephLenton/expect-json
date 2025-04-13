@@ -40,6 +40,9 @@ impl PrettyDisplay for ArrayObject {
     }
 
     fn is_indenting(&self) -> bool {
-        true
+        self.0
+            .first()
+            .map(|value| value.is_indenting())
+            .unwrap_or(false)
     }
 }

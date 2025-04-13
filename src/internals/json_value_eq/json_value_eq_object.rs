@@ -29,7 +29,7 @@ pub fn json_value_eq_object<'a>(
         }
     }
 
-    // For when received has many extra field over what is expected.
+    // For when received many extra field over what is expected.
     if received_len > expected_len {
         let extra_fields = received
             .keys()

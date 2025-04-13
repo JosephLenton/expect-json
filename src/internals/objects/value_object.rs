@@ -347,6 +347,11 @@ mod test_is_indenting {
         let obj = ArrayObject::from(vec![json!(123), json!(456)]);
         let value_obj: ValueObject = obj.clone().into();
         assert_eq!(value_obj.is_indenting(), obj.is_indenting());
+        assert_eq!(value_obj.is_indenting(), false);
+
+        let obj = ArrayObject::from(vec![json!({ "foo": "bar" }), json!(456)]);
+        let value_obj: ValueObject = obj.clone().into();
+        assert_eq!(value_obj.is_indenting(), obj.is_indenting());
         assert_eq!(value_obj.is_indenting(), true);
 
         let obj = FloatObject::from(123.456);
