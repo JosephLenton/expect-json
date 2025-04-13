@@ -4,8 +4,9 @@ use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
 
+#[doc(hidden)]
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct SerializeExpect {
+pub(crate) struct SerializeExpect {
     pub magic_id: ExpectMagicId,
     pub inner: SerializeExpectOp,
 }

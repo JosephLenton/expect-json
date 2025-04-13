@@ -37,6 +37,10 @@ impl JsonExpectOp for StringContains {
 
         Ok(())
     }
+
+    fn supported_types(&self) -> &'static [ValueType] {
+        &[ValueType::String]
+    }
 }
 
 impl From<StringContains> for SerializeExpectOp {

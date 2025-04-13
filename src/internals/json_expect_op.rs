@@ -101,6 +101,10 @@ pub trait JsonExpectOp: Into<SerializeExpectOp> {
             expected_operation: self.into(),
         })
     }
+
+    fn supported_types(&self) -> &'static [ValueType] {
+        &[]
+    }
 }
 
 #[cfg(test)]

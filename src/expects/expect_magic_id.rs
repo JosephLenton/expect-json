@@ -3,7 +3,7 @@ use serde::Serialize;
 use serde_json::Value;
 
 #[derive(Default, Copy, Clone, Debug, Serialize, Deserialize)]
-pub enum ExpectMagicId {
+pub(crate) enum ExpectMagicId {
     /// This is an ID to uniquely identify the Expect Json objects over anything else.
     ///
     /// The ID contains a UUID which I generated on my machine.

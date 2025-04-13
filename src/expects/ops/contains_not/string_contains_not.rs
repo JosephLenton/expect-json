@@ -32,6 +32,10 @@ impl JsonExpectOp for StringContainsNot {
 
         Ok(())
     }
+
+    fn supported_types(&self) -> &'static [ValueType] {
+        &[ValueType::String]
+    }
 }
 
 impl From<StringContainsNot> for SerializeExpectOp {

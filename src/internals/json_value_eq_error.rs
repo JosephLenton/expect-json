@@ -60,9 +60,11 @@ pub enum JsonValueEqError {
     // TODO, this error message should include which operations it _can_ be performed on.
     // The underlying problem might be the server returned different data to what we expected.
     #[error(
-        "Json comparison on unsupported type:
-    expected operation {} cannot be performed on type {received_type}",
-    <&'static str>::from(expected_operation)
+        "Json comparison on unsupported type, at {context}:
+    operation {} cannot be performed against {received_type},
+    {}",
+    <&'static str>::from(expected_operation),
+    format_expected_operation_types(expected_operation)
     )]
     UnsupportedOperation {
         context: Context<'static>,
@@ -340,4 +342,17 @@ fn format_extra_fields(received_extra_fields: &[String]) -> String {
     }
 
     output
+}
+
+fn format_expected_operation_types(expected_operation: &SerializeExpectOp) -> String {
+    let types = expected_operation.supported_types();
+    if types.is_empty() {
+        "this isn't supported on any types".to_string()
+    } else if types.len() == 1 {
+        let supported_type = types[0];
+        format!("only supported type is: {supported_type}")
+    } else {
+        let supported_types = types.join(", ");
+        format!("supported types are: {supported_types}")
+    }
 }

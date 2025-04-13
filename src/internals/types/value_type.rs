@@ -1,5 +1,6 @@
 use serde_json::Number;
 use serde_json::Value;
+use std::borrow::Borrow;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;
@@ -40,14 +41,21 @@ impl From<&Number> for ValueType {
 
 impl Display for ValueType {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> FmtResult {
+        let value_type_str: &str = self.borrow();
+        write!(formatter, "{value_type_str}")
+    }
+}
+
+impl Borrow<str> for ValueType {
+    fn borrow(&self) -> &'static str {
         match *self {
-            Self::Null => write!(formatter, "null"),
-            Self::String => write!(formatter, "string"),
-            Self::Float => write!(formatter, "float"),
-            Self::Integer => write!(formatter, "integer"),
-            Self::Boolean => write!(formatter, "boolean"),
-            Self::Array => write!(formatter, "array"),
-            Self::Object => write!(formatter, "object"),
+            Self::Null => "null",
+            Self::String => "string",
+            Self::Float => "float",
+            Self::Integer => "integer",
+            Self::Boolean => "boolean",
+            Self::Array => "array",
+            Self::Object => "object",
         }
     }
 }

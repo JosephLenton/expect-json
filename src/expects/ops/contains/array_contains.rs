@@ -42,6 +42,10 @@ impl JsonExpectOp for ArrayContains {
 
         Ok(())
     }
+
+    fn supported_types(&self) -> &'static [ValueType] {
+        &[ValueType::Array]
+    }
 }
 
 impl From<ArrayContains> for SerializeExpectOp {
@@ -119,5 +123,19 @@ mod test_array_contains {
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
+    }
+
+    #[test]
+    fn it_should_error_if_used_against_the_wrong_type() {
+        let left = json!("🦊");
+        let right = json!(expect.contains([4, 5, 6]));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            r#"Json comparison on unsupported type, at root:
+    operation ArrayContains cannot be performed against string,
+    only supported type is: array"#
+        );
     }
 }
