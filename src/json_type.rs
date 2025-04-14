@@ -5,6 +5,9 @@ use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;
 
+/// A helper enum to represent the many types contained in Json.
+///
+/// This can be built from looking at Json Values.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum JsonType {
     Null,
