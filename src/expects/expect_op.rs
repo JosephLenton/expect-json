@@ -1,15 +1,15 @@
 use crate::internals::objects::IntegerObject;
 use crate::internals::objects::ValueObject;
-use crate::internals::types::ValueType;
 use crate::internals::Context;
 use crate::internals::JsonValueEqResult;
+use crate::JsonType;
 use dyn_clone::DynClone;
 use serde_json::Map;
 use serde_json::Value;
 use std::fmt::Debug;
 
 pub trait ExpectOp: Debug + Send + 'static + DynClone {
-    fn on_any<'a>(&self, context: &mut Context<'a>, received: &'a Value) -> JsonValueEqResult<()> {
+    fn on_any(&self, context: &mut Context<'_>, received: &Value) -> JsonValueEqResult<()> {
         match received {
             Value::Null => self.on_null(context),
             Value::Number(received_number) => {
@@ -29,12 +29,12 @@ pub trait ExpectOp: Debug + Send + 'static + DynClone {
 
     #[allow(unused_variables)]
     fn on_null(&self, context: &mut Context<'_>) -> JsonValueEqResult<()> {
-        Err(context.unsupported_expect_op_type(ValueType::Null, self))
+        Err(context.unsupported_expect_op_type(JsonType::Null, self))
     }
 
     #[allow(unused_variables)]
     fn on_float(&self, context: &mut Context<'_>, received: f64) -> JsonValueEqResult<()> {
-        Err(context.unsupported_expect_op_type(ValueType::Float, self))
+        Err(context.unsupported_expect_op_type(JsonType::Float, self))
     }
 
     #[allow(unused_variables)]
@@ -43,42 +43,38 @@ pub trait ExpectOp: Debug + Send + 'static + DynClone {
         context: &mut Context<'_>,
         received: IntegerObject,
     ) -> JsonValueEqResult<()> {
-        Err(context.unsupported_expect_op_type(ValueType::Integer, self))
+        Err(context.unsupported_expect_op_type(JsonType::Integer, self))
     }
 
     #[allow(unused_variables)]
     fn on_boolean(&self, context: &mut Context<'_>, received: bool) -> JsonValueEqResult<()> {
-        Err(context.unsupported_expect_op_type(ValueType::Boolean, self))
+        Err(context.unsupported_expect_op_type(JsonType::Boolean, self))
     }
 
     #[allow(unused_variables)]
-    fn on_string<'a>(&self, context: &mut Context<'a>, received: &'a str) -> JsonValueEqResult<()> {
-        Err(context.unsupported_expect_op_type(ValueType::String, self))
+    fn on_string(&self, context: &mut Context<'_>, received: &str) -> JsonValueEqResult<()> {
+        Err(context.unsupported_expect_op_type(JsonType::String, self))
     }
 
     #[allow(unused_variables)]
-    fn on_array<'a>(
+    fn on_array(&self, context: &mut Context<'_>, received: &[Value]) -> JsonValueEqResult<()> {
+        Err(context.unsupported_expect_op_type(JsonType::Array, self))
+    }
+
+    #[allow(unused_variables)]
+    fn on_object(
         &self,
-        context: &mut Context<'a>,
-        received: &'a [Value],
+        context: &mut Context<'_>,
+        received: &Map<String, Value>,
     ) -> JsonValueEqResult<()> {
-        Err(context.unsupported_expect_op_type(ValueType::Array, self))
-    }
-
-    #[allow(unused_variables)]
-    fn on_object<'a>(
-        &self,
-        context: &mut Context<'a>,
-        received: &'a Map<String, Value>,
-    ) -> JsonValueEqResult<()> {
-        Err(context.unsupported_expect_op_type(ValueType::Object, self))
+        Err(context.unsupported_expect_op_type(JsonType::Object, self))
     }
 
     fn name(&self) -> &'static str {
         "<Unknown ExpectOp>"
     }
 
-    fn supported_types(&self) -> &'static [ValueType] {
+    fn supported_types(&self) -> &'static [JsonType] {
         &[]
     }
 }
@@ -110,7 +106,7 @@ mod test_on_any {
             output,
             JsonValueEqError::UnsupportedOperation {
                 context: context.to_static(),
-                received_type: ValueType::Null,
+                received_type: JsonType::Null,
                 expected_operation: ExpectOpMeta {
                     name: "TestJsonExpectOp",
                     types: &[],
@@ -130,7 +126,7 @@ mod test_on_any {
             output,
             JsonValueEqError::UnsupportedOperation {
                 context: context.to_static(),
-                received_type: ValueType::Boolean,
+                received_type: JsonType::Boolean,
                 expected_operation: ExpectOpMeta {
                     name: "TestJsonExpectOp",
                     types: &[],
@@ -150,7 +146,7 @@ mod test_on_any {
             output,
             JsonValueEqError::UnsupportedOperation {
                 context: context.to_static(),
-                received_type: ValueType::Integer,
+                received_type: JsonType::Integer,
                 expected_operation: ExpectOpMeta {
                     name: "TestJsonExpectOp",
                     types: &[],
@@ -170,7 +166,7 @@ mod test_on_any {
             output,
             JsonValueEqError::UnsupportedOperation {
                 context: context.to_static(),
-                received_type: ValueType::Float,
+                received_type: JsonType::Float,
                 expected_operation: ExpectOpMeta {
                     name: "TestJsonExpectOp",
                     types: &[],
@@ -190,7 +186,7 @@ mod test_on_any {
             output,
             JsonValueEqError::UnsupportedOperation {
                 context: context.to_static(),
-                received_type: ValueType::String,
+                received_type: JsonType::String,
                 expected_operation: ExpectOpMeta {
                     name: "TestJsonExpectOp",
                     types: &[],
@@ -210,7 +206,7 @@ mod test_on_any {
             output,
             JsonValueEqError::UnsupportedOperation {
                 context: context.to_static(),
-                received_type: ValueType::Array,
+                received_type: JsonType::Array,
                 expected_operation: ExpectOpMeta {
                     name: "TestJsonExpectOp",
                     types: &[],
@@ -230,7 +226,7 @@ mod test_on_any {
             output,
             JsonValueEqError::UnsupportedOperation {
                 context: context.to_static(),
-                received_type: ValueType::Object,
+                received_type: JsonType::Object,
                 expected_operation: ExpectOpMeta {
                     name: "TestJsonExpectOp",
                     types: &[],

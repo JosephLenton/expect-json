@@ -1,9 +1,9 @@
 use crate::expects::ExpectOp;
 use crate::internals::objects::StringObject;
-use crate::internals::types::ValueType;
 use crate::internals::Context;
 use crate::internals::JsonValueEqError;
 use crate::internals::JsonValueEqResult;
+use crate::JsonType;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -24,11 +24,11 @@ impl StringContains {
 }
 
 impl ExpectOp for StringContains {
-    fn on_string<'a>(&self, context: &mut Context<'a>, received: &'a str) -> JsonValueEqResult<()> {
+    fn on_string(&self, context: &mut Context<'_>, received: &str) -> JsonValueEqResult<()> {
         if !received.contains(&self.content) {
             return Err(JsonValueEqError::ContainsNotFound {
                 context: context.to_static(),
-                json_type: ValueType::String,
+                json_type: JsonType::String,
                 expected: StringObject::from(self.content.clone()).into(),
                 received: StringObject::from(received.to_owned()).into(),
             });
@@ -41,8 +41,8 @@ impl ExpectOp for StringContains {
         "StringContains"
     }
 
-    fn supported_types(&self) -> &'static [ValueType] {
-        &[ValueType::String]
+    fn supported_types(&self) -> &'static [JsonType] {
+        &[JsonType::String]
     }
 }
 

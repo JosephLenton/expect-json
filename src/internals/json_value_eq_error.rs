@@ -1,10 +1,10 @@
 use crate::internals::objects::ArrayObject;
 use crate::internals::objects::ValueObject;
-use crate::internals::types::ValueType;
-use crate::internals::types::ValueTypeObject;
+use crate::internals::objects::ValueTypeObject;
 use crate::internals::utils::is_unquotable_js_identifier;
 use crate::internals::Context;
 use crate::internals::ExpectOpMeta;
+use crate::JsonType;
 use serde_json::Value;
 use std::fmt::Write;
 use thiserror::Error;
@@ -32,7 +32,7 @@ pub enum JsonValueEqError {
     )]
     DifferentValues {
         context: Context<'static>,
-        json_type: ValueType,
+        json_type: JsonType,
         received: ValueObject,
         expected: ValueObject,
     },
@@ -68,7 +68,7 @@ pub enum JsonValueEqError {
     )]
     UnsupportedOperation {
         context: Context<'static>,
-        received_type: ValueType,
+        received_type: JsonType,
         expected_operation: ExpectOpMeta,
     },
 
@@ -106,7 +106,7 @@ pub enum JsonValueEqError {
     )]
     ArrayContainsDifferentValues {
         context: Context<'static>,
-        json_type: ValueType,
+        json_type: JsonType,
         received: ValueObject,
         received_array: ArrayObject,
         expected: ValueObject,
@@ -240,7 +240,7 @@ pub enum JsonValueEqError {
     )]
     ContainsFound {
         context: Context<'static>,
-        json_type: ValueType,
+        json_type: JsonType,
         expected: ValueObject,
         received: ValueObject,
     },
@@ -252,7 +252,7 @@ pub enum JsonValueEqError {
     )]
     ContainsNotFound {
         context: Context<'static>,
-        json_type: ValueType,
+        json_type: JsonType,
         expected: ValueObject,
         received: ValueObject,
     },

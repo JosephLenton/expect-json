@@ -11,7 +11,6 @@ pub fn json_eq<'a>(
     expected: &'a Value,
 ) -> JsonValueEqResult<()> {
     if let Some(expected_op) = SerializeExpectOp::maybe_parse(expected) {
-        println!("deserialized expected_op: {:#?}", expected_op);
         let real_op = expect_store::get_op(expected_op.store_key, expected_op.op_key).unwrap();
         real_op.on_any(context, received)
     } else {

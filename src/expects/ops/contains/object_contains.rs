@@ -1,49 +1,43 @@
 use crate::expects::ExpectOp;
-use crate::internals::objects::ArrayObject;
 use crate::internals::Context;
-use crate::internals::JsonValueEqError;
 use crate::internals::JsonValueEqResult;
 use crate::JsonType;
 use serde::Deserialize;
 use serde::Serialize;
+use serde_json::Map;
 use serde_json::Value;
-use std::collections::HashSet;
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
-pub struct ArrayContains {
-    values: Vec<Value>,
+pub struct ObjectContains {
+    values: Map<String, Value>,
 }
 
-impl ArrayContains {
-    pub(crate) fn new(values: Vec<Value>) -> Self {
+impl ObjectContains {
+    pub(crate) fn new(values: Map<String, Value>) -> Self {
         Self { values }
     }
 }
 
-impl ExpectOp for ArrayContains {
-    fn on_array(
-        &self,
+impl ExpectOp for ObjectContains {
+    fn on_object<'a>(
+        &'a self,
         context: &mut Context<'_>,
-        received_values: &[Value],
+        received_values: &'a Map<String, Value>,
     ) -> JsonValueEqResult<()> {
-        let received_items_in_set = received_values.iter().collect::<HashSet<&Value>>();
+        for (key, expected_value) in &self.values {
+            let received_value = received_values
+                .get(key)
+                .ok_or_else(|| unimplemented!("todo, add an error type here"))
+                .unwrap();
 
-        for expected in &self.values {
-            if !received_items_in_set.contains(&expected) {
-                return Err(JsonValueEqError::ContainsNotFound {
-                    context: context.to_static(),
-                    json_type: JsonType::Array,
-                    expected: expected.clone().into(),
-                    received: ArrayObject::from(received_values.to_owned()).into(),
-                });
-            }
+            context.json_eq(received_value, expected_value)?;
         }
 
         Ok(())
     }
 
     fn name(&self) -> &'static str {
-        "ArrayContains"
+        "ObjectContains"
     }
 
     fn supported_types(&self) -> &'static [JsonType] {
@@ -117,7 +111,7 @@ mod test_array_contains {
         assert_eq!(
             output,
             r#"Json comparison on unsupported type, at root:
-    operation ArrayContains cannot be performed against string,
+    operation ObjectContains cannot be performed against string,
     only supported type is: array"#
         );
     }

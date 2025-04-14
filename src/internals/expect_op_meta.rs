@@ -1,10 +1,10 @@
 use crate::expects::ExpectOp;
-use crate::internals::types::ValueType;
+use crate::JsonType;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct ExpectOpMeta {
     pub name: &'static str,
-    pub types: &'static [ValueType],
+    pub types: &'static [JsonType],
 }
 
 impl ExpectOpMeta {

@@ -29,10 +29,9 @@ where
     where
         S: serde::Serializer,
     {
-        println!("serializing expect_op_container");
         let (store_key, op_key) = internals::expect_store::store(self.inner.clone());
         let serialized = SerializeExpectOp::new(store_key, op_key);
-        println!("serialized expected_op: {:#?}", serialized);
+
         serialized.serialize(serializer)
     }
 }

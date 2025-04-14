@@ -1,4 +1,11 @@
-use crate::internals::context::ContextPathPart;
+use crate::internals::context::context_path_part::ContextPathPart;
+use crate::internals::json_eq;
+use crate::internals::ExpectOpMeta;
+use crate::internals::JsonValueEqError;
+use crate::internals::JsonValueEqResult;
+use crate::ExpectOp;
+use crate::JsonType;
+use serde_json::Value;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;
@@ -9,23 +16,42 @@ pub struct Context<'a> {
 }
 
 impl<'a> Context<'a> {
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         Self::default()
     }
 
-    pub fn push<P>(&mut self, path: P)
+    pub fn unsupported_expect_op_type<E>(
+        &self,
+        received_type: JsonType,
+        expect_op: &E,
+    ) -> JsonValueEqError
+    where
+        E: ExpectOp + ?Sized,
+    {
+        JsonValueEqError::UnsupportedOperation {
+            context: self.to_static(),
+            received_type,
+            expected_operation: ExpectOpMeta::new(expect_op),
+        }
+    }
+
+    pub fn json_eq(&self, received: &'a Value, expected: &'a Value) -> JsonValueEqResult<()> {
+        json_eq(&mut self.clone(), received, expected)
+    }
+
+    pub(crate) fn push<P>(&mut self, path: P)
     where
         P: Into<ContextPathPart<'a>>,
     {
         self.stack.push(path.into());
     }
 
-    pub fn pop(&mut self) {
+    pub(crate) fn pop(&mut self) {
         self.stack.pop();
     }
 
-    pub fn to_static(&self) -> Context<'static> {
-        let stack = self.stack.iter().map(|path| path.to_static()).collect();
+    pub(crate) fn to_static(&self) -> Context<'static> {
+        let stack = self.stack.iter().map(ContextPathPart::to_static).collect();
 
         Context { stack }
     }

@@ -1,9 +1,9 @@
 use crate::expects::ExpectOp;
 use crate::internals::objects::ArrayObject;
-use crate::internals::types::ValueType;
 use crate::internals::Context;
 use crate::internals::JsonValueEqError;
 use crate::internals::JsonValueEqResult;
+use crate::JsonType;
 use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
@@ -21,18 +21,18 @@ impl ArrayContainsNot {
 }
 
 impl ExpectOp for ArrayContainsNot {
-    fn on_array<'a>(
+    fn on_array(
         &self,
-        context: &mut Context<'a>,
-        received_values: &'a [Value],
+        context: &mut Context<'_>,
+        received_values: &[Value],
     ) -> JsonValueEqResult<()> {
-        let received_items_in_set = received_values.iter().collect::<HashSet<&'a Value>>();
+        let received_items_in_set = received_values.iter().collect::<HashSet<&Value>>();
 
         for expected in &self.values {
             if received_items_in_set.contains(&expected) {
                 return Err(JsonValueEqError::ContainsFound {
                     context: context.to_static(),
-                    json_type: ValueType::Array,
+                    json_type: JsonType::Array,
                     expected: expected.clone().into(),
                     received: ArrayObject::from(received_values.to_owned()).into(),
                 });
@@ -46,8 +46,8 @@ impl ExpectOp for ArrayContainsNot {
         "ArrayContainsNot"
     }
 
-    fn supported_types(&self) -> &'static [ValueType] {
-        &[ValueType::Array]
+    fn supported_types(&self) -> &'static [JsonType] {
+        &[JsonType::Array]
     }
 }
 

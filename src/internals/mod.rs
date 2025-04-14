@@ -2,7 +2,6 @@ mod context;
 pub mod expect_store;
 pub mod objects;
 pub mod pretty_formatter;
-pub mod types;
 pub mod utils;
 
 mod expect_op_meta;

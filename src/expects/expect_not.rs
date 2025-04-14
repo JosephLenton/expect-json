@@ -1,4 +1,4 @@
-use crate::expects::ops::ContainsNot;
+use crate::expects::ops::Contains;
 use crate::expects::ExpectOpContainer;
 use serde_json::Value;
 
@@ -6,10 +6,10 @@ use serde_json::Value;
 pub struct ExpectNot;
 
 impl ExpectNot {
-    pub fn contains<V>(self, values: V) -> ExpectOpContainer<ContainsNot>
+    pub fn contains<V>(self, values: V) -> ExpectOpContainer<Contains>
     where
         V: Into<Value>,
     {
-        ExpectOpContainer::new(ContainsNot::new(values))
+        ExpectOpContainer::new(Contains::new_not(values))
     }
 }

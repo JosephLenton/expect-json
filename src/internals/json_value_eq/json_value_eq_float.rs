@@ -1,8 +1,8 @@
 use crate::internals::context::Context;
 use crate::internals::objects::FloatObject;
-use crate::internals::types::ValueType;
 use crate::internals::JsonValueEqError;
 use crate::internals::JsonValueEqResult;
+use crate::JsonType;
 
 pub fn json_value_eq_float(
     context: &mut Context,
@@ -15,7 +15,7 @@ pub fn json_value_eq_float(
 
         return Err(JsonValueEqError::DifferentValues {
             context: context.to_static(),
-            json_type: ValueType::Float,
+            json_type: JsonType::Float,
             received: received.into(),
             expected: expected.into(),
         });

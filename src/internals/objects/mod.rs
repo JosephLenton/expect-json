@@ -21,3 +21,6 @@ pub use self::string_object::*;
 
 mod value_object;
 pub use self::value_object::*;
+
+mod value_type_object;
+pub use self::value_type_object::*;

@@ -1,10 +1,10 @@
 use crate::internals::context::Context;
 use crate::internals::json_eq;
 use crate::internals::objects::ObjectObject;
-use crate::internals::types::ValueType;
 use crate::internals::JsonObject;
 use crate::internals::JsonValueEqError;
 use crate::internals::JsonValueEqResult;
+use crate::JsonType;
 
 pub fn json_value_eq_object<'a>(
     context: &mut Context<'a>,
@@ -48,7 +48,7 @@ pub fn json_value_eq_object<'a>(
     if received.len() != expected.len() {
         return Err(JsonValueEqError::DifferentValues {
             context: context.to_static(),
-            json_type: ValueType::Object,
+            json_type: JsonType::Object,
             received: ObjectObject::from(received.clone()).into(),
             expected: ObjectObject::from(expected.clone()).into(),
         });

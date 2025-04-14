@@ -1,6 +1,6 @@
 use crate::internals::context::Context;
 use crate::internals::objects::ValueObject;
-use crate::internals::types::ValueTypeObject;
+use crate::internals::objects::ValueTypeObject;
 use crate::internals::JsonValueEqError;
 use crate::internals::JsonValueEqResult;
 use serde_json::Value;
