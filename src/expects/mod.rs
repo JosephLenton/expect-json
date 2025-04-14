@@ -12,8 +12,8 @@ pub use self::expect_not::*;
 mod expect_op;
 pub use self::expect_op::*;
 
-mod serialize_expect;
-pub(crate) use self::serialize_expect::*;
+mod expect_op_container;
+pub use self::expect_op_container::*;
 
 mod serialize_expect_op;
-pub use self::serialize_expect_op::*;
+pub(crate) use self::serialize_expect_op::*;

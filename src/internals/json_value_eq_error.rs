@@ -4,7 +4,7 @@ use crate::internals::types::ValueType;
 use crate::internals::types::ValueTypeObject;
 use crate::internals::utils::is_unquotable_js_identifier;
 use crate::internals::Context;
-use crate::SerializeExpectOp;
+use crate::internals::ExpectOpMeta;
 use serde_json::Value;
 use std::fmt::Write;
 use thiserror::Error;
@@ -63,13 +63,13 @@ pub enum JsonValueEqError {
         "Json comparison on unsupported type, at {context}:
     operation {} cannot be performed against {received_type},
     {}",
-    <&'static str>::from(expected_operation),
+    expected_operation.name,
     format_expected_operation_types(expected_operation)
     )]
     UnsupportedOperation {
         context: Context<'static>,
         received_type: ValueType,
-        expected_operation: SerializeExpectOp,
+        expected_operation: ExpectOpMeta,
     },
 
     #[error(
@@ -360,8 +360,8 @@ fn format_extra_fields(received_extra_fields: &[String]) -> String {
     output
 }
 
-fn format_expected_operation_types(expected_operation: &SerializeExpectOp) -> String {
-    let types = expected_operation.supported_types();
+fn format_expected_operation_types(expected_operation: &ExpectOpMeta) -> String {
+    let types = expected_operation.types;
     if types.is_empty() {
         "this isn't supported on any types".to_string()
     } else if types.len() == 1 {
