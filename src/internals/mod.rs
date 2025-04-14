@@ -3,6 +3,7 @@ pub mod objects;
 pub mod pretty_formatter;
 pub mod types;
 pub mod utils;
+pub mod expect_store;
 
 mod json_expect_op;
 pub use self::json_expect_op::*;
