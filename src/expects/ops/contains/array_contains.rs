@@ -1,8 +1,7 @@
-use crate::expects::SerializeExpectOp;
+use crate::expects::ExpectOp;
 use crate::internals::objects::ArrayObject;
 use crate::internals::types::ValueType;
 use crate::internals::Context;
-use crate::internals::JsonExpectOp;
 use crate::internals::JsonValueEqError;
 use crate::internals::JsonValueEqResult;
 use serde::Deserialize;
@@ -21,20 +20,20 @@ impl ArrayContains {
     }
 }
 
-impl JsonExpectOp for ArrayContains {
+impl ExpectOp for ArrayContains {
     fn on_array<'a>(
-        self,
+        &self,
         context: &mut Context<'a>,
         received_values: &'a [Value],
     ) -> JsonValueEqResult<()> {
         let received_items_in_set = received_values.iter().collect::<HashSet<&'a Value>>();
 
-        for expected in self.values {
+        for expected in &self.values {
             if !received_items_in_set.contains(&expected) {
                 return Err(JsonValueEqError::ContainsNotFound {
                     context: context.to_static(),
                     json_type: ValueType::Array,
-                    expected: expected.into(),
+                    expected: expected.clone().into(),
                     received: ArrayObject::from(received_values.to_owned()).into(),
                 });
             }
@@ -43,28 +42,12 @@ impl JsonExpectOp for ArrayContains {
         Ok(())
     }
 
+    fn name(&self) -> &'static str {
+        "ArrayContains"
+    }
+
     fn supported_types(&self) -> &'static [ValueType] {
         &[ValueType::Array]
-    }
-}
-
-impl From<ArrayContains> for SerializeExpectOp {
-    fn from(contains: ArrayContains) -> Self {
-        SerializeExpectOp::ArrayContains(contains)
-    }
-}
-
-#[cfg(test)]
-mod test_from {
-    use super::*;
-    use serde_json::json;
-
-    #[test]
-    fn it_should_convert_to_correct_op() {
-        let contains = ArrayContains::new(vec![json!(123)]);
-        let op: SerializeExpectOp = contains.clone().into();
-
-        assert_eq!(op, SerializeExpectOp::ArrayContains(contains));
     }
 }
 
@@ -77,10 +60,14 @@ mod test_array_contains {
 
     #[test]
     fn it_should_be_equal_for_identical_numeric_arrays() {
+        println!("a");
         let left = json!([1, 2, 3]);
+        println!("b");
         let right = json!(expect.contains([1, 2, 3]));
+        println!("c");
 
         let output = expect_json_eq(&left, &right);
+        println!("d");
         assert!(output.is_ok());
     }
 

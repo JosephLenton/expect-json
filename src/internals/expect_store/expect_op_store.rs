@@ -1,23 +1,31 @@
-use slotmap::SlotMap;
+use crate::expects::ExpectOp;
 use crate::internals::expect_store::ExpectOpKey;
+use slotmap::SlotMap;
+use uuid::Uuid;
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct ExpectOpStore {
-    operations: SlotMap<ExpectOpKey, usize>,
+    id: Uuid,
+    operations: SlotMap<ExpectOpKey, Box<dyn ExpectOp>>,
 }
 
 impl ExpectOpStore {
     pub fn new() -> Self {
         Self {
+            id: Uuid::new_v4(),
             operations: Default::default(),
         }
     }
 
-    pub fn insert(&mut self, op: usize) -> ExpectOpKey {
+    pub fn id(&self) -> Uuid {
+        self.id
+    }
+
+    pub fn insert(&mut self, op: Box<dyn ExpectOp>) -> ExpectOpKey {
         self.operations.insert(op)
     }
 
-    pub fn remove(&mut self, key: ExpectOpKey) -> Option<usize> {
+    pub fn remove(&mut self, key: ExpectOpKey) -> Option<Box<dyn ExpectOp>> {
         self.operations.remove(key)
     }
 }

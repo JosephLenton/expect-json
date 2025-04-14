@@ -1,4 +1,3 @@
-use crate::expects::SerializeExpectOp;
 use crate::internals::types::ValueType;
 use serde::Deserialize;
 use serde::Serialize;
@@ -9,6 +8,7 @@ pub use self::array_contains_not::*;
 
 mod string_contains_not;
 pub use self::string_contains_not::*;
+use crate::ExpectOp;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum ContainsNot {
@@ -35,11 +35,40 @@ impl ContainsNot {
     }
 }
 
-impl From<ContainsNot> for SerializeExpectOp {
-    fn from(contains: ContainsNot) -> Self {
-        match contains {
-            ContainsNot::Array(contains) => Self::ArrayContainsNot(contains),
-            ContainsNot::String(contains) => Self::StringContainsNot(contains),
+impl ExpectOp for ContainsNot {
+    fn on_array<'a>(
+        &self,
+        context: &mut crate::internals::Context<'a>,
+        received: &'a [Value],
+    ) -> crate::internals::JsonValueEqResult<()> {
+        match self {
+            Self::Array(inner) => inner.on_array(context, received),
+            _ => Err(context.unsupported_expect_op_type(ValueType::Array, self)),
+        }
+    }
+
+    fn on_string<'a>(
+        &self,
+        context: &mut crate::internals::Context<'a>,
+        received: &'a str,
+    ) -> crate::internals::JsonValueEqResult<()> {
+        match self {
+            Self::String(inner) => inner.on_string(context, received),
+            _ => Err(context.unsupported_expect_op_type(ValueType::String, self)),
+        }
+    }
+
+    fn name(&self) -> &'static str {
+        match self {
+            Self::Array(inner) => inner.name(),
+            Self::String(inner) => inner.name(),
+        }
+    }
+
+    fn supported_types(&self) -> &'static [crate::internals::types::ValueType] {
+        match self {
+            Self::Array(inner) => inner.supported_types(),
+            Self::String(inner) => inner.supported_types(),
         }
     }
 }
@@ -53,27 +82,5 @@ mod test_new {
     #[should_panic]
     fn it_should_error_if_given_not_an_array_or_string() {
         expect.not.contains(json!(false));
-    }
-}
-
-#[cfg(test)]
-mod test_from {
-    use super::*;
-    use serde_json::json;
-
-    #[test]
-    fn it_should_convert_array_to_correct_op() {
-        let contains = ArrayContainsNot::new(vec![json!(123)]);
-        let op: SerializeExpectOp = ContainsNot::Array(contains.clone()).into();
-
-        assert_eq!(op, SerializeExpectOp::ArrayContainsNot(contains));
-    }
-
-    #[test]
-    fn it_should_convert_string_to_correct_op() {
-        let contains = StringContainsNot::new("hello".to_string());
-        let op: SerializeExpectOp = ContainsNot::String(contains.clone()).into();
-
-        assert_eq!(op, SerializeExpectOp::StringContainsNot(contains));
     }
 }

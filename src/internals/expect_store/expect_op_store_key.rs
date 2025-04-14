@@ -1,3 +1,3 @@
-use slotmap::new_key_type;
+use uuid::Uuid;
 
-new_key_type! { pub struct ExpectOpStoreKey; }
+pub type ExpectOpStoreKey = Uuid;

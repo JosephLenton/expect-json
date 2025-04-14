@@ -1,46 +1,66 @@
-use crate::expects::ops::ArrayContains;
-use crate::expects::ops::ArrayContainsNot;
-use crate::expects::ops::StringContains;
-use crate::expects::ops::StringContainsNot;
-use crate::internals::types::ValueType;
-use crate::internals::Context;
-use crate::internals::JsonExpectOp;
-use crate::internals::JsonValueEqResult;
+use crate::expects::ExpectMagicId;
+use crate::internals::expect_store::ExpectOpKey;
+use crate::internals::expect_store::ExpectOpStoreKey;
 use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
-use strum::IntoStaticStr;
 
 #[doc(hidden)]
-#[derive(Clone, Debug, Serialize, Deserialize, IntoStaticStr, PartialEq)]
-#[serde(tag = "type")]
-pub enum SerializeExpectOp {
-    ArrayContains(ArrayContains),
-    ArrayContainsNot(ArrayContainsNot),
-    StringContains(StringContains),
-    StringContainsNot(StringContainsNot),
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub(crate) struct SerializeExpectOp {
+    pub magic_id: ExpectMagicId,
+    pub store_key: ExpectOpStoreKey,
+    pub op_key: ExpectOpKey,
 }
 
 impl SerializeExpectOp {
-    pub fn on_any<'a>(
-        self,
-        context: &mut Context<'a>,
-        received: &'a Value,
-    ) -> JsonValueEqResult<()> {
-        match self {
-            Self::ArrayContains(inner) => inner.on_any(context, received),
-            Self::ArrayContainsNot(inner) => inner.on_any(context, received),
-            Self::StringContains(inner) => inner.on_any(context, received),
-            Self::StringContainsNot(inner) => inner.on_any(context, received),
+    pub fn new(store_key: ExpectOpStoreKey, op_key: ExpectOpKey) -> Self {
+        Self {
+            magic_id: ExpectMagicId::__ExpectJson_MagicId_0ABDBD14_93D1_4D73_8E26_0177D8A280A4__,
+            store_key,
+            op_key,
         }
     }
 
-    pub fn supported_types(&self) -> &'static [ValueType] {
-        match self {
-            Self::ArrayContains(inner) => inner.supported_types(),
-            Self::ArrayContainsNot(inner) => inner.supported_types(),
-            Self::StringContains(inner) => inner.supported_types(),
-            Self::StringContainsNot(inner) => inner.supported_types(),
+    pub fn maybe_parse(value: &Value) -> Option<Self> {
+        if !Self::has_magic_id(value) {
+            return None;
         }
+
+        let obj = serde_json::from_value::<Self>(value.clone())
+            .expect("Failed to decode internal expect structure from Json");
+        Some(obj)
+    }
+}
+
+impl SerializeExpectOp {
+    pub fn has_magic_id(value: &Value) -> bool {
+        value
+            .as_object()
+            .and_then(|obj| obj.get_key_value("magic_id"))
+            .map(|(_, maybe_value_str)| ExpectMagicId::is_magic_id_value(maybe_value_str))
+            .unwrap_or_default()
+    }
+}
+
+#[cfg(test)]
+mod test_serialize {
+    use crate::expect;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_serialize_into_expected_structure_with_magic_id() {
+        let output = json!(expect.contains([1, 2, 3]));
+
+        assert!(output.is_object());
+        let obj = output.as_object().unwrap();
+        assert_eq!(
+            obj.get("magic_id"),
+            Some(&json!(
+                "__ExpectJson_MagicId_0ABDBD14_93D1_4D73_8E26_0177D8A280A4__"
+            ))
+        );
+        assert!(obj.get("store_key").is_some());
+        assert!(obj.get("op_key").is_some());
     }
 }

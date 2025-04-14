@@ -5,7 +5,7 @@ use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum ValueType {
     Null,
     String,

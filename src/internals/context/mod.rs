@@ -5,6 +5,10 @@ use std::fmt::Result as FmtResult;
 
 mod context_path_part;
 use self::context_path_part::*;
+use crate::internals::types::ValueType;
+use crate::internals::ExpectOpMeta;
+use crate::internals::JsonValueEqError;
+use crate::ExpectOp;
 
 #[derive(Clone, Default, Debug, PartialEq)]
 pub struct Context<'a> {
@@ -31,6 +35,21 @@ impl<'a> Context<'a> {
         let stack = self.stack.iter().map(ContextPathPart::to_static).collect();
 
         Context { stack }
+    }
+
+    pub fn unsupported_expect_op_type<E>(
+        &self,
+        received_type: ValueType,
+        expect_op: &E,
+    ) -> JsonValueEqError
+    where
+        E: ExpectOp + ?Sized,
+    {
+        JsonValueEqError::UnsupportedOperation {
+            context: self.to_static(),
+            received_type,
+            expected_operation: ExpectOpMeta::new(expect_op),
+        }
     }
 }
 

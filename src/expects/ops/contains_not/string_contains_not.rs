@@ -1,8 +1,7 @@
-use crate::expects::SerializeExpectOp;
+use crate::expects::ExpectOp;
 use crate::internals::objects::StringObject;
 use crate::internals::types::ValueType;
 use crate::internals::Context;
-use crate::internals::JsonExpectOp;
 use crate::internals::JsonValueEqError;
 use crate::internals::JsonValueEqResult;
 use serde::Deserialize;
@@ -19,13 +18,13 @@ impl StringContainsNot {
     }
 }
 
-impl JsonExpectOp for StringContainsNot {
-    fn on_string<'a>(self, context: &mut Context<'a>, received: &'a str) -> JsonValueEqResult<()> {
+impl ExpectOp for StringContainsNot {
+    fn on_string<'a>(&self, context: &mut Context<'a>, received: &'a str) -> JsonValueEqResult<()> {
         if received.contains(&self.content) {
             return Err(JsonValueEqError::ContainsFound {
                 context: context.to_static(),
                 json_type: ValueType::String,
-                expected: StringObject::from(self.content).into(),
+                expected: StringObject::from(self.content.clone()).into(),
                 received: StringObject::from(received.to_owned()).into(),
             });
         }
@@ -33,27 +32,12 @@ impl JsonExpectOp for StringContainsNot {
         Ok(())
     }
 
+    fn name(&self) -> &'static str {
+        "StringContainsNot"
+    }
+
     fn supported_types(&self) -> &'static [ValueType] {
         &[ValueType::String]
-    }
-}
-
-impl From<StringContainsNot> for SerializeExpectOp {
-    fn from(contains: StringContainsNot) -> Self {
-        SerializeExpectOp::StringContainsNot(contains)
-    }
-}
-
-#[cfg(test)]
-mod test_from {
-    use super::*;
-
-    #[test]
-    fn it_should_convert_to_correct_op() {
-        let contains = StringContainsNot::new("my-string".to_string());
-        let op: SerializeExpectOp = contains.clone().into();
-
-        assert_eq!(op, SerializeExpectOp::StringContainsNot(contains));
     }
 }
 
