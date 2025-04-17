@@ -1,4 +1,3 @@
-use crate::internals::expect_store;
 use crate::internals::json_value_eq;
 use crate::internals::Context;
 use crate::internals::JsonValueEqResult;
@@ -11,8 +10,7 @@ pub fn json_eq<'a>(
     expected: &'a Value,
 ) -> JsonValueEqResult<()> {
     if let Some(expected_op) = SerializeExpectOp::maybe_parse(expected) {
-        let real_op = expect_store::get_op(expected_op.store_key, expected_op.op_key).unwrap();
-        real_op.on_any(context, received)
+        expected_op.inner.on_any(context, received)
     } else {
         json_value_eq(context, received, expected)
     }

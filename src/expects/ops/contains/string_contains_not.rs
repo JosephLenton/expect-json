@@ -18,6 +18,7 @@ impl StringContainsNot {
     }
 }
 
+#[typetag::serde]
 impl ExpectOp for StringContainsNot {
     fn on_string(&self, context: &mut Context<'_>, received: &str) -> JsonValueEqResult<()> {
         if received.contains(&self.content) {

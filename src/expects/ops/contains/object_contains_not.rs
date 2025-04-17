@@ -18,11 +18,12 @@ impl ObjectContainsNot {
     }
 }
 
+#[typetag::serde]
 impl ExpectOp for ObjectContainsNot {
-    fn on_object<'a>(
-        &'a self,
-        context: &mut Context<'_>,
-        received_values: &'a Map<String, Value>,
+    fn on_object(
+        &self,
+        context: &mut Context,
+        received_values: &Map<String, Value>,
     ) -> JsonValueEqResult<()> {
         for (key, expected_value) in &self.values {
             let received_value = received_values
@@ -30,7 +31,9 @@ impl ExpectOp for ObjectContainsNot {
                 .ok_or_else(|| unimplemented!("todo, add an error type here"))
                 .unwrap();
 
+            context.push(key.to_owned());
             context.json_eq(received_value, expected_value)?;
+            context.pop();
         }
 
         Ok(())

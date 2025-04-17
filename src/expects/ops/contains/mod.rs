@@ -1,3 +1,5 @@
+use crate::internals::Context;
+use crate::internals::JsonValueEqResult;
 use crate::ExpectOp;
 use crate::JsonType;
 use serde::Deserialize;
@@ -21,7 +23,6 @@ pub use self::string_contains::*;
 
 mod string_contains_not;
 pub use self::string_contains_not::*;
-use crate::internals::Context;
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub enum Contains {
@@ -71,12 +72,13 @@ impl Contains {
     }
 }
 
+#[typetag::serde]
 impl ExpectOp for Contains {
     fn on_object(
         &self,
         context: &mut Context,
         received: &serde_json::Map<String, Value>,
-    ) -> crate::internals::JsonValueEqResult<()> {
+    ) -> JsonValueEqResult<()> {
         match self {
             Self::Object(inner) => inner.on_object(context, received),
             Self::ObjectNot(inner) => inner.on_object(context, received),
@@ -84,11 +86,7 @@ impl ExpectOp for Contains {
         }
     }
 
-    fn on_array(
-        &self,
-        context: &mut Context,
-        received: &[Value],
-    ) -> crate::internals::JsonValueEqResult<()> {
+    fn on_array(&self, context: &mut Context, received: &[Value]) -> JsonValueEqResult<()> {
         match self {
             Self::Array(inner) => inner.on_array(context, received),
             Self::ArrayNot(inner) => inner.on_array(context, received),
@@ -96,11 +94,7 @@ impl ExpectOp for Contains {
         }
     }
 
-    fn on_string(
-        &self,
-        context: &mut Context,
-        received: &str,
-    ) -> crate::internals::JsonValueEqResult<()> {
+    fn on_string(&self, context: &mut Context, received: &str) -> JsonValueEqResult<()> {
         match self {
             Self::String(inner) => inner.on_string(context, received),
             Self::StringNot(inner) => inner.on_string(context, received),

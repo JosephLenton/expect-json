@@ -20,6 +20,7 @@ impl ArrayContains {
     }
 }
 
+#[typetag::serde]
 impl ExpectOp for ArrayContains {
     fn on_array(
         &self,

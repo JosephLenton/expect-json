@@ -18,11 +18,12 @@ impl ObjectContains {
     }
 }
 
+#[typetag::serde]
 impl ExpectOp for ObjectContains {
-    fn on_object<'a>(
-        &'a self,
-        context: &mut Context<'_>,
-        received_values: &'a Map<String, Value>,
+    fn on_object(
+        &self,
+        context: &mut Context,
+        received_values: &Map<String, Value>,
     ) -> JsonValueEqResult<()> {
         for (key, expected_value) in &self.values {
             let received_value = received_values
@@ -30,7 +31,9 @@ impl ExpectOp for ObjectContains {
                 .ok_or_else(|| unimplemented!("todo, add an error type here"))
                 .unwrap();
 
+            context.push(key.to_owned());
             context.json_eq(received_value, expected_value)?;
+            context.pop();
         }
 
         Ok(())
@@ -46,25 +49,27 @@ impl ExpectOp for ObjectContains {
 }
 
 #[cfg(test)]
-mod test_array_contains {
+mod test_object_contains {
     use crate::expect;
     use crate::expect_json_eq;
     use pretty_assertions::assert_eq;
     use serde_json::json;
 
     #[test]
-    fn it_should_be_equal_for_identical_numeric_arrays() {
-        let left = json!([1, 2, 3]);
-        let right = json!(expect.contains([1, 2, 3]));
+    fn it_should_be_equal_for_identical_objects() {
+        let left = json!({ "name": "John", "age": 30, "scores": [1, 2, 3] });
+        let right =
+            json!(expect.contains(json!({ "name": "John", "age": 30, "scores": [1, 2, 3] })));
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
     }
 
     #[test]
-    fn it_should_be_equal_for_reversed_identical_numeric_arrays() {
-        let left = json!([1, 2, 3]);
-        let right = json!(expect.contains([3, 2, 1]));
+    fn it_should_be_equal_for_reversed_identical_objects() {
+        let left = json!({ "name": "John", "age": 30, "scores": [1, 2, 3] });
+        let right =
+            json!(expect.contains(json!({ "scores": [1, 2, 3], "age": 30, "name": "John" })));
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
@@ -72,31 +77,41 @@ mod test_array_contains {
 
     #[test]
     fn it_should_be_equal_for_partial_contains() {
-        let left = json!([0, 1, 2, 3, 4, 5]);
-        let right = json!(expect.contains([1, 2, 3]));
+        let left = json!({ "name": "John", "age": 30, "scores": [1, 2, 3] });
+        let right = json!(expect.contains(json!({ "name": "John", "age": 30 })));
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
     }
 
     #[test]
-    fn it_should_error_for_totall_different_values() {
-        let left = json!([0, 1, 2, 3]);
-        let right = json!(expect.contains([4, 5, 6]));
+    fn it_should_error_for_same_fields_but_different_values() {
+        let left = json!({ "name": "John", "age": 30, "scores": [1, 2, 3] });
+        let right =
+            json!(expect.contains(json!({ "name": "Joe", "age": 31, "scores": [4, 5, 6] })));
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
-            r#"Json array at root does not contain expected value:
-    expected array to contain 4, but it was not found.
-    received [0, 1, 2, 3]"#
+            r#"Json integers at root.age are not equal:
+    expected 31
+    received 30"#
         );
     }
 
     #[test]
     fn it_should_be_ok_for_empty_contains() {
-        let left = json!([0, 1, 2, 3]);
-        let right = json!(expect.contains(&[] as &'static [u32]));
+        let left = json!({ "name": "John", "age": 30, "scores": [1, 2, 3] });
+        let right = json!(expect.contains(json!({})));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok());
+    }
+
+    #[test]
+    fn it_should_be_ok_for_empty_on_empty_object() {
+        let left = json!({});
+        let right = json!(expect.contains(json!({})));
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
@@ -105,7 +120,7 @@ mod test_array_contains {
     #[test]
     fn it_should_error_if_used_against_the_wrong_type() {
         let left = json!("🦊");
-        let right = json!(expect.contains([4, 5, 6]));
+        let right = json!(expect.contains(json!({})));
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(

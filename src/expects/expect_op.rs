@@ -3,20 +3,21 @@ use crate::internals::objects::ValueObject;
 use crate::internals::Context;
 use crate::internals::JsonValueEqResult;
 use crate::JsonType;
-use dyn_clone::DynClone;
 use serde_json::Map;
 use serde_json::Value;
 use std::fmt::Debug;
 
-pub trait ExpectOp: Debug + Send + 'static + DynClone {
+#[typetag::serde(tag = "type")]
+pub trait ExpectOp: Debug + Send + 'static {
     fn on_any(&self, context: &mut Context<'_>, received: &Value) -> JsonValueEqResult<()> {
         match received {
             Value::Null => self.on_null(context),
             Value::Number(received_number) => {
                 let value_num = ValueObject::from(received_number.clone());
                 match value_num {
-                    ValueObject::Float(received_float) => self.on_float(context, received_float.into()),
-                    ValueObject::Integer(received_integer) => self.on_integer(context, received_integer),
+                    ValueObject::Float(received_float) => self.on_f64(context, received_float.into()),
+                    ValueObject::Integer(IntegerObject::Positive(received_integer)) => self.on_u64(context, received_integer),
+                    ValueObject::Integer(IntegerObject::Negative(received_integer)) => self.on_i64(context, received_integer),
                     _ => panic!("Unexpected non-number value, expected a float or an integer, found {value_num:?}. (This is a bug, please report at: https://github.com/JosephLenton/expect-json/issues)"),
                 }
             }
@@ -33,16 +34,17 @@ pub trait ExpectOp: Debug + Send + 'static + DynClone {
     }
 
     #[allow(unused_variables)]
-    fn on_float(&self, context: &mut Context<'_>, received: f64) -> JsonValueEqResult<()> {
+    fn on_f64(&self, context: &mut Context<'_>, received: f64) -> JsonValueEqResult<()> {
         Err(context.unsupported_expect_op_type(JsonType::Float, self))
     }
 
     #[allow(unused_variables)]
-    fn on_integer(
-        &self,
-        context: &mut Context<'_>,
-        received: IntegerObject,
-    ) -> JsonValueEqResult<()> {
+    fn on_u64(&self, context: &mut Context<'_>, received: u64) -> JsonValueEqResult<()> {
+        Err(context.unsupported_expect_op_type(JsonType::Integer, self))
+    }
+
+    #[allow(unused_variables)]
+    fn on_i64(&self, context: &mut Context<'_>, received: i64) -> JsonValueEqResult<()> {
         Err(context.unsupported_expect_op_type(JsonType::Integer, self))
     }
 
@@ -84,11 +86,15 @@ mod test_on_any {
     use super::*;
     use crate::internals::ExpectOpMeta;
     use crate::internals::JsonValueEqError;
+    use serde::Deserialize;
+    use serde::Serialize;
     use serde_json::json;
 
     // An empty implementation which will hit the errors by default.
-    #[derive(Debug, Clone)]
+    #[derive(Debug, Clone, Serialize, Deserialize)]
     struct TestJsonExpectOp;
+
+    #[typetag::serde]
     impl ExpectOp for TestJsonExpectOp {
         fn name(&self) -> &'static str {
             "TestJsonExpectOp"
@@ -136,9 +142,29 @@ mod test_on_any {
     }
 
     #[test]
-    fn it_should_error_by_default_against_json_integer() {
+    fn it_should_error_by_default_against_json_positive_integer() {
         let mut context = Context::new();
         let received = json!(123);
+        let output = TestJsonExpectOp
+            .on_any(&mut context, &received)
+            .unwrap_err();
+        assert_eq!(
+            output,
+            JsonValueEqError::UnsupportedOperation {
+                context: context.to_static(),
+                received_type: JsonType::Integer,
+                expected_operation: ExpectOpMeta {
+                    name: "TestJsonExpectOp",
+                    types: &[],
+                },
+            }
+        );
+    }
+
+    #[test]
+    fn it_should_error_by_default_against_json_negative_integer() {
+        let mut context = Context::new();
+        let received = json!(-123);
         let output = TestJsonExpectOp
             .on_any(&mut context, &received)
             .unwrap_err();

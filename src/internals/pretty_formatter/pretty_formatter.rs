@@ -1,4 +1,7 @@
 use crate::internals::pretty_formatter::PrettyDisplay;
+use crate::SerializeExpectOp;
+use serde_json::Map;
+use serde_json::Value;
 use std::fmt::Arguments;
 use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;
@@ -62,16 +65,16 @@ impl<'a, 'b> PrettyFormatter<'a, 'b> {
         Ok(())
     }
 
-    pub fn write_fmt_object<'i, I, V>(&mut self, items: I) -> FmtResult
-    where
-        I: IntoIterator<Item = (&'i String, &'i V)>,
-        V: PrettyDisplay + 'i,
-    {
+    pub fn write_fmt_object(&mut self, object: &Map<String, Value>) -> FmtResult {
+        if let Some(expect_op) = SerializeExpectOp::maybe_parse_from_obj(object) {
+            return write!(self.formatter, "expect.{}( ... )", expect_op.name());
+        }
+
         write!(self.formatter, "{{")?;
         self.increment_indentation();
 
         let mut is_empty = true;
-        for (i, (key, value)) in items.into_iter().enumerate() {
+        for (i, (key, value)) in object.iter().enumerate() {
             is_empty = false;
 
             if i > 0 {
@@ -130,5 +133,39 @@ impl<'b> Deref for PrettyFormatter<'_, 'b> {
 impl DerefMut for PrettyFormatter<'_, '_> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         self.formatter
+    }
+}
+
+#[cfg(test)]
+mod test_write_fmt_object {
+    use crate::expect;
+    use crate::internals::objects::ValueObject;
+    use pretty_assertions::assert_eq;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_format_object_with_one_key_value_pair() {
+        let object = ValueObject::from(json!({ "key": "value" }));
+        let output = format!("{object}");
+
+        assert_eq!(
+            output,
+            r#"{
+        "key": "value"
+    }"#
+        );
+    }
+
+    #[test]
+    fn it_should_format_object_holding_an_expect_operation() {
+        let object = ValueObject::from(json!({ "key": expect.contains("aaa") }));
+        let output = format!("{object}");
+
+        assert_eq!(
+            output,
+            r#"{
+        "key": expect.StringContains( ... )
+    }"#
+        );
     }
 }

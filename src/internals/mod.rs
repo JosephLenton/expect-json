@@ -1,5 +1,4 @@
 mod context;
-pub mod expect_store;
 pub mod objects;
 pub mod pretty_formatter;
 pub mod utils;

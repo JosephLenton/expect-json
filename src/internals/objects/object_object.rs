@@ -10,8 +10,8 @@ use std::fmt::Result as FmtResult;
 #[derive(Clone, Debug, PartialEq)]
 pub struct ObjectObject(JsonObject);
 
-impl ObjectObject {
-    pub fn from_iter<I>(iter: I) -> Self
+impl FromIterator<(String, Value)> for ObjectObject {
+    fn from_iter<I>(iter: I) -> Self
     where
         I: IntoIterator<Item = (String, Value)>,
     {

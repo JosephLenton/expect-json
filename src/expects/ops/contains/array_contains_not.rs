@@ -20,6 +20,7 @@ impl ArrayContainsNot {
     }
 }
 
+#[typetag::serde]
 impl ExpectOp for ArrayContainsNot {
     fn on_array(
         &self,

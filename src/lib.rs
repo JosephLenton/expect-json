@@ -2,7 +2,8 @@
 #![cfg_attr(docsrs, feature(doc_cfg, doc_auto_cfg))]
 #![allow(clippy::module_inception)]
 
-pub(crate) mod internals;
+// pub(crate) mod internals;
+pub mod internals;
 
 #[allow(non_upper_case_globals)]
 pub const expect: Expect = Expect::new();
@@ -18,3 +19,5 @@ pub use self::expect_json_eq::*;
 
 mod json_type;
 pub use self::json_type::*;
+
+pub use ::typetag;
