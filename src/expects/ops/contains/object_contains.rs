@@ -1,13 +1,13 @@
+use crate::expect_op;
 use crate::expects::ExpectOp;
 use crate::internals::Context;
 use crate::internals::JsonValueEqResult;
 use crate::JsonType;
-use serde::Deserialize;
-use serde::Serialize;
 use serde_json::Map;
 use serde_json::Value;
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[expect_op(internal)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct ObjectContains {
     values: Map<String, Value>,
 }
@@ -18,7 +18,6 @@ impl ObjectContains {
     }
 }
 
-#[typetag::serde]
 impl ExpectOp for ObjectContains {
     fn on_object(
         &self,

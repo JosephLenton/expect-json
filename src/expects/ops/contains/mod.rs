@@ -1,9 +1,8 @@
+use crate::expect_op;
 use crate::internals::Context;
 use crate::internals::JsonValueEqResult;
 use crate::ExpectOp;
 use crate::JsonType;
-use serde::Deserialize;
-use serde::Serialize;
 use serde_json::Value;
 
 mod array_contains;
@@ -24,7 +23,8 @@ pub use self::string_contains::*;
 mod string_contains_not;
 pub use self::string_contains_not::*;
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[expect_op(internal)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Contains {
     Array(ArrayContains),
     Object(ObjectContains),
@@ -72,7 +72,6 @@ impl Contains {
     }
 }
 
-#[typetag::serde]
 impl ExpectOp for Contains {
     fn on_object(
         &self,

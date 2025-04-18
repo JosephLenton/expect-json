@@ -1,13 +1,13 @@
+use crate::expect_op;
 use crate::expects::ExpectOp;
 use crate::internals::objects::StringObject;
 use crate::internals::Context;
 use crate::internals::JsonValueEqError;
 use crate::internals::JsonValueEqResult;
 use crate::JsonType;
-use serde::Deserialize;
-use serde::Serialize;
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[expect_op(internal)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct StringContainsNot {
     content: String,
 }
@@ -18,7 +18,6 @@ impl StringContainsNot {
     }
 }
 
-#[typetag::serde]
 impl ExpectOp for StringContainsNot {
     fn on_string(&self, context: &mut Context<'_>, received: &str) -> JsonValueEqResult<()> {
         if received.contains(&self.content) {

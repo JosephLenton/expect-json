@@ -20,4 +20,7 @@ pub use self::expect_json_eq::*;
 mod json_type;
 pub use self::json_type::*;
 
-pub use ::typetag;
+pub use ::expect_json_macros::*;
+
+#[doc(hidden)]
+pub mod __private;

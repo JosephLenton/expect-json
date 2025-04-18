@@ -1,15 +1,15 @@
+use crate::expect_op;
 use crate::expects::ExpectOp;
 use crate::internals::objects::ArrayObject;
 use crate::internals::Context;
 use crate::internals::JsonValueEqError;
 use crate::internals::JsonValueEqResult;
 use crate::JsonType;
-use serde::Deserialize;
-use serde::Serialize;
 use serde_json::Value;
 use std::collections::HashSet;
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[expect_op(internal)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct ArrayContainsNot {
     values: Vec<Value>,
 }
@@ -20,7 +20,6 @@ impl ArrayContainsNot {
     }
 }
 
-#[typetag::serde]
 impl ExpectOp for ArrayContainsNot {
     fn on_array(
         &self,

@@ -7,7 +7,6 @@ use serde_json::Map;
 use serde_json::Value;
 use std::fmt::Debug;
 
-#[typetag::serde(tag = "type")]
 pub trait ExpectOp: Debug + Send + 'static {
     fn on_any(&self, context: &mut Context<'_>, received: &Value) -> JsonValueEqResult<()> {
         match received {
@@ -86,6 +85,7 @@ mod test_on_any {
     use super::*;
     use crate::internals::ExpectOpMeta;
     use crate::internals::JsonValueEqError;
+    use crate::ExpectOpSerialize;
     use serde::Deserialize;
     use serde::Serialize;
     use serde_json::json;
@@ -95,6 +95,8 @@ mod test_on_any {
     struct TestJsonExpectOp;
 
     #[typetag::serde]
+    impl ExpectOpSerialize for TestJsonExpectOp {}
+
     impl ExpectOp for TestJsonExpectOp {
         fn name(&self) -> &'static str {
             "TestJsonExpectOp"
