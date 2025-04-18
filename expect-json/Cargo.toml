@@ -10,7 +10,7 @@ keywords = ["testing", "test", "json", "serde_json"]
 categories = ["development-tools::testing", "development-tools"]
 repository = "https://github.com/JosephLenton/expect-json"
 documentation = "https://docs.rs/expect-json"
-readme = "README.md"
+readme = "../README.md"
 
 [package.metadata.docs.rs]
 all-features = true

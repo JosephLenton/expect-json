@@ -10,6 +10,10 @@ repository = "https://github.com/JosephLenton/expect-json"
 documentation = "https://docs.rs/expect-json-macros"
 readme = "README.md"
 
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
 [lib]
 proc-macro = true
 
