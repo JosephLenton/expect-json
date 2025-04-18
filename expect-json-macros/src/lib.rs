@@ -1,7 +1,7 @@
 use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TokenStream2;
-use quote::quote;
 use quote::format_ident;
+use quote::quote;
 
 #[proc_macro_attribute]
 pub fn expect_op(args: TokenStream, input: TokenStream) -> TokenStream {
@@ -14,7 +14,7 @@ pub fn expect_op(args: TokenStream, input: TokenStream) -> TokenStream {
             }
 
             "crate"
-        },
+        }
     };
     let crate_name = format_ident!("{crate_name_str}");
 

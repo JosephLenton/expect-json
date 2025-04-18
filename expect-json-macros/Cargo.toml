@@ -1,12 +1,19 @@
 [package]
 name = "expect-json-macros"
-version = "0.1.0"
-edition = "2024"
+authors = ["Joseph Lenton <josephlenton@gmail.com>"]
+version = "0.4.0"
+edition = "2021"
+rust-version = "1.83"
+license = "MIT"
+description = "Macros for Expect Json"
+repository = "https://github.com/JosephLenton/expect-json"
+documentation = "https://docs.rs/expect-json-macros"
+readme = "README.md"
 
 [lib]
 proc-macro = true
 
 [dependencies]
-proc-macro2 = "1.0.95"
-quote = "1.0.40"
-syn = "2.0.100"
+proc-macro2 = { workspace = true }
+quote = { workspace = true }
+syn = { workspace = true }

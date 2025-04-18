@@ -1,35 +1,16 @@
-[package]
-name = "expect-json"
-authors = ["Joseph Lenton <josephlenton@gmail.com>"]
-version = "0.4.0"
-edition = "2021"
-rust-version = "1.83"
-license = "MIT"
-description = "For testing "
-keywords = ["testing", "test", "json", "serde_json"]
-categories = ["development-tools::testing", "development-tools"]
-repository = "https://github.com/JosephLenton/expect-json"
-documentation = "https://docs.rs/expect-json"
-readme = "README.md"
+[workspace]
+members = ["expect-json", "expect-json-macros", "test-standalone"]
+resolver = "2"
 
-[package.metadata.docs.rs]
-all-features = true
-rustdoc-args = ["--cfg", "docsrs"]
-
-[features]
-default = []
-
-[dependencies]
-expect-json-macros = { path = "./expect-json-macros" }
-
-erased-serde = "0.4"
-serde = { version = "1.0", features = ["derive"] }
+[workspace.dependencies]
+serde = "1.0"
 serde_json = "1.0"
-strum = { version = "0.27", features = ["derive"] }
 typetag = "0.2"
 thiserror = "2.0"
-slotmap = "1.0"
-uuid = { version = "1.16", features = ["v4", "serde"] }
+uuid = "1.16"
 
-[dev-dependencies]
+proc-macro2 = "1.0.95"
+quote = "1.0.40"
+syn = "2.0.100"
+
 pretty_assertions = "1.4"

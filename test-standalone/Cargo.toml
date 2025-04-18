@@ -1,7 +1,8 @@
 [package]
 name = "test-standalone"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
+publish = false
 
 [dependencies]
-expect-json = { path = "../" }
+expect-json = { path = "../expect-json" }

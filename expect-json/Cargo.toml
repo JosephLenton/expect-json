@@ -1,0 +1,32 @@
+[package]
+name = "expect-json"
+authors = ["Joseph Lenton <josephlenton@gmail.com>"]
+version = "0.4.0"
+edition = "2021"
+rust-version = "1.83"
+license = "MIT"
+description = "For comparisons on JSON data"
+keywords = ["testing", "test", "json", "serde_json"]
+categories = ["development-tools::testing", "development-tools"]
+repository = "https://github.com/JosephLenton/expect-json"
+documentation = "https://docs.rs/expect-json"
+readme = "README.md"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[features]
+default = []
+
+[dependencies]
+expect-json-macros = { path = "../expect-json-macros" }
+
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+typetag = { workspace = true }
+thiserror = { workspace = true }
+uuid = { workspace = true, features = ["v4", "serde"] }
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }
