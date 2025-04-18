@@ -1,15 +1,15 @@
 <div align="center">
   <h1>
-    Expect Json
+    Expect Json Macros
   </h1>
 
   <h3>
-    A testing library for comparing Json payloads,<br/>
-    and declaring you get what you expect
+    Macros for Expect Json,<br/>
+    go look at that project.
   </h3>
 
-  [![crate](https://img.shields.io/crates/v/expect-json.svg)](https://crates.io/crates/expect-json)
-  [![docs](https://docs.rs/expect-json/badge.svg)](https://docs.rs/expect-json)
+  [![crate](https://img.shields.io/crates/v/expect-json-macros.svg)](https://crates.io/crates/expect-json-macros)
+  [![docs](https://docs.rs/expect-json-macros/badge.svg)](https://docs.rs/expect-json-macros)
 
   <br/>
 </div>
