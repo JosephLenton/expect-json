@@ -1,4 +1,4 @@
-use crate::expects::ExpectMagicId;
+use crate::expects::ExpectOpMarkerId;
 use crate::ExpectOpSerialize;
 use serde::Deserialize;
 use serde::Serialize;
@@ -13,8 +13,8 @@ thread_local! {
 
 #[doc(hidden)]
 #[derive(Debug, Serialize, Deserialize)]
-pub(crate) struct SerializeExpectOp {
-    pub magic_id: ExpectMagicId,
+pub struct SerializeExpectOp {
+    magic_id: ExpectOpMarkerId,
     pub inner: Box<dyn ExpectOpSerialize>,
 }
 
@@ -42,7 +42,8 @@ impl SerializeExpectOp {
 
     pub fn new(inner: Box<dyn ExpectOpSerialize>) -> Self {
         Self {
-            magic_id: ExpectMagicId::__ExpectJson_MagicId_0ABDBD14_93D1_4D73_8E26_0177D8A280A4__,
+            magic_id:
+                ExpectOpMarkerId::__ExpectJson_MarkerId_0ABDBD14_93D1_4D73_8E26_0177D8A280A4__,
             inner,
         }
     }
@@ -77,7 +78,7 @@ impl SerializeExpectOp {
     pub fn has_object_magic_id(object: &Map<String, Value>) -> bool {
         object
             .get("magic_id")
-            .is_some_and(ExpectMagicId::is_magic_id_value)
+            .is_some_and(ExpectOpMarkerId::is_magic_id_value)
     }
 }
 
@@ -93,7 +94,7 @@ mod test_serialize {
         assert_eq!(
             output,
             json!({
-                "magic_id": "__ExpectJson_MagicId_0ABDBD14_93D1_4D73_8E26_0177D8A280A4__",
+                "magic_id": "__ExpectJson_MarkerId_0ABDBD14_93D1_4D73_8E26_0177D8A280A4__",
                 "inner": {
                     "Array": {
                         "values": [

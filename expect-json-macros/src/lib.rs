@@ -2,21 +2,21 @@ use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 use quote::format_ident;
-use proc_macro::Ident;
 
 #[proc_macro_attribute]
 pub fn expect_op(args: TokenStream, input: TokenStream) -> TokenStream {
     let args = syn::parse_macro_input!(args as Option<syn::Ident>);
-    let crate_name = match args {
-        None => format_ident!("expect_json"),
+    let crate_name_str = match args {
+        None => "expect_json",
         Some(crate_name) => {
             if crate_name != "internal" {
                 panic!("expect_op can only be used with `internal`");
             }
 
-            format_ident!("crate")
+            "crate"
         },
     };
+    let crate_name = format_ident!("{crate_name_str}");
 
     let input_tokens: TokenStream2 = input.clone().into();
     let input_item = syn::parse_macro_input!(input as syn::Item);
@@ -25,22 +25,25 @@ pub fn expect_op(args: TokenStream, input: TokenStream) -> TokenStream {
         syn::Item::Enum(item_enum) => item_enum.ident,
         _ => panic!("expect_op can only be used on structs or enums"),
     };
+    let serde_trampoline_path = format!("{crate_name_str}::__private::serde_trampoline");
 
     let output = quote! {
-        #[derive(serde::Serialize, serde::Deserialize)]
-        #[serde(crate = "crate::__private::serde_trampoline")]
+        #[derive(#crate_name::__private::serde::Serialize, #crate_name::__private::serde::Deserialize)]
+        #[serde(crate = #serde_trampoline_path)]
+        // #[serde(crate = "crate::__private::serde_trampoline")]
         #input_tokens
 
-        impl ::serde::Serialize for #struct_name {
+        impl #crate_name::__private::serde::Serialize for #struct_name {
             fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
             where
-                S: ::serde::Serializer,
+                S: #crate_name::__private::serde::Serializer,
             {
                 #crate_name::SerializeExpectOp::serialize(self, serializer)
             }
         }
 
-        #[typetag::serde]
+        use #crate_name::__private::typetag;
+        #[#crate_name::__private::typetag::serde]
         impl #crate_name::ExpectOpSerialize for #struct_name {}
     };
 
