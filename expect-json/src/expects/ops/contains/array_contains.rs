@@ -25,7 +25,7 @@ impl ExpectOp for ArrayContains {
         context: &mut Context<'_>,
         received_values: &[Value],
     ) -> JsonValueEqResult<()> {
-        // TODO: This needs to be brute force as we don't know if we are containing an inner ExpectOp.
+        // TODO: This is brute force as we don't know if we are containing an inner ExpectOp.
         // Can this be done without a brute force approach?
         for expected in &self.values {
             let is_found = received_values
