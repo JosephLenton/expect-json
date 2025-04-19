@@ -30,7 +30,6 @@ pub fn expect_op(args: TokenStream, input: TokenStream) -> TokenStream {
     let output = quote! {
         #[derive(#crate_name::__private::serde::Serialize, #crate_name::__private::serde::Deserialize)]
         #[serde(crate = #serde_trampoline_path)]
-        // #[serde(crate = "crate::__private::serde_trampoline")]
         #input_tokens
 
         impl #crate_name::__private::serde::Serialize for #struct_name {

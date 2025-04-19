@@ -84,6 +84,40 @@ mod test_object_contains {
     }
 
     #[test]
+    fn it_should_be_equal_for_nested_contains() {
+        let left = json!({ "name": "John", "comments": [
+            {
+                "text": "Hello",
+                "author": {
+                    "name": "Jane",
+                    "age": 25
+                }
+            },
+            {
+                "text": "Goodbye",
+                "author": {
+                    "name": "John",
+                    "age": 30
+                }
+            }
+        ]});
+
+        let right = json!(expect.contains(json!({ "comments": expect.contains([
+            json!({
+                "text": "Hello",
+                "author": expect.contains(
+                    json!({
+                        "name": "Jane",
+                    })
+                )
+            }),
+        ])})));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "{}", output.unwrap_err().to_string());
+    }
+
+    #[test]
     fn it_should_error_for_same_fields_but_different_values() {
         let left = json!({ "name": "John", "age": 30, "scores": [1, 2, 3] });
         let right =
@@ -127,6 +161,133 @@ mod test_object_contains {
             r#"Json comparison on unsupported type, at root:
     operation ObjectContains cannot be performed against string,
     only supported type is: array"#
+        );
+    }
+
+    #[test]
+    fn it_should_error_for_nested_contains_via_array_on_differences() {
+        let left = json!({ "name": "John", "comments": [
+            {
+                "text": "Hello",
+                "author": {
+                    "name": "🦊",
+                    "age": 25
+                }
+            },
+            {
+                "text": "Goodbye",
+                "author": {
+                    "name": "John",
+                    "age": 30
+                }
+            }
+        ]});
+
+        let right = json!(expect.contains(json!({ "comments": expect.contains([
+            json!({
+                "text": "Hello",
+                "author": expect.contains(
+                    json!({
+                        "name": "Jane",
+                    })
+                )
+            }),
+        ])})));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            r#"Json array at root.comments does not contain expected value:
+    expected array to contain {
+        "author": expect.ObjectContains( ... ),
+        "text": "Hello"
+    }, but it was not found.
+    received [
+        {
+            "author": {
+                "age": 25,
+                "name": "🦊"
+            },
+            "text": "Hello"
+        },
+        {
+            "author": {
+                "age": 30,
+                "name": "John"
+            },
+            "text": "Goodbye"
+        }
+    ]"#
+        );
+    }
+
+    #[test]
+    fn it_should_error_for_nested_contains_via_object_with_inner_contains_error() {
+        let left = json!({
+            "name": "John",
+            "comment": {
+                "text": "Hello",
+                "author": {
+                    "name": "🦊",
+                    "age": 25
+                }
+            },
+        });
+
+        let right = json!(expect.contains(json!({ "comment":
+            expect.contains(
+                json!({
+                    "text": "Hello",
+                    "author": expect.contains(
+                        json!({
+                            "name": "Jane",
+                        })
+                    )
+                })
+            )
+        })));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            r#"Json strings at root.comment.author.name are not equal:
+    expected "Jane"
+    received "🦊""#
+        );
+    }
+
+    #[test]
+    fn it_should_error_for_nested_contains_via_different_object_with_inner_contains_error() {
+        let left = json!({
+            "name": "John",
+            "comment": {
+                "text": "Hello",
+                "author": {
+                    "name": "Jane",
+                    "age": 25
+                }
+            },
+        });
+
+        let right = json!(expect.contains(json!({ "comment":
+            expect.contains(
+                json!({
+                    "text": "Hello",
+                    "author": expect.contains(
+                        json!({
+                            "something_else": "🦊",
+                        })
+                    )
+                })
+            )
+        })));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            r#"Json strings at root.comment.author.name are not equal:
+    expected "Jane"
+    received "🦊""#
         );
     }
 }

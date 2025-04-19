@@ -19,6 +19,16 @@ pub struct SerializeExpectOp {
 }
 
 impl SerializeExpectOp {
+    pub(crate) fn has_magic_id(value: &Value) -> bool {
+        value.as_object().is_some_and(Self::has_object_magic_id)
+    }
+
+    pub(crate) fn has_object_magic_id(object: &Map<String, Value>) -> bool {
+        object
+            .get("magic_id")
+            .is_some_and(ExpectOpMarkerId::is_magic_id_value)
+    }
+
     pub fn serialize<E, S>(expect_op: &E, serializer: S) -> Result<S::Ok, S::Error>
     where
         E: ExpectOpSerialize + Clone + crate::__private::serde_trampoline::Serialize,
@@ -70,15 +80,9 @@ impl SerializeExpectOp {
     }
 }
 
-impl SerializeExpectOp {
-    pub fn has_magic_id(value: &Value) -> bool {
-        value.as_object().is_some_and(Self::has_object_magic_id)
-    }
-
-    pub fn has_object_magic_id(object: &Map<String, Value>) -> bool {
-        object
-            .get("magic_id")
-            .is_some_and(ExpectOpMarkerId::is_magic_id_value)
+impl From<SerializeExpectOp> for Box<dyn ExpectOpSerialize> {
+    fn from(value: SerializeExpectOp) -> Self {
+        value.inner
     }
 }
 
@@ -90,6 +94,27 @@ mod test_serialize {
 
     #[test]
     fn it_should_serialize_into_expected_structure_with_expect_id_marker() {
+        let output = json!(expect.contains([1, 2, 3]));
+        assert_eq!(
+            output,
+            json!({
+                "magic_id": "__ExpectJson_MarkerId_0ABDBD14_93D1_4D73_8E26_0177D8A280A4__",
+                "inner": {
+                    "Array": {
+                        "values": [
+                            1,
+                            2,
+                            3,
+                        ],
+                    },
+                    "type": "Contains"
+                },
+            })
+        );
+    }
+
+    #[test]
+    fn it_should_serialize_an_op_within_an_op_without_() {
         let output = json!(expect.contains([1, 2, 3]));
         assert_eq!(
             output,

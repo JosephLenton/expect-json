@@ -6,7 +6,6 @@ use crate::internals::JsonValueEqError;
 use crate::internals::JsonValueEqResult;
 use crate::JsonType;
 use serde_json::Value;
-use std::collections::HashSet;
 
 #[expect_op(internal)]
 #[derive(Clone, Debug, PartialEq)]
@@ -26,10 +25,14 @@ impl ExpectOp for ArrayContains {
         context: &mut Context<'_>,
         received_values: &[Value],
     ) -> JsonValueEqResult<()> {
-        let received_items_in_set = received_values.iter().collect::<HashSet<&Value>>();
-
+        // TODO: This needs to be brute force as we don't know if we are containing an inner ExpectOp.
+        // Can this be done without a brute force approach?
         for expected in &self.values {
-            if !received_items_in_set.contains(&expected) {
+            let is_found = received_values
+                .iter()
+                .any(|received| context.json_eq(received, expected).is_ok());
+
+            if !is_found {
                 return Err(JsonValueEqError::ContainsNotFound {
                     context: context.to_static(),
                     json_type: JsonType::Array,
@@ -120,5 +123,27 @@ mod test_array_contains {
     operation ArrayContains cannot be performed against string,
     only supported type is: array"#
         );
+    }
+
+    #[test]
+    fn it_should_handle_nested_contains() {
+        let left = json!([
+            {
+                "text": "Hello",
+                "author": "Jane Candle"
+            },
+            {
+                "text": "Goodbye",
+                "author": "John Lighthouse"
+            }
+        ]);
+
+        let right = json!(expect.contains([json!({
+            "text": "Hello",
+            "author": expect.contains("Jane"),
+        }),]));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "{}", output.unwrap_err().to_string());
     }
 }
