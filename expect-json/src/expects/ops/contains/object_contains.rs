@@ -1,6 +1,8 @@
 use crate::expect_op;
 use crate::expects::ExpectOp;
 use crate::internals::Context;
+use crate::internals::ExpectOpMeta;
+use crate::internals::JsonValueEqError;
 use crate::internals::JsonValueEqResult;
 use crate::JsonType;
 use serde_json::Map;
@@ -25,10 +27,13 @@ impl ExpectOp for ObjectContains {
         received_values: &Map<String, Value>,
     ) -> JsonValueEqResult<()> {
         for (key, expected_value) in &self.values {
-            let received_value = received_values
-                .get(key)
-                .ok_or_else(|| unimplemented!("todo, add an error type here"))
-                .unwrap();
+            let received_value = received_values.get(key).ok_or_else(|| {
+                JsonValueEqError::ObjectKeyMissingForExpectOp {
+                    context: context.to_static(),
+                    expected_key: key.to_owned(),
+                    expected_operation: ExpectOpMeta::new(self),
+                }
+            })?;
 
             context.push(key.to_owned());
             context.json_eq(received_value, expected_value)?;
@@ -285,9 +290,9 @@ mod test_object_contains {
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
-            r#"Json strings at root.comment.author.name are not equal:
-    expected "Jane"
-    received "🦊""#
+            r#"Json object at root.comment.author is missing key for ObjectContains:
+    expected field 'something_else',
+    but it was not found"#
         );
     }
 }

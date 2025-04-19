@@ -6,12 +6,13 @@ use crate::internals::Context;
 use crate::internals::ExpectOpMeta;
 use crate::JsonType;
 use serde_json::Value;
+use std::error::Error as StdError;
 use std::fmt::Write;
 use thiserror::Error;
 
 pub type JsonValueEqResult<V> = Result<V, JsonValueEqError>;
 
-#[derive(Debug, Error, PartialEq)]
+#[derive(Debug, Error)]
 pub enum JsonValueEqError {
     #[error(
         "Json {} at {context} are different types:
@@ -80,6 +81,18 @@ pub enum JsonValueEqError {
     ObjectKeyMissing {
         context: Context<'static>,
         expected_key: String,
+    },
+
+    #[error(
+        "Json object at {context} is missing key for {}:
+    expected field '{expected_key}',
+    but it was not found",
+        expected_operation.name
+    )]
+    ObjectKeyMissingForExpectOp {
+        context: Context<'static>,
+        expected_key: String,
+        expected_operation: ExpectOpMeta,
     },
 
     #[error(
@@ -256,6 +269,18 @@ pub enum JsonValueEqError {
         expected: ValueObject,
         received: ValueObject,
     },
+
+    #[error(
+        "Json expect {} at {context} ran into an error:
+    {error}",
+    expected_operation.name,
+    )]
+    UnknownError {
+        #[source]
+        error: Box<dyn StdError>,
+        context: Context<'static>,
+        expected_operation: ExpectOpMeta,
+    },
 }
 
 impl JsonValueEqError {
@@ -280,12 +305,15 @@ impl JsonValueEqError {
             Self::ReceivedIsNull { context, .. } => context,
 
             Self::ObjectKeyMissing { context, .. } => context,
+            Self::ObjectKeyMissingForExpectOp { context, .. } => context,
             Self::ObjectReceivedHasExtraKey { context, .. } => context,
             Self::ObjectReceivedHasExtraKeys { context, .. } => context,
 
             // Operations
             Self::ContainsFound { context, .. } => context,
             Self::ContainsNotFound { context, .. } => context,
+
+            Self::UnknownError { context, .. } => context,
         }
     }
 

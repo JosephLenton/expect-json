@@ -105,161 +105,164 @@ mod test_on_any {
 
     #[test]
     fn it_should_error_by_default_against_json_null() {
-        let mut context = Context::new();
+        let mut outer_context = Context::new();
         let received = json!(null);
         let output = TestJsonExpectOp
-            .on_any(&mut context, &received)
+            .on_any(&mut outer_context, &received)
             .unwrap_err();
-        assert_eq!(
+        assert!(matches!(
             output,
             JsonValueEqError::UnsupportedOperation {
-                context: context.to_static(),
+                context,
                 received_type: JsonType::Null,
                 expected_operation: ExpectOpMeta {
                     name: "TestJsonExpectOp",
                     types: &[],
                 },
-            }
-        );
+            } if context == outer_context.to_static()
+                // received_type == JsonType::Null &&
+                // expected_operation.name == "TestJsonExpectOp" &&
+                // expected_operation.types == &[]
+        ));
     }
 
     #[test]
     fn it_should_error_by_default_against_json_boolean() {
-        let mut context = Context::new();
+        let mut outer_context = Context::new();
         let received = json!(true);
         let output = TestJsonExpectOp
-            .on_any(&mut context, &received)
+            .on_any(&mut outer_context, &received)
             .unwrap_err();
-        assert_eq!(
+        assert!(matches!(
             output,
             JsonValueEqError::UnsupportedOperation {
-                context: context.to_static(),
+                context,
                 received_type: JsonType::Boolean,
                 expected_operation: ExpectOpMeta {
                     name: "TestJsonExpectOp",
                     types: &[],
                 },
-            }
-        );
+            } if context == outer_context.to_static()
+        ));
     }
 
     #[test]
     fn it_should_error_by_default_against_json_positive_integer() {
-        let mut context = Context::new();
+        let mut outer_context = Context::new();
         let received = json!(123);
         let output = TestJsonExpectOp
-            .on_any(&mut context, &received)
+            .on_any(&mut outer_context, &received)
             .unwrap_err();
-        assert_eq!(
+        assert!(matches!(
             output,
             JsonValueEqError::UnsupportedOperation {
-                context: context.to_static(),
+                context,
                 received_type: JsonType::Integer,
                 expected_operation: ExpectOpMeta {
                     name: "TestJsonExpectOp",
                     types: &[],
                 },
-            }
-        );
+            } if context == outer_context.to_static()
+        ));
     }
 
     #[test]
     fn it_should_error_by_default_against_json_negative_integer() {
-        let mut context = Context::new();
+        let mut outer_context = Context::new();
         let received = json!(-123);
         let output = TestJsonExpectOp
-            .on_any(&mut context, &received)
+            .on_any(&mut outer_context, &received)
             .unwrap_err();
-        assert_eq!(
+        assert!(matches!(
             output,
             JsonValueEqError::UnsupportedOperation {
-                context: context.to_static(),
+                context,
                 received_type: JsonType::Integer,
                 expected_operation: ExpectOpMeta {
                     name: "TestJsonExpectOp",
                     types: &[],
                 },
-            }
-        );
+            } if context == outer_context.to_static()
+        ));
     }
 
     #[test]
     fn it_should_error_by_default_against_json_float() {
-        let mut context = Context::new();
+        let mut outer_context = Context::new();
         let received = json!(123.456);
         let output = TestJsonExpectOp
-            .on_any(&mut context, &received)
+            .on_any(&mut outer_context, &received)
             .unwrap_err();
-        assert_eq!(
+        assert!(matches!(
             output,
             JsonValueEqError::UnsupportedOperation {
-                context: context.to_static(),
+                context,
                 received_type: JsonType::Float,
                 expected_operation: ExpectOpMeta {
                     name: "TestJsonExpectOp",
                     types: &[],
                 },
-            }
-        );
+            } if context == outer_context.to_static()
+        ));
     }
 
     #[test]
     fn it_should_error_by_default_against_json_string() {
-        let mut context = Context::new();
+        let mut outer_context = Context::new();
         let received = json!("🦊");
         let output = TestJsonExpectOp
-            .on_any(&mut context, &received)
+            .on_any(&mut outer_context, &received)
             .unwrap_err();
-        assert_eq!(
+        assert!(matches!(
             output,
             JsonValueEqError::UnsupportedOperation {
-                context: context.to_static(),
+                context,
                 received_type: JsonType::String,
                 expected_operation: ExpectOpMeta {
                     name: "TestJsonExpectOp",
                     types: &[],
                 },
-            }
-        );
+            } if context == outer_context.to_static()
+        ));
     }
 
     #[test]
     fn it_should_error_by_default_against_json_array() {
-        let mut context = Context::new();
+        let mut outer_context = Context::new();
         let received = json!([]);
         let output = TestJsonExpectOp
-            .on_any(&mut context, &received)
+            .on_any(&mut outer_context, &received)
             .unwrap_err();
-        assert_eq!(
+        assert!(matches!(
             output,
             JsonValueEqError::UnsupportedOperation {
-                context: context.to_static(),
+                context,
                 received_type: JsonType::Array,
                 expected_operation: ExpectOpMeta {
                     name: "TestJsonExpectOp",
                     types: &[],
                 },
-            }
-        );
+            } if context == outer_context.to_static()
+        ));
     }
 
     #[test]
     fn it_should_error_by_default_against_json_object() {
-        let mut context = Context::new();
+        let mut outer_context = Context::new();
         let received = json!({});
         let output = TestJsonExpectOp
-            .on_any(&mut context, &received)
+            .on_any(&mut outer_context, &received)
             .unwrap_err();
-        assert_eq!(
+        assert!(matches!(
             output,
             JsonValueEqError::UnsupportedOperation {
-                context: context.to_static(),
+                context,
                 received_type: JsonType::Object,
                 expected_operation: ExpectOpMeta {
                     name: "TestJsonExpectOp",
                     types: &[],
                 },
-            }
-        );
+            } if context == outer_context.to_static()
+        ));
     }
 }
