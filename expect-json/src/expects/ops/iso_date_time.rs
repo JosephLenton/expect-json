@@ -1,23 +1,50 @@
 use crate::internals::Context;
 use crate::internals::JsonValueEqResult;
+use crate::ops::utils::DurationFormatter;
 use crate::ExpectOp;
 use chrono::DateTime;
+use chrono::Duration as ChronoDuration;
 use chrono::FixedOffset;
 use chrono::Offset;
+use chrono::Utc;
+use std::time::Duration as StdDuration;
 
 #[crate::expect_op(internal)]
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct IsoDateTime {
     is_utc_only: bool,
+    maybe_past_duration: Option<StdDuration>,
+    maybe_future_duration: Option<StdDuration>,
 }
 
 impl IsoDateTime {
     pub(crate) fn new() -> Self {
-        Self { is_utc_only: false }
+        Self {
+            is_utc_only: false,
+            maybe_past_duration: None,
+            maybe_future_duration: None,
+        }
     }
 
     pub fn utc_only(self) -> Self {
-        Self { is_utc_only: true }
+        Self {
+            is_utc_only: true,
+            ..self
+        }
+    }
+
+    pub fn within_past(self, duration: StdDuration) -> Self {
+        Self {
+            maybe_past_duration: Some(duration),
+            ..self
+        }
+    }
+
+    pub fn within_future(self, duration: StdDuration) -> Self {
+        Self {
+            maybe_future_duration: Some(duration),
+            ..self
+        }
     }
 }
 
@@ -34,6 +61,26 @@ impl ExpectOp for IsoDateTime {
                 let error_message = format!(
                     "ISO datetime '{received}' is using a non-UTC timezone, expected UTC only"
                 );
+                return Err(context.custom_err_message(self, error_message));
+            }
+        }
+
+        if let Some(past_duration) = self.maybe_past_duration {
+            let is_date_time_outside_past = date_time < Utc::now() - past_duration;
+            if is_date_time_outside_past {
+                let duration =
+                    DurationFormatter::new(ChronoDuration::from_std(past_duration).unwrap());
+                let error_message = format!("ISO datetime '{received}' is too far from the past, expected within '{duration}' ago of now");
+                return Err(context.custom_err_message(self, error_message));
+            }
+        }
+
+        if let Some(future_duration) = self.maybe_future_duration {
+            let is_date_time_outside_future = date_time > Utc::now() + future_duration;
+            if is_date_time_outside_future {
+                let duration =
+                    DurationFormatter::new(ChronoDuration::from_std(future_duration).unwrap());
+                let error_message = format!("ISO datetime '{received}' is too far in the future, expected within '{duration}' in the future from now");
                 return Err(context.custom_err_message(self, error_message));
             }
         }
@@ -108,6 +155,47 @@ mod test_utc_only {
             output,
             r#"Json expect.IsoDateTime() error at root:
     ISO datetime '2024-01-15T13:45:30+01:00' is using a non-UTC timezone, expected UTC only"#
+        );
+    }
+}
+
+#[cfg(test)]
+mod test_within_past {
+    use super::*;
+    use crate::expect;
+    use crate::expect_json_eq;
+    use pretty_assertions::assert_eq;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_parse_iso_datetime_within_past_set() {
+        let now = Utc::now();
+        let now_str = (now - ChronoDuration::seconds(30)).to_rfc3339();
+        let left = json!(now_str);
+        let right = json!(expect
+            .iso_date_time()
+            .within_past(StdDuration::from_secs(60)));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
+
+    #[test]
+    fn it_should_not_parse_iso_datetime_within_past_too_far() {
+        let now = Utc::now();
+        let now_str = (now - ChronoDuration::seconds(90)).to_rfc3339();
+        let left = json!(now_str);
+        let right = json!(expect
+            .iso_date_time()
+            .within_past(StdDuration::from_secs(60)));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            format!(
+                r#"Json expect.IsoDateTime() error at root:
+    ISO datetime '{now_str}' is too far from the past, expected within '1 minute' ago of now"#
+            )
         );
     }
 }
