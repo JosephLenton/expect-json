@@ -3,6 +3,7 @@ use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;
 
+#[derive(Debug, Clone, PartialEq)]
 pub struct DurationFormatter(Duration);
 
 impl DurationFormatter {
@@ -70,6 +71,20 @@ impl Display for DurationFormatter {
         }
 
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod test_from {
+    use super::*;
+    use pretty_assertions::assert_eq;
+
+    #[test]
+    fn it_should_convert_duration_to_duration_formatter() {
+        let duration = DurationFormatter::from(Duration::minutes(1) + Duration::seconds(19));
+        let other_duration = DurationFormatter::new(Duration::seconds(79));
+
+        assert_eq!(duration, other_duration);
     }
 }
 
