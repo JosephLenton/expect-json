@@ -42,10 +42,6 @@ impl ExpectOp for ArrayContainsNot {
         Ok(())
     }
 
-    fn name(&self) -> &'static str {
-        "ArrayContainsNot"
-    }
-
     fn supported_types(&self) -> &'static [JsonType] {
         &[JsonType::Array]
     }

@@ -32,10 +32,6 @@ impl ExpectOp for StringContainsNot {
         Ok(())
     }
 
-    fn name(&self) -> &'static str {
-        "StringContainsNot"
-    }
-
     fn supported_types(&self) -> &'static [JsonType] {
         &[JsonType::String]
     }

@@ -12,6 +12,9 @@ pub use self::expect_not::*;
 mod expect_op_serialize;
 pub use self::expect_op_serialize::*;
 
+mod expect_op_ext;
+pub use self::expect_op_ext::*;
+
 mod expect_op;
 pub use self::expect_op::*;
 

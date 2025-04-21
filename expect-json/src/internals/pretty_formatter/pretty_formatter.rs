@@ -67,7 +67,7 @@ impl<'a, 'b> PrettyFormatter<'a, 'b> {
 
     pub fn write_fmt_object(&mut self, object: &Map<String, Value>) -> FmtResult {
         if let Some(expect_op) = SerializeExpectOp::maybe_parse_from_obj(object) {
-            return write!(self.formatter, "expect.{}( ... )", expect_op.name());
+            return write!(self.formatter, "expect.{}()", expect_op.name());
         }
 
         write!(self.formatter, "{{")?;
@@ -164,7 +164,7 @@ mod test_write_fmt_object {
         assert_eq!(
             output,
             r#"{
-        "key": expect.StringContains( ... )
+        "key": expect.Contains()
     }"#
         );
     }

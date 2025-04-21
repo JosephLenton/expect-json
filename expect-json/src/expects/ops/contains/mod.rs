@@ -81,7 +81,7 @@ impl ExpectOp for Contains {
         match self {
             Self::Object(inner) => inner.on_object(context, received),
             Self::ObjectNot(inner) => inner.on_object(context, received),
-            _ => Err(context.unsupported_expect_op_type(JsonType::Object, self)),
+            _ => Err(context.unsupported_type_err(self, JsonType::Object)),
         }
     }
 
@@ -89,7 +89,7 @@ impl ExpectOp for Contains {
         match self {
             Self::Array(inner) => inner.on_array(context, received),
             Self::ArrayNot(inner) => inner.on_array(context, received),
-            _ => Err(context.unsupported_expect_op_type(JsonType::Array, self)),
+            _ => Err(context.unsupported_type_err(self, JsonType::Array)),
         }
     }
 
@@ -97,18 +97,7 @@ impl ExpectOp for Contains {
         match self {
             Self::String(inner) => inner.on_string(context, received),
             Self::StringNot(inner) => inner.on_string(context, received),
-            _ => Err(context.unsupported_expect_op_type(JsonType::String, self)),
-        }
-    }
-
-    fn name(&self) -> &'static str {
-        match self {
-            Self::Array(inner) => inner.name(),
-            Self::ArrayNot(inner) => inner.name(),
-            Self::Object(inner) => inner.name(),
-            Self::ObjectNot(inner) => inner.name(),
-            Self::String(inner) => inner.name(),
-            Self::StringNot(inner) => inner.name(),
+            _ => Err(context.unsupported_type_err(self, JsonType::String)),
         }
     }
 

@@ -37,10 +37,6 @@ impl ExpectOp for StringContains {
         Ok(())
     }
 
-    fn name(&self) -> &'static str {
-        "StringContains"
-    }
-
     fn supported_types(&self) -> &'static [JsonType] {
         &[JsonType::String]
     }

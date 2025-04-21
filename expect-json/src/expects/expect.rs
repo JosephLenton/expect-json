@@ -1,4 +1,5 @@
 use crate::expects::ops::Contains;
+use crate::ops::IsoDateTime;
 use crate::ExpectNot;
 use serde_json::Value;
 
@@ -17,6 +18,10 @@ impl Expect {
         V: Into<Value>,
     {
         Contains::new(values)
+    }
+
+    pub fn iso_date_time(self) -> IsoDateTime {
+        IsoDateTime::new()
     }
 }
 

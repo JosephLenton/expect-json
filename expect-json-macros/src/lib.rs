@@ -25,6 +25,7 @@ pub fn expect_op(args: TokenStream, input: TokenStream) -> TokenStream {
         syn::Item::Enum(item_enum) => item_enum.ident,
         _ => panic!("expect_op can only be used on structs or enums"),
     };
+    let struct_name_str = struct_name.to_string();
     let serde_trampoline_path = format!("{crate_name_str}::__private::serde_trampoline");
 
     let output = quote! {
@@ -44,6 +45,12 @@ pub fn expect_op(args: TokenStream, input: TokenStream) -> TokenStream {
         use #crate_name::__private::typetag;
         #[#crate_name::__private::typetag::serde]
         impl #crate_name::ExpectOpSerialize for #struct_name {}
+
+        impl #crate_name::ExpectOpExt for #struct_name {
+            fn name(&self) -> &'static str {
+                #struct_name_str
+            }
+        }
     };
 
     output.into()

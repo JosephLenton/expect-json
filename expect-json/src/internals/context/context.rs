@@ -6,6 +6,7 @@ use crate::internals::JsonValueEqResult;
 use crate::ExpectOp;
 use crate::JsonType;
 use serde_json::Value;
+use std::error::Error as StdError;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;
@@ -20,13 +21,39 @@ impl<'a> Context<'a> {
         Self::default()
     }
 
-    pub fn unsupported_expect_op_type<E>(
+    pub fn custom_err<O, S, E>(&self, expect_op: &O, message: S, error: E) -> JsonValueEqError
+    where
+        O: ExpectOp + ?Sized,
+        S: Into<String>,
+        E: StdError + 'static,
+    {
+        JsonValueEqError::UnknownError {
+            context: self.to_static(),
+            message: message.into(),
+            error: Box::new(error),
+            expected_operation: ExpectOpMeta::new(expect_op),
+        }
+    }
+
+    pub fn custom_err_message<O, S>(&self, expect_op: &O, message: S) -> JsonValueEqError
+    where
+        O: ExpectOp + ?Sized,
+        S: Into<String>,
+    {
+        JsonValueEqError::UnknownErrorMessage {
+            context: self.to_static(),
+            message: message.into(),
+            expected_operation: ExpectOpMeta::new(expect_op),
+        }
+    }
+
+    pub fn unsupported_type_err<O>(
         &self,
+        expect_op: &O,
         received_type: JsonType,
-        expect_op: &E,
     ) -> JsonValueEqError
     where
-        E: ExpectOp + ?Sized,
+        O: ExpectOp + ?Sized,
     {
         JsonValueEqError::UnsupportedOperation {
             context: self.to_static(),

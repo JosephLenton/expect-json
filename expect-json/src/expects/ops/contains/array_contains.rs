@@ -45,10 +45,6 @@ impl ExpectOp for ArrayContains {
         Ok(())
     }
 
-    fn name(&self) -> &'static str {
-        "ArrayContains"
-    }
-
     fn supported_types(&self) -> &'static [JsonType] {
         &[JsonType::Array]
     }
@@ -120,7 +116,7 @@ mod test_array_contains {
         assert_eq!(
             output,
             r#"Json comparison on unsupported type, at root:
-    operation ArrayContains cannot be performed against string,
+    expect.Contains() cannot be performed against string,
     only supported type is: array"#
         );
     }

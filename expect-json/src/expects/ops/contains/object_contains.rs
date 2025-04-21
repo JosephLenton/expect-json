@@ -43,10 +43,6 @@ impl ExpectOp for ObjectContains {
         Ok(())
     }
 
-    fn name(&self) -> &'static str {
-        "ObjectContains"
-    }
-
     fn supported_types(&self) -> &'static [JsonType] {
         &[JsonType::Array]
     }
@@ -164,7 +160,7 @@ mod test_object_contains {
         assert_eq!(
             output,
             r#"Json comparison on unsupported type, at root:
-    operation ObjectContains cannot be performed against string,
+    expect.Contains() cannot be performed against string,
     only supported type is: array"#
         );
     }
@@ -204,7 +200,7 @@ mod test_object_contains {
             output,
             r#"Json array at root.comments does not contain expected value:
     expected array to contain {
-        "author": expect.ObjectContains( ... ),
+        "author": expect.Contains(),
         "text": "Hello"
     }, but it was not found.
     received [

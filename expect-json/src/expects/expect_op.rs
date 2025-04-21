@@ -2,12 +2,13 @@ use crate::internals::objects::IntegerObject;
 use crate::internals::objects::ValueObject;
 use crate::internals::Context;
 use crate::internals::JsonValueEqResult;
+use crate::ExpectOpExt;
 use crate::JsonType;
 use serde_json::Map;
 use serde_json::Value;
 use std::fmt::Debug;
 
-pub trait ExpectOp: Debug + Send + 'static {
+pub trait ExpectOp: ExpectOpExt + Debug + Send + 'static {
     fn on_any(&self, context: &mut Context<'_>, received: &Value) -> JsonValueEqResult<()> {
         match received {
             Value::Null => self.on_null(context),
@@ -29,37 +30,37 @@ pub trait ExpectOp: Debug + Send + 'static {
 
     #[allow(unused_variables)]
     fn on_null(&self, context: &mut Context<'_>) -> JsonValueEqResult<()> {
-        Err(context.unsupported_expect_op_type(JsonType::Null, self))
+        Err(context.unsupported_type_err(self, JsonType::Null))
     }
 
     #[allow(unused_variables)]
     fn on_f64(&self, context: &mut Context<'_>, received: f64) -> JsonValueEqResult<()> {
-        Err(context.unsupported_expect_op_type(JsonType::Float, self))
+        Err(context.unsupported_type_err(self, JsonType::Float))
     }
 
     #[allow(unused_variables)]
     fn on_u64(&self, context: &mut Context<'_>, received: u64) -> JsonValueEqResult<()> {
-        Err(context.unsupported_expect_op_type(JsonType::Integer, self))
+        Err(context.unsupported_type_err(self, JsonType::Integer))
     }
 
     #[allow(unused_variables)]
     fn on_i64(&self, context: &mut Context<'_>, received: i64) -> JsonValueEqResult<()> {
-        Err(context.unsupported_expect_op_type(JsonType::Integer, self))
+        Err(context.unsupported_type_err(self, JsonType::Integer))
     }
 
     #[allow(unused_variables)]
     fn on_boolean(&self, context: &mut Context<'_>, received: bool) -> JsonValueEqResult<()> {
-        Err(context.unsupported_expect_op_type(JsonType::Boolean, self))
+        Err(context.unsupported_type_err(self, JsonType::Boolean))
     }
 
     #[allow(unused_variables)]
     fn on_string(&self, context: &mut Context<'_>, received: &str) -> JsonValueEqResult<()> {
-        Err(context.unsupported_expect_op_type(JsonType::String, self))
+        Err(context.unsupported_type_err(self, JsonType::String))
     }
 
     #[allow(unused_variables)]
     fn on_array(&self, context: &mut Context<'_>, received: &[Value]) -> JsonValueEqResult<()> {
-        Err(context.unsupported_expect_op_type(JsonType::Array, self))
+        Err(context.unsupported_type_err(self, JsonType::Array))
     }
 
     #[allow(unused_variables)]
@@ -68,11 +69,7 @@ pub trait ExpectOp: Debug + Send + 'static {
         context: &mut Context<'_>,
         received: &Map<String, Value>,
     ) -> JsonValueEqResult<()> {
-        Err(context.unsupported_expect_op_type(JsonType::Object, self))
-    }
-
-    fn name(&self) -> &'static str {
-        "<Unknown ExpectOp>"
+        Err(context.unsupported_type_err(self, JsonType::Object))
     }
 
     fn supported_types(&self) -> &'static [JsonType] {
@@ -85,23 +82,14 @@ mod test_on_any {
     use super::*;
     use crate::internals::ExpectOpMeta;
     use crate::internals::JsonValueEqError;
-    use crate::ExpectOpSerialize;
-    use serde::Deserialize;
-    use serde::Serialize;
     use serde_json::json;
 
     // An empty implementation which will hit the errors by default.
-    #[derive(Debug, Clone, Serialize, Deserialize)]
+    #[crate::expect_op(internal)]
+    #[derive(Debug, Clone)]
     struct TestJsonExpectOp;
 
-    #[typetag::serde]
-    impl ExpectOpSerialize for TestJsonExpectOp {}
-
-    impl ExpectOp for TestJsonExpectOp {
-        fn name(&self) -> &'static str {
-            "TestJsonExpectOp"
-        }
-    }
+    impl ExpectOp for TestJsonExpectOp {}
 
     #[test]
     fn it_should_error_by_default_against_json_null() {

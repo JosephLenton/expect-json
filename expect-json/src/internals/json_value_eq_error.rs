@@ -62,7 +62,7 @@ pub enum JsonValueEqError {
     // The underlying problem might be the server returned different data to what we expected.
     #[error(
         "Json comparison on unsupported type, at {context}:
-    operation {} cannot be performed against {received_type},
+    expect.{}() cannot be performed against {received_type},
     {}",
     expected_operation.name,
     format_expected_operation_types(expected_operation)
@@ -271,7 +271,8 @@ pub enum JsonValueEqError {
     },
 
     #[error(
-        "Json expect {} at {context} ran into an error:
+        "Json expect.{}() error at {context}:
+    {message},
     {error}",
     expected_operation.name,
     )]
@@ -279,6 +280,18 @@ pub enum JsonValueEqError {
         #[source]
         error: Box<dyn StdError>,
         context: Context<'static>,
+        message: String,
+        expected_operation: ExpectOpMeta,
+    },
+
+    #[error(
+        "Json expect.{}() error at {context}:
+    {message}",
+    expected_operation.name,
+    )]
+    UnknownErrorMessage {
+        context: Context<'static>,
+        message: String,
         expected_operation: ExpectOpMeta,
     },
 }
@@ -314,6 +327,7 @@ impl JsonValueEqError {
             Self::ContainsNotFound { context, .. } => context,
 
             Self::UnknownError { context, .. } => context,
+            Self::UnknownErrorMessage { context, .. } => context,
         }
     }
 
