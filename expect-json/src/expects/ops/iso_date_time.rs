@@ -80,7 +80,7 @@ impl ExpectOp for IsoDateTime {
             if is_date_time_outside_future {
                 let duration =
                     DurationFormatter::new(ChronoDuration::from_std(future_duration).unwrap());
-                let error_message = format!("ISO datetime '{received}' is too far in the future, expected within '{duration}' in the future from now");
+                let error_message = format!("ISO datetime '{received}' is too far in the future, expected within '{duration}' from now");
                 return Err(context.custom_err_message(self, error_message));
             }
         }
@@ -195,6 +195,47 @@ mod test_within_past {
             format!(
                 r#"Json expect.IsoDateTime() error at root:
     ISO datetime '{now_str}' is too far from the past, expected within '1 minute' ago of now"#
+            )
+        );
+    }
+}
+
+#[cfg(test)]
+mod test_within_future {
+    use super::*;
+    use crate::expect;
+    use crate::expect_json_eq;
+    use pretty_assertions::assert_eq;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_parse_iso_datetime_within_future_set() {
+        let now = Utc::now();
+        let now_str = (now + ChronoDuration::seconds(30)).to_rfc3339();
+        let left = json!(now_str);
+        let right = json!(expect
+            .iso_date_time()
+            .within_future(StdDuration::from_secs(60)));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
+
+    #[test]
+    fn it_should_not_parse_iso_datetime_within_past_too_far() {
+        let now = Utc::now();
+        let now_str = (now + ChronoDuration::seconds(90)).to_rfc3339();
+        let left = json!(now_str);
+        let right = json!(expect
+            .iso_date_time()
+            .within_future(StdDuration::from_secs(60)));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            format!(
+                r#"Json expect.IsoDateTime() error at root:
+    ISO datetime '{now_str}' is too far in the future, expected within '1 minute' from now"#
             )
         );
     }
