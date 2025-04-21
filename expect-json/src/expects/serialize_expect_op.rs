@@ -8,7 +8,7 @@ use std::sync::atomic::AtomicUsize;
 use std::sync::atomic::Ordering;
 
 thread_local! {
-    static SERIALIZATION_IS_AT_ROOT: AtomicUsize = AtomicUsize::new(0);
+    static SERIALIZATION_IS_AT_ROOT: AtomicUsize = const { AtomicUsize::new(0) };
 }
 
 #[doc(hidden)]
