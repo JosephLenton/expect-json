@@ -1,3 +1,4 @@
+use crate::expect_op;
 use crate::internals::Context;
 use crate::internals::JsonValueEqResult;
 use crate::ops::utils::DurationFormatter;
@@ -9,7 +10,7 @@ use chrono::Offset;
 use chrono::Utc;
 use std::time::Duration as StdDuration;
 
-#[crate::expect_op(internal)]
+#[expect_op(internal)]
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct IsoDateTime {
     is_utc_only: bool,
@@ -20,15 +21,15 @@ pub struct IsoDateTime {
 impl IsoDateTime {
     pub(crate) fn new() -> Self {
         Self {
-            is_utc_only: false,
+            is_utc_only: true,
             maybe_past_duration: None,
             maybe_future_duration: None,
         }
     }
 
-    pub fn utc_only(self) -> Self {
+    pub fn allow_non_utc(self) -> Self {
         Self {
-            is_utc_only: true,
+            is_utc_only: false,
             ..self
         }
     }
@@ -106,12 +107,16 @@ mod test_iso_date_time {
     }
 
     #[test]
-    fn it_should_parse_iso_datetime_with_non_utc_timezone() {
+    fn it_should_fail_to_parse_iso_datetime_with_non_utc_timezone() {
         let left = json!("2024-01-15T13:45:30+01:00");
         let right = json!(expect.iso_date_time());
 
-        let output = expect_json_eq(&left, &right);
-        assert!(output.is_ok(), "assertion error: {output:#?}");
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            r#"Json expect.IsoDateTime() error at root:
+    ISO datetime '2024-01-15T13:45:30+01:00' is using a non-UTC timezone, expected UTC only"#
+        );
     }
 
     #[test]
@@ -133,13 +138,12 @@ mod test_iso_date_time {
 mod test_utc_only {
     use crate::expect;
     use crate::expect_json_eq;
-    use pretty_assertions::assert_eq;
     use serde_json::json;
 
     #[test]
     fn it_should_parse_iso_datetime_with_utc_timezone_when_set() {
         let left = json!("2024-01-15T13:45:30Z");
-        let right = json!(expect.iso_date_time().utc_only());
+        let right = json!(expect.iso_date_time().allow_non_utc());
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok(), "assertion error: {output:#?}");
@@ -148,14 +152,10 @@ mod test_utc_only {
     #[test]
     fn it_should_parse_iso_datetime_with_non_utc_timezone_when_set() {
         let left = json!("2024-01-15T13:45:30+01:00");
-        let right = json!(expect.iso_date_time().utc_only());
+        let right = json!(expect.iso_date_time().allow_non_utc());
 
-        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
-        assert_eq!(
-            output,
-            r#"Json expect.IsoDateTime() error at root:
-    ISO datetime '2024-01-15T13:45:30+01:00' is using a non-UTC timezone, expected UTC only"#
-        );
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
     }
 }
 

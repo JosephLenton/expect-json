@@ -23,7 +23,6 @@ default = []
 expect-json-macros = { path = "../expect-json-macros" }
 
 chrono = { workspace = true }
-erased-serde = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 typetag = { workspace = true }

@@ -1,3 +1,4 @@
+use crate::expect_op;
 use crate::internals::objects::ArrayObject;
 use crate::internals::objects::ObjectObject;
 use crate::internals::objects::StringObject;
@@ -7,7 +8,7 @@ use crate::ExpectOp;
 use serde_json::Map;
 use serde_json::Value;
 
-#[crate::expect_op(internal)]
+#[expect_op(internal)]
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct IsEmpty;
 
