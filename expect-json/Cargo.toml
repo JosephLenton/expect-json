@@ -1,7 +1,7 @@
 [package]
 name = "expect-json"
 authors = ["Joseph Lenton <josephlenton@gmail.com>"]
-version = "0.4.0"
+version = "0.5.0"
 edition = "2021"
 rust-version = "1.83"
 license = "MIT"
@@ -11,6 +11,7 @@ categories = ["development-tools::testing", "development-tools"]
 repository = "https://github.com/JosephLenton/expect-json"
 documentation = "https://docs.rs/expect-json"
 readme = "../README.md"
+publish = true
 
 [package.metadata.docs.rs]
 all-features = true

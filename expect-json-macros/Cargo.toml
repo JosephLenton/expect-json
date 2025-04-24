@@ -1,7 +1,7 @@
 [package]
 name = "expect-json-macros"
 authors = ["Joseph Lenton <josephlenton@gmail.com>"]
-version = "0.4.0"
+version = "0.5.0"
 edition = "2021"
 rust-version = "1.83"
 license = "MIT"
@@ -9,6 +9,7 @@ description = "Macros for Expect Json"
 repository = "https://github.com/JosephLenton/expect-json"
 documentation = "https://docs.rs/expect-json-macros"
 readme = "README.md"
+publish = true
 
 [package.metadata.docs.rs]
 all-features = true
