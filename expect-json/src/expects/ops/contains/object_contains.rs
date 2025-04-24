@@ -2,8 +2,8 @@ use crate::expect_op;
 use crate::expects::ExpectOp;
 use crate::internals::Context;
 use crate::internals::ExpectOpMeta;
-use crate::internals::JsonValueEqError;
-use crate::internals::JsonValueEqResult;
+use crate::ExpectOpError;
+use crate::ExpectOpResult;
 use crate::JsonType;
 use serde_json::Map;
 use serde_json::Value;
@@ -25,10 +25,10 @@ impl ExpectOp for ObjectContains {
         &self,
         context: &mut Context,
         received_values: &Map<String, Value>,
-    ) -> JsonValueEqResult<()> {
+    ) -> ExpectOpResult<()> {
         for (key, expected_value) in &self.values {
             let received_value = received_values.get(key).ok_or_else(|| {
-                JsonValueEqError::ObjectKeyMissingForExpectOp {
+                ExpectOpError::ObjectKeyMissingForExpectOp {
                     context: context.to_static(),
                     expected_key: key.to_owned(),
                     expected_operation: ExpectOpMeta::new(self),
@@ -36,7 +36,9 @@ impl ExpectOp for ObjectContains {
             })?;
 
             context.push(key.to_owned());
-            context.json_eq(received_value, expected_value)?;
+            context
+                .json_eq(received_value, expected_value)
+                .map_err(|error| ExpectOpError::expect_json_error(context, self, error))?;
             context.pop();
         }
 

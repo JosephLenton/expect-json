@@ -16,8 +16,27 @@ pub fn expect_op(args: TokenStream, input: TokenStream) -> TokenStream {
             "crate"
         }
     };
-    let crate_name = format_ident!("{crate_name_str}");
+    let crate_name_ident = format_ident!("{crate_name_str}");
+    let crate_name = quote!(#crate_name_ident);
 
+    expect_op_impl(crate_name_str, crate_name, input)
+}
+
+#[doc(hidden)]
+#[proc_macro_attribute]
+pub fn expect_op_for_axum_test(_args: TokenStream, input: TokenStream) -> TokenStream {
+    expect_op_impl(
+        "::axum_test::expect_json",
+        quote!(::axum_test::expect_json),
+        input,
+    )
+}
+
+fn expect_op_impl(
+    crate_name_str: &str,
+    crate_name: TokenStream2,
+    input: TokenStream,
+) -> TokenStream {
     let input_tokens: TokenStream2 = input.clone().into();
     let input_item = syn::parse_macro_input!(input as syn::Item);
     let struct_name = match input_item {

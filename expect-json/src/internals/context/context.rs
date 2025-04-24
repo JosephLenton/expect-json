@@ -1,12 +1,7 @@
 use crate::internals::context::context_path_part::ContextPathPart;
 use crate::internals::json_eq;
-use crate::internals::ExpectOpMeta;
-use crate::internals::JsonValueEqError;
-use crate::internals::JsonValueEqResult;
-use crate::ExpectOp;
-use crate::JsonType;
+use crate::ExpectJsonResult;
 use serde_json::Value;
-use std::error::Error as StdError;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;
@@ -21,48 +16,7 @@ impl<'a> Context<'a> {
         Self::default()
     }
 
-    pub fn custom_err<O, S, E>(&self, expect_op: &O, message: S, error: E) -> JsonValueEqError
-    where
-        O: ExpectOp + ?Sized,
-        S: Into<String>,
-        E: StdError + 'static,
-    {
-        JsonValueEqError::UnknownError {
-            context: self.to_static(),
-            message: message.into(),
-            error: Box::new(error),
-            expected_operation: ExpectOpMeta::new(expect_op),
-        }
-    }
-
-    pub fn custom_err_message<O, S>(&self, expect_op: &O, message: S) -> JsonValueEqError
-    where
-        O: ExpectOp + ?Sized,
-        S: Into<String>,
-    {
-        JsonValueEqError::UnknownErrorMessage {
-            context: self.to_static(),
-            message: message.into(),
-            expected_operation: ExpectOpMeta::new(expect_op),
-        }
-    }
-
-    pub fn unsupported_type_err<O>(
-        &self,
-        expect_op: &O,
-        received_type: JsonType,
-    ) -> JsonValueEqError
-    where
-        O: ExpectOp + ?Sized,
-    {
-        JsonValueEqError::UnsupportedOperation {
-            context: self.to_static(),
-            received_type,
-            expected_operation: ExpectOpMeta::new(expect_op),
-        }
-    }
-
-    pub fn json_eq(&self, received: &'a Value, expected: &'a Value) -> JsonValueEqResult<()> {
+    pub fn json_eq(&self, received: &'a Value, expected: &'a Value) -> ExpectJsonResult<()> {
         json_eq(&mut self.clone(), received, expected)
     }
 
@@ -77,10 +31,10 @@ impl<'a> Context<'a> {
         self.stack.pop();
     }
 
-    pub fn with_path<P, F>(&mut self, path: P, inner: F) -> JsonValueEqResult<()>
+    pub fn with_path<P, F>(&mut self, path: P, inner: F) -> ExpectJsonResult<()>
     where
         P: Into<ContextPathPart<'a>>,
-        F: FnOnce(&mut Context) -> JsonValueEqResult<()> + 'a,
+        F: FnOnce(&mut Context) -> ExpectJsonResult<()> + 'a,
     {
         self.push(path);
         let result = inner(self);

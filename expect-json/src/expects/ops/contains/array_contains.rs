@@ -2,8 +2,8 @@ use crate::expect_op;
 use crate::expects::ExpectOp;
 use crate::internals::objects::ArrayObject;
 use crate::internals::Context;
-use crate::internals::JsonValueEqError;
-use crate::internals::JsonValueEqResult;
+use crate::ExpectOpError;
+use crate::ExpectOpResult;
 use crate::JsonType;
 use serde_json::Value;
 
@@ -20,11 +20,7 @@ impl ArrayContains {
 }
 
 impl ExpectOp for ArrayContains {
-    fn on_array(
-        &self,
-        context: &mut Context<'_>,
-        received_values: &[Value],
-    ) -> JsonValueEqResult<()> {
+    fn on_array(&self, context: &mut Context<'_>, received_values: &[Value]) -> ExpectOpResult<()> {
         // TODO: This is brute force as we don't know if we are containing an inner ExpectOp.
         // Can this be done without a brute force approach?
         for expected in &self.values {
@@ -33,7 +29,7 @@ impl ExpectOp for ArrayContains {
                 .any(|received| context.json_eq(received, expected).is_ok());
 
             if !is_found {
-                return Err(JsonValueEqError::ContainsNotFound {
+                return Err(ExpectOpError::ContainsNotFound {
                     context: context.to_static(),
                     json_type: JsonType::Array,
                     expected: expected.clone().into(),

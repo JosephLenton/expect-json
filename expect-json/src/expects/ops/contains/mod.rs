@@ -1,7 +1,7 @@
 use crate::expect_op;
 use crate::internals::Context;
-use crate::internals::JsonValueEqResult;
 use crate::ExpectOp;
+use crate::ExpectOpResult;
 use crate::JsonType;
 use serde_json::Value;
 
@@ -22,6 +22,7 @@ pub use self::string_contains::*;
 
 mod string_contains_not;
 pub use self::string_contains_not::*;
+use crate::ExpectOpError;
 
 #[expect_op(internal)]
 #[derive(Clone, Debug, PartialEq)]
@@ -77,27 +78,39 @@ impl ExpectOp for Contains {
         &self,
         context: &mut Context,
         received: &serde_json::Map<String, Value>,
-    ) -> JsonValueEqResult<()> {
+    ) -> ExpectOpResult<()> {
         match self {
             Self::Object(inner) => inner.on_object(context, received),
             Self::ObjectNot(inner) => inner.on_object(context, received),
-            _ => Err(context.unsupported_type_err(self, JsonType::Object)),
+            _ => Err(ExpectOpError::unsupported_operation_type(
+                context,
+                self,
+                JsonType::Object,
+            )),
         }
     }
 
-    fn on_array(&self, context: &mut Context, received: &[Value]) -> JsonValueEqResult<()> {
+    fn on_array(&self, context: &mut Context, received: &[Value]) -> ExpectOpResult<()> {
         match self {
             Self::Array(inner) => inner.on_array(context, received),
             Self::ArrayNot(inner) => inner.on_array(context, received),
-            _ => Err(context.unsupported_type_err(self, JsonType::Array)),
+            _ => Err(ExpectOpError::unsupported_operation_type(
+                context,
+                self,
+                JsonType::Array,
+            )),
         }
     }
 
-    fn on_string(&self, context: &mut Context, received: &str) -> JsonValueEqResult<()> {
+    fn on_string(&self, context: &mut Context, received: &str) -> ExpectOpResult<()> {
         match self {
             Self::String(inner) => inner.on_string(context, received),
             Self::StringNot(inner) => inner.on_string(context, received),
-            _ => Err(context.unsupported_type_err(self, JsonType::String)),
+            _ => Err(ExpectOpError::unsupported_operation_type(
+                context,
+                self,
+                JsonType::String,
+            )),
         }
     }
 

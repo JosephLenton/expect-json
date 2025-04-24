@@ -2,15 +2,15 @@ use crate::internals::context::Context;
 use crate::internals::json_eq;
 use crate::internals::objects::ObjectObject;
 use crate::internals::JsonObject;
-use crate::internals::JsonValueEqError;
-use crate::internals::JsonValueEqResult;
+use crate::ExpectJsonError;
+use crate::ExpectJsonResult;
 use crate::JsonType;
 
 pub fn json_value_eq_object<'a>(
     context: &mut Context<'a>,
     received: &'a JsonObject,
     expected: &'a JsonObject,
-) -> JsonValueEqResult<()> {
+) -> ExpectJsonResult<()> {
     let received_len = received.len();
     let expected_len = expected.len();
 
@@ -20,7 +20,7 @@ pub fn json_value_eq_object<'a>(
         let maybe_extra_field = received.keys().find(|key| !expected.contains_key(*key));
 
         if let Some(extra_field) = maybe_extra_field {
-            return Err(JsonValueEqError::ObjectReceivedHasExtraKey {
+            return Err(ExpectJsonError::ObjectReceivedHasExtraKey {
                 context: context.to_static(),
                 received_extra_field: extra_field.to_string(),
                 received_obj: ObjectObject::from(received.clone()).into(),
@@ -37,7 +37,7 @@ pub fn json_value_eq_object<'a>(
             .cloned()
             .collect();
 
-        return Err(JsonValueEqError::ObjectReceivedHasExtraKeys {
+        return Err(ExpectJsonError::ObjectReceivedHasExtraKeys {
             context: context.to_static(),
             received_extra_fields: extra_fields,
             received_obj: ObjectObject::from(received.clone()).into(),
@@ -46,7 +46,7 @@ pub fn json_value_eq_object<'a>(
     }
 
     if received.len() != expected.len() {
-        return Err(JsonValueEqError::DifferentValues {
+        return Err(ExpectJsonError::DifferentValues {
             context: context.to_static(),
             json_type: JsonType::Object,
             received: ObjectObject::from(received.clone()).into(),
@@ -58,7 +58,7 @@ pub fn json_value_eq_object<'a>(
         let received_value =
             received
                 .get(expected_key)
-                .ok_or_else(|| JsonValueEqError::ObjectKeyMissing {
+                .ok_or_else(|| ExpectJsonError::ObjectKeyMissing {
                     context: context.to_static(),
                     expected_key: expected_key.to_string(),
                 })?;

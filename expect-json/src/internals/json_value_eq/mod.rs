@@ -1,8 +1,8 @@
 use crate::internals::context::Context;
 use crate::internals::objects::ValueObject;
 use crate::internals::objects::ValueTypeObject;
-use crate::internals::JsonValueEqError;
-use crate::internals::JsonValueEqResult;
+use crate::ExpectJsonError;
+use crate::ExpectJsonResult;
 use serde_json::Value;
 
 mod json_value_eq_array;
@@ -16,14 +16,14 @@ pub fn json_value_eq<'a>(
     context: &mut Context<'a>,
     received: &'a Value,
     expected: &'a Value,
-) -> JsonValueEqResult<()> {
+) -> ExpectJsonResult<()> {
     match (received, expected) {
         (Value::Null, Value::Null) => Ok(()),
-        (_, Value::Null) => Err(JsonValueEqError::ReceivedIsNotNull {
+        (_, Value::Null) => Err(ExpectJsonError::ReceivedIsNotNull {
             context: context.to_static(),
             received: received.clone().into(),
         }),
-        (Value::Null, _) => Err(JsonValueEqError::ReceivedIsNull {
+        (Value::Null, _) => Err(ExpectJsonError::ReceivedIsNull {
             context: context.to_static(),
             expected: expected.clone().into(),
         }),
@@ -42,7 +42,7 @@ pub fn json_value_eq<'a>(
                 (ValueObject::Integer(l_int), ValueObject::Integer(r_int)) => {
                     json_value_eq_integer::json_value_eq_integer(context, l_int, r_int)
                 }
-                (l_value, r_value) => Err(JsonValueEqError::DifferentTypes {
+                (l_value, r_value) => Err(ExpectJsonError::DifferentTypes {
                     context: context.to_static(),
                     received: ValueTypeObject::from(l_value),
                     expected: ValueTypeObject::from(r_value),
@@ -61,7 +61,7 @@ pub fn json_value_eq<'a>(
         (Value::Object(l), Value::Object(r)) => {
             json_value_eq_object::json_value_eq_object(context, l, r)
         }
-        _ => Err(JsonValueEqError::DifferentTypes {
+        _ => Err(ExpectJsonError::DifferentTypes {
             context: context.to_static(),
             received: ValueTypeObject::from(received.clone()),
             expected: ValueTypeObject::from(expected.clone()),

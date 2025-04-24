@@ -1,8 +1,9 @@
 use crate::expect_op;
 use crate::internals::Context;
-use crate::internals::JsonValueEqResult;
 use crate::ops::utils::DurationFormatter;
 use crate::ExpectOp;
+use crate::ExpectOpError;
+use crate::ExpectOpResult;
 use chrono::DateTime;
 use chrono::Duration as ChronoDuration;
 use chrono::FixedOffset;
@@ -50,10 +51,10 @@ impl IsoDateTime {
 }
 
 impl ExpectOp for IsoDateTime {
-    fn on_string(&self, context: &mut Context, received: &str) -> JsonValueEqResult<()> {
+    fn on_string(&self, context: &mut Context, received: &str) -> ExpectOpResult<()> {
         let date_time = DateTime::<FixedOffset>::parse_from_rfc3339(received).map_err(|error| {
             let error_message = format!("failed to parse string '{received}' as iso date time");
-            context.custom_err(self, error_message, error)
+            ExpectOpError::custom_error(context, self, error_message, error)
         })?;
 
         if self.is_utc_only {
@@ -62,7 +63,7 @@ impl ExpectOp for IsoDateTime {
                 let error_message = format!(
                     "ISO datetime '{received}' is using a non-UTC timezone, expected UTC only"
                 );
-                return Err(context.custom_err_message(self, error_message));
+                return Err(ExpectOpError::custom(context, self, error_message));
             }
         }
 
@@ -72,7 +73,7 @@ impl ExpectOp for IsoDateTime {
                 let duration =
                     DurationFormatter::new(ChronoDuration::from_std(past_duration).unwrap());
                 let error_message = format!("ISO datetime '{received}' is too far from the past, expected within '{duration}' ago of now");
-                return Err(context.custom_err_message(self, error_message));
+                return Err(ExpectOpError::custom(context, self, error_message));
             }
         }
 
@@ -82,7 +83,7 @@ impl ExpectOp for IsoDateTime {
                 let duration =
                     DurationFormatter::new(ChronoDuration::from_std(future_duration).unwrap());
                 let error_message = format!("ISO datetime '{received}' is too far in the future, expected within '{duration}' from now");
-                return Err(context.custom_err_message(self, error_message));
+                return Err(ExpectOpError::custom(context, self, error_message));
             }
         }
 

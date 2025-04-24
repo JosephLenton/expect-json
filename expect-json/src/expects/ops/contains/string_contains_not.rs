@@ -2,8 +2,8 @@ use crate::expect_op;
 use crate::expects::ExpectOp;
 use crate::internals::objects::StringObject;
 use crate::internals::Context;
-use crate::internals::JsonValueEqError;
-use crate::internals::JsonValueEqResult;
+use crate::ExpectOpError;
+use crate::ExpectOpResult;
 use crate::JsonType;
 
 #[expect_op(internal)]
@@ -19,9 +19,9 @@ impl StringContainsNot {
 }
 
 impl ExpectOp for StringContainsNot {
-    fn on_string(&self, context: &mut Context<'_>, received: &str) -> JsonValueEqResult<()> {
+    fn on_string(&self, context: &mut Context<'_>, received: &str) -> ExpectOpResult<()> {
         if received.contains(&self.content) {
-            return Err(JsonValueEqError::ContainsFound {
+            return Err(ExpectOpError::ContainsFound {
                 context: context.to_static(),
                 json_type: JsonType::String,
                 expected: StringObject::from(self.content.clone()).into(),

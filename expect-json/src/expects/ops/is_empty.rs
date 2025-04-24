@@ -3,8 +3,9 @@ use crate::internals::objects::ArrayObject;
 use crate::internals::objects::ObjectObject;
 use crate::internals::objects::StringObject;
 use crate::internals::Context;
-use crate::internals::JsonValueEqResult;
 use crate::ExpectOp;
+use crate::ExpectOpError;
+use crate::ExpectOpResult;
 use serde_json::Map;
 use serde_json::Value;
 
@@ -13,27 +14,27 @@ use serde_json::Value;
 pub struct IsEmpty;
 
 impl ExpectOp for IsEmpty {
-    fn on_string(&self, context: &mut Context, received: &str) -> JsonValueEqResult<()> {
+    fn on_string(&self, context: &mut Context, received: &str) -> ExpectOpResult<()> {
         if !received.is_empty() {
             let error_message = format!(
                 r#"expected empty string
     received {}"#,
                 StringObject::from(received)
             );
-            return Err(context.custom_err_message(self, error_message));
+            return Err(ExpectOpError::custom(context, self, error_message));
         }
 
         Ok(())
     }
 
-    fn on_array(&self, context: &mut Context, received: &[Value]) -> JsonValueEqResult<()> {
+    fn on_array(&self, context: &mut Context, received: &[Value]) -> ExpectOpResult<()> {
         if !received.is_empty() {
             let error_message = format!(
                 r#"expected empty array
     received {}"#,
                 ArrayObject::from(received.iter().cloned())
             );
-            return Err(context.custom_err_message(self, error_message));
+            return Err(ExpectOpError::custom(context, self, error_message));
         }
 
         Ok(())
@@ -43,14 +44,14 @@ impl ExpectOp for IsEmpty {
         &self,
         context: &mut Context,
         received: &Map<String, Value>,
-    ) -> JsonValueEqResult<()> {
+    ) -> ExpectOpResult<()> {
         if !received.is_empty() {
             let error_message = format!(
                 r#"expected empty object
     received {}"#,
                 ObjectObject::from(received.clone())
             );
-            return Err(context.custom_err_message(self, error_message));
+            return Err(ExpectOpError::custom(context, self, error_message));
         }
 
         Ok(())

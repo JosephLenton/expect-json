@@ -1,15 +1,16 @@
 use crate::internals::objects::IntegerObject;
 use crate::internals::objects::ValueObject;
 use crate::internals::Context;
-use crate::internals::JsonValueEqResult;
+use crate::ExpectOpError;
 use crate::ExpectOpExt;
+use crate::ExpectOpResult;
 use crate::JsonType;
 use serde_json::Map;
 use serde_json::Value;
 use std::fmt::Debug;
 
 pub trait ExpectOp: ExpectOpExt + Debug + Send + 'static {
-    fn on_any(&self, context: &mut Context<'_>, received: &Value) -> JsonValueEqResult<()> {
+    fn on_any(&self, context: &mut Context<'_>, received: &Value) -> ExpectOpResult<()> {
         match received {
             Value::Null => self.on_null(context),
             Value::Number(received_number) => {
@@ -29,38 +30,66 @@ pub trait ExpectOp: ExpectOpExt + Debug + Send + 'static {
     }
 
     #[allow(unused_variables)]
-    fn on_null(&self, context: &mut Context<'_>) -> JsonValueEqResult<()> {
-        Err(context.unsupported_type_err(self, JsonType::Null))
+    fn on_null(&self, context: &mut Context<'_>) -> ExpectOpResult<()> {
+        Err(ExpectOpError::unsupported_operation_type(
+            context,
+            self,
+            JsonType::Null,
+        ))
     }
 
     #[allow(unused_variables)]
-    fn on_f64(&self, context: &mut Context<'_>, received: f64) -> JsonValueEqResult<()> {
-        Err(context.unsupported_type_err(self, JsonType::Float))
+    fn on_f64(&self, context: &mut Context<'_>, received: f64) -> ExpectOpResult<()> {
+        Err(ExpectOpError::unsupported_operation_type(
+            context,
+            self,
+            JsonType::Float,
+        ))
     }
 
     #[allow(unused_variables)]
-    fn on_u64(&self, context: &mut Context<'_>, received: u64) -> JsonValueEqResult<()> {
-        Err(context.unsupported_type_err(self, JsonType::Integer))
+    fn on_u64(&self, context: &mut Context<'_>, received: u64) -> ExpectOpResult<()> {
+        Err(ExpectOpError::unsupported_operation_type(
+            context,
+            self,
+            JsonType::Integer,
+        ))
     }
 
     #[allow(unused_variables)]
-    fn on_i64(&self, context: &mut Context<'_>, received: i64) -> JsonValueEqResult<()> {
-        Err(context.unsupported_type_err(self, JsonType::Integer))
+    fn on_i64(&self, context: &mut Context<'_>, received: i64) -> ExpectOpResult<()> {
+        Err(ExpectOpError::unsupported_operation_type(
+            context,
+            self,
+            JsonType::Integer,
+        ))
     }
 
     #[allow(unused_variables)]
-    fn on_boolean(&self, context: &mut Context<'_>, received: bool) -> JsonValueEqResult<()> {
-        Err(context.unsupported_type_err(self, JsonType::Boolean))
+    fn on_boolean(&self, context: &mut Context<'_>, received: bool) -> ExpectOpResult<()> {
+        Err(ExpectOpError::unsupported_operation_type(
+            context,
+            self,
+            JsonType::Boolean,
+        ))
     }
 
     #[allow(unused_variables)]
-    fn on_string(&self, context: &mut Context<'_>, received: &str) -> JsonValueEqResult<()> {
-        Err(context.unsupported_type_err(self, JsonType::String))
+    fn on_string(&self, context: &mut Context<'_>, received: &str) -> ExpectOpResult<()> {
+        Err(ExpectOpError::unsupported_operation_type(
+            context,
+            self,
+            JsonType::String,
+        ))
     }
 
     #[allow(unused_variables)]
-    fn on_array(&self, context: &mut Context<'_>, received: &[Value]) -> JsonValueEqResult<()> {
-        Err(context.unsupported_type_err(self, JsonType::Array))
+    fn on_array(&self, context: &mut Context<'_>, received: &[Value]) -> ExpectOpResult<()> {
+        Err(ExpectOpError::unsupported_operation_type(
+            context,
+            self,
+            JsonType::Array,
+        ))
     }
 
     #[allow(unused_variables)]
@@ -68,8 +97,12 @@ pub trait ExpectOp: ExpectOpExt + Debug + Send + 'static {
         &self,
         context: &mut Context<'_>,
         received: &Map<String, Value>,
-    ) -> JsonValueEqResult<()> {
-        Err(context.unsupported_type_err(self, JsonType::Object))
+    ) -> ExpectOpResult<()> {
+        Err(ExpectOpError::unsupported_operation_type(
+            context,
+            self,
+            JsonType::Object,
+        ))
     }
 
     fn supported_types(&self) -> &'static [JsonType] {
@@ -81,7 +114,6 @@ pub trait ExpectOp: ExpectOpExt + Debug + Send + 'static {
 mod test_on_any {
     use super::*;
     use crate::internals::ExpectOpMeta;
-    use crate::internals::JsonValueEqError;
     use serde_json::json;
 
     // An empty implementation which will hit the errors by default.
@@ -100,7 +132,7 @@ mod test_on_any {
             .unwrap_err();
         assert!(matches!(
             output,
-            JsonValueEqError::UnsupportedOperation {
+            ExpectOpError::UnsupportedOperation {
                 context,
                 received_type: JsonType::Null,
                 expected_operation: ExpectOpMeta {
@@ -123,7 +155,7 @@ mod test_on_any {
             .unwrap_err();
         assert!(matches!(
             output,
-            JsonValueEqError::UnsupportedOperation {
+            ExpectOpError::UnsupportedOperation {
                 context,
                 received_type: JsonType::Boolean,
                 expected_operation: ExpectOpMeta {
@@ -143,7 +175,7 @@ mod test_on_any {
             .unwrap_err();
         assert!(matches!(
             output,
-            JsonValueEqError::UnsupportedOperation {
+            ExpectOpError::UnsupportedOperation {
                 context,
                 received_type: JsonType::Integer,
                 expected_operation: ExpectOpMeta {
@@ -163,7 +195,7 @@ mod test_on_any {
             .unwrap_err();
         assert!(matches!(
             output,
-            JsonValueEqError::UnsupportedOperation {
+            ExpectOpError::UnsupportedOperation {
                 context,
                 received_type: JsonType::Integer,
                 expected_operation: ExpectOpMeta {
@@ -183,7 +215,7 @@ mod test_on_any {
             .unwrap_err();
         assert!(matches!(
             output,
-            JsonValueEqError::UnsupportedOperation {
+            ExpectOpError::UnsupportedOperation {
                 context,
                 received_type: JsonType::Float,
                 expected_operation: ExpectOpMeta {
@@ -203,7 +235,7 @@ mod test_on_any {
             .unwrap_err();
         assert!(matches!(
             output,
-            JsonValueEqError::UnsupportedOperation {
+            ExpectOpError::UnsupportedOperation {
                 context,
                 received_type: JsonType::String,
                 expected_operation: ExpectOpMeta {
@@ -223,7 +255,7 @@ mod test_on_any {
             .unwrap_err();
         assert!(matches!(
             output,
-            JsonValueEqError::UnsupportedOperation {
+            ExpectOpError::UnsupportedOperation {
                 context,
                 received_type: JsonType::Array,
                 expected_operation: ExpectOpMeta {
@@ -243,7 +275,7 @@ mod test_on_any {
             .unwrap_err();
         assert!(matches!(
             output,
-            JsonValueEqError::UnsupportedOperation {
+            ExpectOpError::UnsupportedOperation {
                 context,
                 received_type: JsonType::Object,
                 expected_operation: ExpectOpMeta {

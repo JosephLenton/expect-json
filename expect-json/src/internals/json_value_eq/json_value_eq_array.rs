@@ -1,21 +1,21 @@
 use crate::internals::context::Context;
 use crate::internals::json_eq;
 use crate::internals::objects::ArrayObject;
-use crate::internals::JsonValueEqError;
-use crate::internals::JsonValueEqResult;
+use crate::ExpectJsonError;
+use crate::ExpectJsonResult;
 use serde_json::Value;
 
 pub fn json_value_eq_array<'a>(
     context: &mut Context<'a>,
     received_array: &'a [Value],
     expected_array: &'a [Value],
-) -> JsonValueEqResult<()> {
+) -> ExpectJsonResult<()> {
     // The Expected array is longer,
     //
     // Add some special cases to give better error messages.
     if expected_array.len() > received_array.len() {
         if let Some(missing_in_received) = has_more_at_end(received_array, expected_array) {
-            return Err(JsonValueEqError::ArrayMissingAtEnd {
+            return Err(ExpectJsonError::ArrayMissingAtEnd {
                 context: context.to_static(),
                 received_array: ArrayObject::from(received_array.to_owned()),
                 expected_array: ArrayObject::from(expected_array.to_owned()),
@@ -24,7 +24,7 @@ pub fn json_value_eq_array<'a>(
         }
 
         if let Some(missing_in_received) = has_more_at_start(received_array, expected_array) {
-            return Err(JsonValueEqError::ArrayMissingAtStart {
+            return Err(ExpectJsonError::ArrayMissingAtStart {
                 context: context.to_static(),
                 received_array: ArrayObject::from(received_array.to_owned()),
                 expected_array: ArrayObject::from(expected_array.to_owned()),
@@ -37,7 +37,7 @@ pub fn json_value_eq_array<'a>(
         //     json_eq(context, received_value, expected_value).is_err().then(|| expected_value.clone())
         // }).collect::<Vec<_>>();
 
-        return Err(JsonValueEqError::ArrayMissingInMiddle {
+        return Err(ExpectJsonError::ArrayMissingInMiddle {
             context: context.to_static(),
             received_array: ArrayObject::from(received_array.to_owned()),
             expected_array: ArrayObject::from(expected_array.to_owned()),
@@ -50,7 +50,7 @@ pub fn json_value_eq_array<'a>(
     // Add some special cases to give better error messages.
     if expected_array.len() < received_array.len() {
         if let Some(extra_in_received) = has_more_at_end(expected_array, received_array) {
-            return Err(JsonValueEqError::ArrayExtraAtEnd {
+            return Err(ExpectJsonError::ArrayExtraAtEnd {
                 context: context.to_static(),
                 received_array: ArrayObject::from(received_array.to_owned()),
                 expected_array: ArrayObject::from(expected_array.to_owned()),
@@ -59,7 +59,7 @@ pub fn json_value_eq_array<'a>(
         }
 
         if let Some(extra_in_received) = has_more_at_start(expected_array, received_array) {
-            return Err(JsonValueEqError::ArrayExtraAtStart {
+            return Err(ExpectJsonError::ArrayExtraAtStart {
                 context: context.to_static(),
                 received_array: ArrayObject::from(received_array.to_owned()),
                 expected_array: ArrayObject::from(expected_array.to_owned()),
@@ -67,7 +67,7 @@ pub fn json_value_eq_array<'a>(
             });
         }
 
-        return Err(JsonValueEqError::ArrayValuesAreDifferent {
+        return Err(ExpectJsonError::ArrayValuesAreDifferent {
             context: context.to_static(),
             received_array: ArrayObject::from(received_array.to_owned()),
             expected_array: ArrayObject::from(expected_array.to_owned()),
@@ -79,7 +79,7 @@ pub fn json_value_eq_array<'a>(
     {
         context.push(index);
         json_eq(context, received_value, expected_value).map_err(|source_error| {
-            JsonValueEqError::array_index_missing(
+            ExpectJsonError::array_index_missing(
                 context,
                 source_error,
                 received_array,

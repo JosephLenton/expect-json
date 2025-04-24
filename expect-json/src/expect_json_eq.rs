@@ -1,18 +1,18 @@
 use crate::internals::json_eq;
 use crate::internals::Context;
-use crate::ExpectJsonEqError;
-use crate::ExpectJsonEqResult;
+use crate::ExpectJsonError;
+use crate::ExpectJsonResult;
 use serde::Serialize;
 
-pub fn expect_json_eq<R, E>(received_raw: &R, expected_raw: &E) -> ExpectJsonEqResult<()>
+pub fn expect_json_eq<R, E>(received_raw: &R, expected_raw: &E) -> ExpectJsonResult<()>
 where
     R: Serialize,
     E: Serialize,
 {
     let received =
-        serde_json::to_value(received_raw).map_err(ExpectJsonEqError::FailedToSerialiseReceived)?;
+        serde_json::to_value(received_raw).map_err(ExpectJsonError::FailedToSerialiseReceived)?;
     let expected =
-        serde_json::to_value(expected_raw).map_err(ExpectJsonEqError::FailedToSerialiseExpected)?;
+        serde_json::to_value(expected_raw).map_err(ExpectJsonError::FailedToSerialiseExpected)?;
 
     let mut context = Context::new();
     json_eq(&mut context, &received, &expected)?;
@@ -68,7 +68,10 @@ mod test_expect_json_eq {
         let error = expect_json_eq(&received, &expected).unwrap_err();
         let error_dbg = format!("{error:?}");
 
-        // assert_matches!(error, ExpectJsonEqError::JsonValueError(..));
-        assert!(error_dbg.starts_with("JsonValueError("));
+        // assert_matches!(error, ExpectJsonError::DifferentTypes(..));
+        assert!(
+            error_dbg.starts_with("DifferentTypes"),
+            "error_dbg: {error_dbg}"
+        );
     }
 }

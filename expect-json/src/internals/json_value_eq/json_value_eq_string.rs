@@ -1,16 +1,16 @@
 use crate::internals::context::Context;
 use crate::internals::objects::StringObject;
-use crate::internals::JsonValueEqError;
-use crate::internals::JsonValueEqResult;
+use crate::ExpectJsonError;
+use crate::ExpectJsonResult;
 use crate::JsonType;
 
 pub fn json_value_eq_string(
     context: &mut Context,
     received: &str,
     expected: &str,
-) -> JsonValueEqResult<()> {
+) -> ExpectJsonResult<()> {
     if received != expected {
-        return Err(JsonValueEqError::DifferentValues {
+        return Err(ExpectJsonError::DifferentValues {
             context: context.to_static(),
             json_type: JsonType::String,
             received: StringObject::from(received.to_string()).into(),

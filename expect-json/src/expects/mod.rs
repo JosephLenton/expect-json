@@ -9,6 +9,9 @@ pub use self::expect::*;
 mod expect_not;
 pub use self::expect_not::*;
 
+mod expect_op_error;
+pub use self::expect_op_error::*;
+
 mod expect_op_serialize;
 pub use self::expect_op_serialize::*;
 

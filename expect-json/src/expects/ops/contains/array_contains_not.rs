@@ -2,8 +2,8 @@ use crate::expect_op;
 use crate::expects::ExpectOp;
 use crate::internals::objects::ArrayObject;
 use crate::internals::Context;
-use crate::internals::JsonValueEqError;
-use crate::internals::JsonValueEqResult;
+use crate::ExpectOpError;
+use crate::ExpectOpResult;
 use crate::JsonType;
 use serde_json::Value;
 use std::collections::HashSet;
@@ -21,16 +21,12 @@ impl ArrayContainsNot {
 }
 
 impl ExpectOp for ArrayContainsNot {
-    fn on_array(
-        &self,
-        context: &mut Context<'_>,
-        received_values: &[Value],
-    ) -> JsonValueEqResult<()> {
+    fn on_array(&self, context: &mut Context<'_>, received_values: &[Value]) -> ExpectOpResult<()> {
         let received_items_in_set = received_values.iter().collect::<HashSet<&Value>>();
 
         for expected in &self.values {
             if received_items_in_set.contains(&expected) {
-                return Err(JsonValueEqError::ContainsFound {
+                return Err(ExpectOpError::ContainsFound {
                     context: context.to_static(),
                     json_type: JsonType::Array,
                     expected: expected.clone().into(),
