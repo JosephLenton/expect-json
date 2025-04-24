@@ -4,6 +4,7 @@ use crate::ops::utils::DurationFormatter;
 use crate::ExpectOp;
 use crate::ExpectOpError;
 use crate::ExpectOpResult;
+use crate::JsonType;
 use chrono::DateTime;
 use chrono::Duration as ChronoDuration;
 use chrono::FixedOffset;
@@ -11,6 +12,46 @@ use chrono::Offset;
 use chrono::Utc;
 use std::time::Duration as StdDuration;
 
+/// Expects an ISO 8601 date time string.
+///
+/// By _default_ this expects a UTC timezone, and this can be disabled with [IsoDateTime::allow_non_utc()].
+///
+/// ```rust
+/// # async fn test() -> Result<(), Box<dyn ::std::error::Error>> {
+/// #
+/// # use axum::Router;
+/// # use axum::extract::Json;
+/// # use axum::routing::get;
+/// # use axum_test::TestServer;
+/// # use serde_json::json;
+/// # use std::time::Instant;
+/// #
+/// # let server = TestServer::new(Router::new())?;
+/// #
+/// use std::time::Duration;
+/// use axum_test::expect_json::expect;
+///
+/// server.get(&"/latest-comment")
+///     .await
+///     .assert_json_contains(&json!({
+///         "comment": "My example comment",
+///         "created_at": expect.iso_date_time(),
+///
+///         // Expect it was updated in the last minute
+///         "updated_at": expect.iso_date_time()
+///             .within_past(Duration::from_secs(60)),
+///
+///         // Expect it also expires in the next minute
+///         "expires_at": expect.iso_date_time()
+///             .within_future(Duration::from_secs(60)),
+///
+///         // Users time could have any timezone
+///         "users_created_at": expect.iso_date_time()
+///             .allow_non_utc(),
+///     }));
+/// #
+/// # Ok(()) }
+/// ```
 #[expect_op(internal)]
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct IsoDateTime {
@@ -67,27 +108,66 @@ impl ExpectOp for IsoDateTime {
             }
         }
 
-        if let Some(past_duration) = self.maybe_past_duration {
-            let is_date_time_outside_past = date_time < Utc::now() - past_duration;
-            if is_date_time_outside_past {
-                let duration =
-                    DurationFormatter::new(ChronoDuration::from_std(past_duration).unwrap());
-                let error_message = format!("ISO datetime '{received}' is too far from the past, expected within '{duration}' ago of now");
-                return Err(ExpectOpError::custom(context, self, error_message));
-            }
-        }
+        match (self.maybe_past_duration, self.maybe_future_duration) {
+            (None, None) => {}
+            (Some(past_duration), None) => {
+                let is_date_time_outside_past = date_time < Utc::now() - past_duration;
+                if is_date_time_outside_past {
+                    let duration =
+                        DurationFormatter::new(ChronoDuration::from_std(past_duration).unwrap());
+                    let error_message = format!("ISO datetime '{received}' is too far from the past, expected between '{duration}' ago and now");
+                    return Err(ExpectOpError::custom(context, self, error_message));
+                }
 
-        if let Some(future_duration) = self.maybe_future_duration {
-            let is_date_time_outside_future = date_time > Utc::now() + future_duration;
-            if is_date_time_outside_future {
-                let duration =
-                    DurationFormatter::new(ChronoDuration::from_std(future_duration).unwrap());
-                let error_message = format!("ISO datetime '{received}' is too far in the future, expected within '{duration}' from now");
-                return Err(ExpectOpError::custom(context, self, error_message));
+                let is_date_time_ahead_of_now = date_time > Utc::now();
+                if is_date_time_ahead_of_now {
+                    let duration =
+                        DurationFormatter::new(ChronoDuration::from_std(past_duration).unwrap());
+                    let error_message = format!("ISO datetime '{received}' is in the future of now, expected between '{duration}' ago and now");
+                    return Err(ExpectOpError::custom(context, self, error_message));
+                }
+            }
+            (None, Some(future_duration)) => {
+                let is_date_time_outside_future = date_time > Utc::now() + future_duration;
+                if is_date_time_outside_future {
+                    let duration =
+                        DurationFormatter::new(ChronoDuration::from_std(future_duration).unwrap());
+                    let error_message = format!("ISO datetime '{received}' is too far in the future, expected between now and '{duration}' in the future");
+                    return Err(ExpectOpError::custom(context, self, error_message));
+                }
+
+                let is_date_time_behind_of_now = date_time < Utc::now();
+                if is_date_time_behind_of_now {
+                    let duration =
+                        DurationFormatter::new(ChronoDuration::from_std(future_duration).unwrap());
+                    let error_message = format!("ISO datetime '{received}' is in the past of now, expected between now and '{duration}' in the future");
+                    return Err(ExpectOpError::custom(context, self, error_message));
+                }
+            }
+            (Some(past_duration), Some(future_duration)) => {
+                let is_date_time_outside_past = date_time < Utc::now() - past_duration;
+                if is_date_time_outside_past {
+                    let duration =
+                        DurationFormatter::new(ChronoDuration::from_std(past_duration).unwrap());
+                    let error_message = format!("ISO datetime '{received}' is too far from the past, expected between '{duration}' ago and now");
+                    return Err(ExpectOpError::custom(context, self, error_message));
+                }
+
+                let is_date_time_outside_future = date_time > Utc::now() + future_duration;
+                if is_date_time_outside_future {
+                    let duration =
+                        DurationFormatter::new(ChronoDuration::from_std(future_duration).unwrap());
+                    let error_message = format!("ISO datetime '{received}' is too far in the future, expected between now and '{duration}' in the future");
+                    return Err(ExpectOpError::custom(context, self, error_message));
+                }
             }
         }
 
         Ok(())
+    }
+
+    fn supported_types(&self) -> &'static [JsonType] {
+        &[JsonType::String]
     }
 }
 
@@ -195,7 +275,26 @@ mod test_within_past {
             output,
             format!(
                 r#"Json expect.IsoDateTime() error at root:
-    ISO datetime '{now_str}' is too far from the past, expected within '1 minute' ago of now"#
+    ISO datetime '{now_str}' is too far from the past, expected between '1 minute' ago and now"#
+            )
+        );
+    }
+
+    #[test]
+    fn it_should_not_parse_iso_datetime_ahead_of_now() {
+        let now = Utc::now();
+        let now_str = (now + ChronoDuration::seconds(90)).to_rfc3339();
+        let left = json!(now_str);
+        let right = json!(expect
+            .iso_date_time()
+            .within_past(StdDuration::from_secs(60)));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            format!(
+                r#"Json expect.IsoDateTime() error at root:
+    ISO datetime '{now_str}' is in the future of now, expected between '1 minute' ago and now"#
             )
         );
     }
@@ -236,7 +335,26 @@ mod test_within_future {
             output,
             format!(
                 r#"Json expect.IsoDateTime() error at root:
-    ISO datetime '{now_str}' is too far in the future, expected within '1 minute' from now"#
+    ISO datetime '{now_str}' is too far in the future, expected between now and '1 minute' in the future"#
+            )
+        );
+    }
+
+    #[test]
+    fn it_should_not_parse_iso_datetime_before_now() {
+        let now = Utc::now();
+        let now_str = (now - ChronoDuration::seconds(90)).to_rfc3339();
+        let left = json!(now_str);
+        let right = json!(expect
+            .iso_date_time()
+            .within_future(StdDuration::from_secs(60)));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            format!(
+                r#"Json expect.IsoDateTime() error at root:
+    ISO datetime '{now_str}' is in the past of now, expected between now and '1 minute' in the future"#
             )
         );
     }

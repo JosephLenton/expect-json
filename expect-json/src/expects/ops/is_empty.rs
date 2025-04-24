@@ -6,6 +6,7 @@ use crate::internals::Context;
 use crate::ExpectOp;
 use crate::ExpectOpError;
 use crate::ExpectOpResult;
+use crate::JsonType;
 use serde_json::Map;
 use serde_json::Value;
 
@@ -55,6 +56,10 @@ impl ExpectOp for IsEmpty {
         }
 
         Ok(())
+    }
+
+    fn supported_types(&self) -> &'static [JsonType] {
+        &[JsonType::String, JsonType::Array, JsonType::Object]
     }
 }
 

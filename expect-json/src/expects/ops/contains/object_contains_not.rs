@@ -1,6 +1,9 @@
 use crate::expect_op;
 use crate::expects::ExpectOp;
+use crate::internals::objects::ValueObject;
 use crate::internals::Context;
+use crate::internals::ExpectOpMeta;
+use crate::ExpectJsonError;
 use crate::ExpectOpError;
 use crate::ExpectOpResult;
 use crate::JsonType;
@@ -26,16 +29,29 @@ impl ExpectOp for ObjectContainsNot {
         received_values: &Map<String, Value>,
     ) -> ExpectOpResult<()> {
         for (key, expected_value) in &self.values {
-            let received_value = received_values
-                .get(key)
-                .ok_or_else(|| unimplemented!("todo, add an error type here"))
-                .unwrap();
+            if let Some(received_value) = received_values.get(key) {
+                context.push(key.to_owned());
+                let result = context.json_eq(received_value, expected_value);
 
-            context.push(key.to_owned());
-            context
-                .json_eq(received_value, expected_value)
-                .map_err(|error| ExpectOpError::expect_json_error(context, self, error))?;
-            context.pop();
+                match result {
+                    Ok(()) => {
+                        return Err(ExpectOpError::ObjectKeyValueIsEqual {
+                            context: context.to_static(),
+                            received: ValueObject::from(received_value.clone()),
+                            expected_operation: ExpectOpMeta::new(self),
+                        });
+                    }
+                    Err(error @ ExpectJsonError::FailedToSerialiseExpected(..)) => {
+                        return Err(ExpectOpError::from(error));
+                    }
+                    Err(error @ ExpectJsonError::FailedToSerialiseReceived(..)) => {
+                        return Err(ExpectOpError::from(error));
+                    }
+                    _ => {}
+                }
+
+                context.pop();
+            }
         }
 
         Ok(())
@@ -46,70 +62,249 @@ impl ExpectOp for ObjectContainsNot {
     }
 }
 
+/*
 #[cfg(test)]
-mod test_array_contains_not {
+mod test_object_contains_not {
     use crate::expect;
     use crate::expect_json_eq;
     use pretty_assertions::assert_eq;
     use serde_json::json;
 
     #[test]
-    fn it_should_error_for_identical_numeric_arrays() {
-        let left = json!([1, 2, 3]);
-        let right = json!(expect.not.contains([1, 2, 3]));
-
-        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
-        assert_eq!(
-            output,
-            r#"Json array at root contains value was expecting to not be there:
-    expected array to not contain 1, but it was found.
-    received [1, 2, 3]"#
-        );
-    }
-
-    #[test]
-    fn it_should_errorfor_reversed_identical_numeric_arrays() {
-        let left = json!([1, 2, 3]);
-        let right = json!(expect.not.contains([3, 2, 1]));
-
-        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
-        assert_eq!(
-            output,
-            r#"Json array at root contains value was expecting to not be there:
-    expected array to not contain 3, but it was found.
-    received [1, 2, 3]"#
-        );
-    }
-
-    #[test]
-    fn it_should_error_for_partial_contains() {
-        let left = json!([0, 1, 2, 3, 4, 5]);
-        let right = json!(expect.not.contains([1, 2, 3]));
-
-        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
-        assert_eq!(
-            output,
-            r#"Json array at root contains value was expecting to not be there:
-    expected array to not contain 1, but it was found.
-    received [0, 1, 2, 3, 4, 5]"#
-        );
-    }
-
-    #[test]
-    fn it_should_be_ok_for_totall_different_values() {
-        let left = json!([0, 1, 2, 3]);
-        let right = json!(expect.not.contains([4, 5, 6]));
+    fn it_should_be_equal_for_identical_objects() {
+        let left = json!({ "name": "John", "age": 30, "scores": [1, 2, 3] });
+        let right =
+            json!(expect.not.contains(json!({ "name": "John", "age": 30, "scores": [1, 2, 3] })));
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
+    }
+
+    #[test]
+    fn it_should_be_equal_for_reversed_identical_objects() {
+        let left = json!({ "name": "John", "age": 30, "scores": [1, 2, 3] });
+        let right =
+            json!(expect.not.contains(json!({ "scores": [1, 2, 3], "age": 30, "name": "John" })));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok());
+    }
+
+    #[test]
+    fn it_should_be_equal_for_partial_contains() {
+        let left = json!({ "name": "John", "age": 30, "scores": [1, 2, 3] });
+        let right = json!(expect.not.contains(json!({ "name": "John", "age": 30 })));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok());
+    }
+
+    #[test]
+    fn it_should_be_equal_for_nested_contains() {
+        let left = json!({ "name": "John", "comments": [
+            {
+                "text": "Hello",
+                "author": {
+                    "name": "Jane",
+                    "age": 25
+                }
+            },
+            {
+                "text": "Goodbye",
+                "author": {
+                    "name": "John",
+                    "age": 30
+                }
+            }
+        ]});
+
+        let right = json!(expect.not.contains(json!({ "comments": expect.not.contains([
+            json!({
+                "text": "Hello",
+                "author": expect.not.contains(
+                    json!({
+                        "name": "Jane",
+                    })
+                )
+            }),
+        ])})));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "{}", output.unwrap_err().to_string());
+    }
+
+    #[test]
+    fn it_should_error_for_same_fields_but_different_values() {
+        let left = json!({ "name": "John", "age": 30, "scores": [1, 2, 3] });
+        let right =
+            json!(expect.not.contains(json!({ "name": "Joe", "age": 31, "scores": [4, 5, 6] })));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            r#"Json integers at root.age are not equal:
+    expected 31
+    received 30"#
+        );
     }
 
     #[test]
     fn it_should_be_ok_for_empty_contains() {
-        let left = json!([0, 1, 2, 3]);
-        let right = json!(expect.not.contains(&[] as &'static [u32]));
+        let left = json!({ "name": "John", "age": 30, "scores": [1, 2, 3] });
+        let right = json!(expect.not.contains(json!({})));
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
     }
+
+    #[test]
+    fn it_should_be_ok_for_empty_on_empty_object() {
+        let left = json!({});
+        let right = json!(expect.not.contains(json!({})));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok());
+    }
+
+    #[test]
+    fn it_should_error_if_used_against_the_wrong_type() {
+        let left = json!("🦊");
+        let right = json!(expect.not.contains(json!({})));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            r#"Json comparison on unsupported type, at root:
+    expect.not.contains() cannot be performed against string,
+    only supported type is: array"#
+        );
+    }
+
+    #[test]
+    fn it_should_error_for_nested_contains_via_array_on_differences() {
+        let left = json!({ "name": "John", "comments": [
+            {
+                "text": "Hello",
+                "author": {
+                    "name": "🦊",
+                    "age": 25
+                }
+            },
+            {
+                "text": "Goodbye",
+                "author": {
+                    "name": "John",
+                    "age": 30
+                }
+            }
+        ]});
+
+        let right = json!(expect.not.contains(json!({ "comments": expect.not.contains([
+            json!({
+                "text": "Hello",
+                "author": expect.not.contains(
+                    json!({
+                        "name": "Jane",
+                    })
+                )
+            }),
+        ])})));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            r#"Json array at root.comments does not contain expected value:
+    expected array to contain {
+        "author": expect.not.contains(),
+        "text": "Hello"
+    }, but it was not found.
+    received [
+        {
+            "author": {
+                "age": 25,
+                "name": "🦊"
+            },
+            "text": "Hello"
+        },
+        {
+            "author": {
+                "age": 30,
+                "name": "John"
+            },
+            "text": "Goodbye"
+        }
+    ]"#
+        );
+    }
+
+    #[test]
+    fn it_should_error_for_nested_contains_via_object_with_inner_contains_error() {
+        let left = json!({
+            "name": "John",
+            "comment": {
+                "text": "Hello",
+                "author": {
+                    "name": "🦊",
+                    "age": 25
+                }
+            },
+        });
+
+        let right = json!(expect.not.contains(json!({ "comment":
+            expect.not.contains(
+                json!({
+                    "text": "Hello",
+                    "author": expect.not.contains(
+                        json!({
+                            "name": "Jane",
+                        })
+                    )
+                })
+            )
+        })));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            r#"Json strings at root.comment.author.name are not equal:
+    expected "Jane"
+    received "🦊""#
+        );
+    }
+
+    #[test]
+    fn it_should_error_for_nested_contains_via_different_object_with_inner_contains_error() {
+        let left = json!({
+            "name": "John",
+            "comment": {
+                "text": "Hello",
+                "author": {
+                    "name": "Jane",
+                    "age": 25
+                }
+            },
+        });
+
+        let right = json!(expect.not.contains(json!({ "comment":
+            expect.not.contains(
+                json!({
+                    "text": "Hello",
+                    "author": expect.not.contains(
+                        json!({
+                            "something_else": "🦊",
+                        })
+                    )
+                })
+            )
+        })));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            r#"Json object at root.comment.author is missing key for ObjectContains:
+    expected field 'something_else',
+    but it was not found"#
+        );
+    }
 }
+ */

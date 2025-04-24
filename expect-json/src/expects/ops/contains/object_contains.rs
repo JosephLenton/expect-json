@@ -36,9 +36,7 @@ impl ExpectOp for ObjectContains {
             })?;
 
             context.push(key.to_owned());
-            context
-                .json_eq(received_value, expected_value)
-                .map_err(|error| ExpectOpError::expect_json_error(context, self, error))?;
+            context.json_eq(received_value, expected_value)?;
             context.pop();
         }
 

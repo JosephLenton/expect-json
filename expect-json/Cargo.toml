@@ -31,3 +31,5 @@ uuid = { workspace = true, features = ["v4", "serde"] }
 
 [dev-dependencies]
 pretty_assertions = { workspace = true }
+axum = { workspace = true, features = [] }
+axum-test = { workspace = true }

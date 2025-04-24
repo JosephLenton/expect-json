@@ -39,6 +39,16 @@ pub enum ExpectOpError {
     },
 
     #[error(
+        "Json at {context} has key with value, expecting either key not present or different value.
+    received {received}"
+    )]
+    ObjectKeyValueIsEqual {
+        context: Context<'static>,
+        received: ValueObject,
+        expected_operation: ExpectOpMeta,
+    },
+
+    #[error(
         "Json {json_type} at {context} contains value was expecting to not be there:
     expected {json_type} to not contain {expected}, but it was found.
     received {received}"
@@ -91,8 +101,6 @@ pub enum ExpectOpError {
     ExpectJsonError {
         #[source]
         error: Box<ExpectJsonError>,
-        context: Context<'static>,
-        expected_operation: ExpectOpMeta,
     },
 }
 
@@ -123,21 +131,6 @@ impl ExpectOpError {
         }
     }
 
-    pub fn expect_json_error<O>(
-        context: &Context<'_>,
-        expect_op: &O,
-        error: ExpectJsonError,
-    ) -> Self
-    where
-        O: ExpectOp + ?Sized,
-    {
-        Self::ExpectJsonError {
-            context: context.to_static(),
-            error: Box::new(error),
-            expected_operation: ExpectOpMeta::new(expect_op),
-        }
-    }
-
     pub fn unsupported_operation_type<O>(
         context: &Context<'_>,
         expect_op: &O,
@@ -150,6 +143,14 @@ impl ExpectOpError {
             context: context.to_static(),
             received_type,
             expected_operation: ExpectOpMeta::new(expect_op),
+        }
+    }
+}
+
+impl From<ExpectJsonError> for ExpectOpError {
+    fn from(error: ExpectJsonError) -> Self {
+        Self::ExpectJsonError {
+            error: Box::new(error),
         }
     }
 }

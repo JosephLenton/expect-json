@@ -11,8 +11,8 @@ pub const expect: Expect = Expect::new();
 mod expects;
 pub use self::expects::*;
 
-mod expect_json_eq_error;
-pub use self::expect_json_eq_error::*;
+mod expect_json_error;
+pub use self::expect_json_error::*;
 
 mod expect_json_eq;
 pub use self::expect_json_eq::*;
