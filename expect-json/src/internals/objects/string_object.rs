@@ -22,3 +22,21 @@ impl Display for StringObject {
 }
 
 impl PrettyDisplay for StringObject {}
+
+#[cfg(test)]
+mod test_fmt {
+    use super::*;
+    use pretty_assertions::assert_eq;
+
+    #[test]
+    fn it_should_display_empty_string() {
+        let string_object = StringObject("".to_string());
+        assert_eq!(format!("{}", string_object), r#""""#);
+    }
+
+    #[test]
+    fn it_should_display_string() {
+        let string_object = StringObject("Hello, world!".to_string());
+        assert_eq!(format!("{}", string_object), r#""Hello, world!""#);
+    }
+}

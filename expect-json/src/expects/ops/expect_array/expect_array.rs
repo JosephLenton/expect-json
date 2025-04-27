@@ -23,6 +23,11 @@ impl ExpectArray {
         self
     }
 
+    pub fn is_not_empty(mut self) -> Self {
+        self.sub_ops.push(ExpectArraySubOp::IsNotEmpty);
+        self
+    }
+
     pub fn min_len(mut self, min_len: usize) -> Self {
         self.sub_ops.push(ExpectArraySubOp::MinLen(min_len));
         self
@@ -184,6 +189,39 @@ mod test_is_empty {
                 r#"Json expect::array() error at root:
     expected empty array
     received [1, 2, 3]"#
+            )
+        );
+    }
+}
+
+#[cfg(test)]
+mod test_is_not_empty {
+    use crate::expect;
+    use crate::expect_json_eq;
+    use pretty_assertions::assert_eq;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_pass_when_array_is_not_empty() {
+        let left = json!([1]);
+        let right = json!(expect::array().is_not_empty());
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
+
+    #[test]
+    fn it_should_fail_when_array_is_empty() {
+        let left = json!([]);
+        let right = json!(expect::array().is_not_empty());
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            format!(
+                r#"Json expect::array() error at root:
+    expected non-empty array
+    received []"#
             )
         );
     }

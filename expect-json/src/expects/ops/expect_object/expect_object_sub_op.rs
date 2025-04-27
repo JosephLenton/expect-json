@@ -12,6 +12,7 @@ use serde_json::Value;
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ExpectObjectSubOp {
     IsEmpty,
+    IsNotEmpty,
     Contains(Map<String, Value>),
 }
 
@@ -25,6 +26,9 @@ impl ExpectObjectSubOp {
         match self {
             ExpectObjectSubOp::IsEmpty => {
                 ExpectObjectSubOp::on_object_is_empty(parent, context, received)
+            }
+            ExpectObjectSubOp::IsNotEmpty => {
+                ExpectObjectSubOp::on_object_is_not_empty(parent, context, received)
             }
             ExpectObjectSubOp::Contains(expected_values) => {
                 ExpectObjectSubOp::on_object_contains(expected_values, parent, context, received)
@@ -40,6 +44,23 @@ impl ExpectObjectSubOp {
         if !received.is_empty() {
             let error_message = format!(
                 r#"expected empty object
+    received {}"#,
+                ObjectObject::from(received.clone())
+            );
+            return Err(ExpectOpError::custom(context, parent, error_message));
+        }
+
+        Ok(())
+    }
+
+    fn on_object_is_not_empty(
+        parent: &ExpectObject,
+        context: &mut Context<'_>,
+        received: &Map<String, Value>,
+    ) -> ExpectOpResult<()> {
+        if received.is_empty() {
+            let error_message = format!(
+                r#"expected non-empty object
     received {}"#,
                 ObjectObject::from(received.clone())
             );

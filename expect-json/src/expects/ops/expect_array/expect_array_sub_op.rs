@@ -12,6 +12,7 @@ use std::collections::HashSet;
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ExpectArraySubOp {
     IsEmpty,
+    IsNotEmpty,
     MinLen(usize),
     MaxLen(usize),
     Contains(Vec<Value>),
@@ -28,6 +29,9 @@ impl ExpectArraySubOp {
         match self {
             ExpectArraySubOp::IsEmpty => {
                 ExpectArraySubOp::on_array_is_empty(parent, context, received)
+            }
+            ExpectArraySubOp::IsNotEmpty => {
+                ExpectArraySubOp::on_array_is_not_empty(parent, context, received)
             }
             ExpectArraySubOp::MinLen(min_len) => {
                 ExpectArraySubOp::on_array_min_len(*min_len, parent, context, received)
@@ -52,6 +56,23 @@ impl ExpectArraySubOp {
         if !received_values.is_empty() {
             let error_message = format!(
                 r#"expected empty array
+    received {}"#,
+                ArrayObject::from(received_values.iter().cloned())
+            );
+            return Err(ExpectOpError::custom(context, parent, error_message));
+        }
+
+        Ok(())
+    }
+
+    fn on_array_is_not_empty(
+        parent: &ExpectArray,
+        context: &mut Context<'_>,
+        received_values: &[Value],
+    ) -> ExpectOpResult<()> {
+        if received_values.is_empty() {
+            let error_message = format!(
+                r#"expected non-empty array
     received {}"#,
                 ArrayObject::from(received_values.iter().cloned())
             );
