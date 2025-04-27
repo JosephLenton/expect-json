@@ -17,8 +17,5 @@ pub use self::expect_op_ext::*;
 mod expect_op;
 pub use self::expect_op::*;
 
-mod expect_op_container;
-pub use self::expect_op_container::*;
-
 mod serialize_expect_op;
 pub use self::serialize_expect_op::*;

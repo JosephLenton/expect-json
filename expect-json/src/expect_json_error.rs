@@ -2,7 +2,7 @@ use crate::internals::objects::ArrayObject;
 use crate::internals::objects::ValueObject;
 use crate::internals::objects::ValueTypeObject;
 use crate::internals::utils::is_unquotable_js_identifier;
-use crate::internals::Context;
+use crate::Context;
 use crate::ExpectOpError;
 use crate::JsonType;
 use serde_json::Error as SerdeJsonError;

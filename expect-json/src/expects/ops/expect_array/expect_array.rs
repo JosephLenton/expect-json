@@ -1,6 +1,6 @@
 use crate::expect_op;
-use crate::internals::Context;
 use crate::ops::expect_array::ExpectArraySubOp;
+use crate::Context;
 use crate::ExpectOp;
 use crate::ExpectOpResult;
 use crate::JsonType;
@@ -127,9 +127,9 @@ mod test_contains {
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
-            r#"Json comparison on unsupported type, at root:
-    expect::array() cannot be performed against string,
-    only supported type is: array"#
+            r#"Json expect::array() at root, received wrong type:
+    expected array
+    received string "🦊""#
         );
     }
 

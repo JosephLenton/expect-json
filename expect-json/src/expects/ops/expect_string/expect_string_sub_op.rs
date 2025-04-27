@@ -1,6 +1,6 @@
 use crate::internals::objects::StringObject;
-use crate::internals::Context;
 use crate::ops::ExpectString;
+use crate::Context;
 use crate::ExpectOpError;
 use crate::ExpectOpResult;
 use crate::JsonType;

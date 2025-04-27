@@ -1,6 +1,7 @@
 use crate::internals::objects::IntegerObject;
+use crate::internals::objects::NullObject;
 use crate::internals::objects::ValueObject;
-use crate::internals::Context;
+use crate::Context;
 use crate::ExpectOpError;
 use crate::ExpectOpExt;
 use crate::ExpectOpResult;
@@ -32,45 +33,35 @@ pub trait ExpectOp: ExpectOpExt + Debug + Send + 'static {
     #[allow(unused_variables)]
     fn on_null(&self, context: &mut Context<'_>) -> ExpectOpResult<()> {
         Err(ExpectOpError::unsupported_operation_type(
-            context,
-            self,
-            JsonType::Null,
+            context, self, NullObject,
         ))
     }
 
     #[allow(unused_variables)]
     fn on_f64(&self, context: &mut Context<'_>, received: f64) -> ExpectOpResult<()> {
         Err(ExpectOpError::unsupported_operation_type(
-            context,
-            self,
-            JsonType::Float,
+            context, self, received,
         ))
     }
 
     #[allow(unused_variables)]
     fn on_u64(&self, context: &mut Context<'_>, received: u64) -> ExpectOpResult<()> {
         Err(ExpectOpError::unsupported_operation_type(
-            context,
-            self,
-            JsonType::Integer,
+            context, self, received,
         ))
     }
 
     #[allow(unused_variables)]
     fn on_i64(&self, context: &mut Context<'_>, received: i64) -> ExpectOpResult<()> {
         Err(ExpectOpError::unsupported_operation_type(
-            context,
-            self,
-            JsonType::Integer,
+            context, self, received,
         ))
     }
 
     #[allow(unused_variables)]
     fn on_boolean(&self, context: &mut Context<'_>, received: bool) -> ExpectOpResult<()> {
         Err(ExpectOpError::unsupported_operation_type(
-            context,
-            self,
-            JsonType::Boolean,
+            context, self, received,
         ))
     }
 
@@ -79,7 +70,7 @@ pub trait ExpectOp: ExpectOpExt + Debug + Send + 'static {
         Err(ExpectOpError::unsupported_operation_type(
             context,
             self,
-            JsonType::String,
+            received.to_owned(),
         ))
     }
 
@@ -88,7 +79,7 @@ pub trait ExpectOp: ExpectOpExt + Debug + Send + 'static {
         Err(ExpectOpError::unsupported_operation_type(
             context,
             self,
-            JsonType::Array,
+            received.to_owned(),
         ))
     }
 
@@ -101,7 +92,7 @@ pub trait ExpectOp: ExpectOpExt + Debug + Send + 'static {
         Err(ExpectOpError::unsupported_operation_type(
             context,
             self,
-            JsonType::Object,
+            received.to_owned(),
         ))
     }
 
@@ -113,6 +104,12 @@ pub trait ExpectOp: ExpectOpExt + Debug + Send + 'static {
 #[cfg(test)]
 mod test_on_any {
     use super::*;
+    use crate::internals::objects::ArrayObject;
+    use crate::internals::objects::BooleanObject;
+    use crate::internals::objects::FloatObject;
+    use crate::internals::objects::ObjectObject;
+    use crate::internals::objects::StringObject;
+    use crate::internals::objects::ValueTypeObject;
     use crate::internals::ExpectOpMeta;
     use serde_json::json;
 
@@ -134,15 +131,12 @@ mod test_on_any {
             output,
             ExpectOpError::UnsupportedOperation {
                 context,
-                received_type: JsonType::Null,
+                received: ValueTypeObject(ValueObject::Null(NullObject)),
                 expected_operation: ExpectOpMeta {
                     name: "TestJsonExpectOp",
                     types: &[],
                 },
             } if context == outer_context.to_static()
-                // received_type == JsonType::Null &&
-                // expected_operation.name == "TestJsonExpectOp" &&
-                // expected_operation.types == &[]
         ));
     }
 
@@ -157,7 +151,7 @@ mod test_on_any {
             output,
             ExpectOpError::UnsupportedOperation {
                 context,
-                received_type: JsonType::Boolean,
+                received: ValueTypeObject(ValueObject::Boolean(BooleanObject(true))),
                 expected_operation: ExpectOpMeta {
                     name: "TestJsonExpectOp",
                     types: &[],
@@ -177,7 +171,7 @@ mod test_on_any {
             output,
             ExpectOpError::UnsupportedOperation {
                 context,
-                received_type: JsonType::Integer,
+                received: ValueTypeObject(ValueObject::Integer(IntegerObject::Positive(123))),
                 expected_operation: ExpectOpMeta {
                     name: "TestJsonExpectOp",
                     types: &[],
@@ -197,7 +191,7 @@ mod test_on_any {
             output,
             ExpectOpError::UnsupportedOperation {
                 context,
-                received_type: JsonType::Integer,
+                received: ValueTypeObject(ValueObject::Integer(IntegerObject::Negative(-123))),
                 expected_operation: ExpectOpMeta {
                     name: "TestJsonExpectOp",
                     types: &[],
@@ -217,7 +211,7 @@ mod test_on_any {
             output,
             ExpectOpError::UnsupportedOperation {
                 context,
-                received_type: JsonType::Float,
+                received: ValueTypeObject(ValueObject::Float(FloatObject(123.456))),
                 expected_operation: ExpectOpMeta {
                     name: "TestJsonExpectOp",
                     types: &[],
@@ -237,12 +231,13 @@ mod test_on_any {
             output,
             ExpectOpError::UnsupportedOperation {
                 context,
-                received_type: JsonType::String,
+                received,
                 expected_operation: ExpectOpMeta {
                     name: "TestJsonExpectOp",
                     types: &[],
                 },
             } if context == outer_context.to_static()
+                && received == ValueTypeObject(ValueObject::String(StringObject("🦊".to_string())))
         ));
     }
 
@@ -257,12 +252,13 @@ mod test_on_any {
             output,
             ExpectOpError::UnsupportedOperation {
                 context,
-                received_type: JsonType::Array,
+                received,
                 expected_operation: ExpectOpMeta {
                     name: "TestJsonExpectOp",
                     types: &[],
                 },
             } if context == outer_context.to_static()
+                && received == ValueTypeObject(ValueObject::Array(ArrayObject(vec![])))
         ));
     }
 
@@ -277,12 +273,13 @@ mod test_on_any {
             output,
             ExpectOpError::UnsupportedOperation {
                 context,
-                received_type: JsonType::Object,
+                received,
                 expected_operation: ExpectOpMeta {
                     name: "TestJsonExpectOp",
                     types: &[],
                 },
             } if context == outer_context.to_static()
+                && received == ValueTypeObject(ValueObject::Object(ObjectObject(Map::new())))
         ));
     }
 }

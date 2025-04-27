@@ -4,7 +4,7 @@ use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub struct BooleanObject(bool);
+pub struct BooleanObject(pub bool);
 
 impl From<bool> for BooleanObject {
     fn from(inner: bool) -> Self {

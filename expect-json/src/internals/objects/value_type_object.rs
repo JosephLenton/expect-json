@@ -6,13 +6,14 @@ use crate::internals::objects::NullObject;
 use crate::internals::objects::ObjectObject;
 use crate::internals::objects::StringObject;
 use crate::internals::objects::ValueObject;
+use serde_json::Map;
 use serde_json::Value;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct ValueTypeObject(ValueObject);
+pub struct ValueTypeObject(pub ValueObject);
 
 impl ValueTypeObject {
     pub fn is_number(&self) -> bool {
@@ -30,6 +31,48 @@ impl From<Value> for ValueTypeObject {
             Value::Array(inner) => Self(ArrayObject::from(inner).into()),
             Value::Object(inner) => Self(ObjectObject::from(inner).into()),
         }
+    }
+}
+
+impl From<bool> for ValueTypeObject {
+    fn from(value: bool) -> Self {
+        Self(BooleanObject::from(value).into())
+    }
+}
+
+impl From<u64> for ValueTypeObject {
+    fn from(value: u64) -> Self {
+        Self(IntegerObject::from(value).into())
+    }
+}
+
+impl From<i64> for ValueTypeObject {
+    fn from(value: i64) -> Self {
+        Self(IntegerObject::from(value).into())
+    }
+}
+
+impl From<f64> for ValueTypeObject {
+    fn from(value: f64) -> Self {
+        Self(FloatObject::from(value).into())
+    }
+}
+
+impl From<String> for ValueTypeObject {
+    fn from(value: String) -> Self {
+        Self(StringObject::from(value).into())
+    }
+}
+
+impl From<Vec<Value>> for ValueTypeObject {
+    fn from(values: Vec<Value>) -> Self {
+        Self(ArrayObject::from(values).into())
+    }
+}
+
+impl From<Map<String, Value>> for ValueTypeObject {
+    fn from(values: Map<String, Value>) -> Self {
+        Self(ObjectObject::from(values).into())
     }
 }
 

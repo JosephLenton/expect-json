@@ -1,7 +1,8 @@
 use crate::internals::objects::ArrayObject;
 use crate::internals::objects::ValueObject;
-use crate::internals::Context;
+use crate::internals::objects::ValueTypeObject;
 use crate::internals::ExpectOpMeta;
+use crate::Context;
 use crate::ExpectJsonError;
 use crate::ExpectOp;
 use crate::JsonType;
@@ -15,15 +16,15 @@ pub enum ExpectOpError {
     // TODO, this error message should include which operations it _can_ be performed on.
     // The underlying problem might be the server returned different data to what we expected.
     #[error(
-        "Json comparison on unsupported type, at {context}:
-    expect::{}() cannot be performed against {received_type},
-    {}",
-    expected_operation.name,
-    format_expected_operation_types(expected_operation)
+        "Json expect::{}() at {context}, received wrong type:
+    expected {}
+    received {received}",
+        expected_operation.name,
+        format_expected_operation_types(expected_operation),
     )]
     UnsupportedOperation {
         context: Context<'static>,
-        received_type: JsonType,
+        received: ValueTypeObject,
         expected_operation: ExpectOpMeta,
     },
 
@@ -143,17 +144,18 @@ impl ExpectOpError {
         }
     }
 
-    pub fn unsupported_operation_type<O>(
+    pub fn unsupported_operation_type<O, V>(
         context: &Context<'_>,
         expect_op: &O,
-        received_type: JsonType,
+        received: V,
     ) -> Self
     where
         O: ExpectOp + ?Sized,
+        V: Into<ValueTypeObject>,
     {
         Self::UnsupportedOperation {
             context: context.to_static(),
-            received_type,
+            received: received.into(),
             expected_operation: ExpectOpMeta::new(expect_op),
         }
     }
@@ -170,12 +172,9 @@ impl From<ExpectJsonError> for ExpectOpError {
 fn format_expected_operation_types(expected_operation: &ExpectOpMeta) -> String {
     let types = expected_operation.types;
     if types.is_empty() {
-        "this isn't supported on any types".to_string()
-    } else if types.len() == 1 {
-        let supported_type = types[0];
-        format!("only supported type is: {supported_type}")
-    } else {
-        let supported_types = types.join(", ");
-        format!("supported types are: {supported_types}")
+        return "no supported types listed (need to implement ExpectOp::supported_types)"
+            .to_string();
     }
+
+    types.join(", ")
 }

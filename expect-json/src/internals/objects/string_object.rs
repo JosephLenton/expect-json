@@ -4,7 +4,7 @@ use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct StringObject(String);
+pub struct StringObject(pub String);
 
 impl<S> From<S> for StringObject
 where

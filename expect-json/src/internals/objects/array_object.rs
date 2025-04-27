@@ -7,7 +7,7 @@ use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct ArrayObject(Vec<ValueObject>);
+pub struct ArrayObject(pub Vec<ValueObject>);
 
 impl ArrayObject {
     pub fn len(&self) -> usize {

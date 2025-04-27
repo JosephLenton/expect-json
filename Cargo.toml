@@ -12,10 +12,10 @@ uuid = "1.16.0"
 
 proc-macro2 = "1.0.95"
 quote = "1.0.40"
-syn = "2.0.100"
+syn = "2.0.101"
 
 pretty_assertions = "1.4"
 
 # For Documentation
 axum = "0.8.3"
-axum-test = { path = "../axum-test" }
+axum-test = { path = "../axum-test", version = "18.0.0" }

@@ -1,4 +1,3 @@
-mod context;
 pub mod objects;
 pub mod pretty_formatter;
 pub mod utils;
@@ -14,5 +13,4 @@ use self::json_object::*;
 
 mod json_eq;
 
-pub use self::context::Context;
 pub use self::json_eq::*;

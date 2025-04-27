@@ -1,5 +1,5 @@
 use crate::internals::json_value_eq;
-use crate::internals::Context;
+use crate::Context;
 use crate::ExpectJsonResult;
 use crate::SerializeExpectOp;
 use serde_json::Value;

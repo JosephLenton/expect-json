@@ -4,7 +4,7 @@ use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub struct FloatObject(f64);
+pub struct FloatObject(pub f64);
 
 impl From<f64> for FloatObject {
     fn from(num: f64) -> Self {
