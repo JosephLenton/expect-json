@@ -30,26 +30,15 @@ use std::time::Duration as StdDuration;
 /// # let server = TestServer::new(Router::new())?;
 /// #
 /// use std::time::Duration;
-///
 /// use axum_test::expect_json::expect;
+///
+/// let server = TestServer::new(Router::new())?;
 ///
 /// server.get(&"/latest-comment")
 ///     .await
-///     .assert_json_contains(&json!({
+///     .assert_json(&json!({
 ///         "comment": "My example comment",
 ///         "created_at": expect::iso_date_time(),
-///
-///         // Expect it was updated in the last minute
-///         "updated_at": expect::iso_date_time()
-///             .within_past(Duration::from_secs(60)),
-///
-///         // Expect it also expires in the next minute
-///         "expires_at": expect::iso_date_time()
-///             .within_future(Duration::from_secs(60)),
-///
-///         // Users time could have any timezone
-///         "users_created_at": expect::iso_date_time()
-///             .allow_non_utc(),
 ///     }));
 /// #
 /// # Ok(()) }
@@ -78,6 +67,36 @@ impl ExpectIsoDateTime {
     /// This method relaxes this constraint,
     /// and will accept date times in any timezone.
     ///
+    /// ```rust
+    /// # async fn test() -> Result<(), Box<dyn ::std::error::Error>> {
+    /// #
+    /// # use axum::Router;
+    /// # use axum::extract::Json;
+    /// # use axum::routing::get;
+    /// # use axum_test::TestServer;
+    /// # use serde_json::json;
+    /// # use std::time::Instant;
+    /// #
+    /// # let server = TestServer::new(Router::new())?;
+    /// #
+    /// use std::time::Duration;
+    /// use axum_test::expect_json::expect;
+    ///
+    /// let server = TestServer::new(Router::new())?;
+    ///
+    /// server.get(&"/latest-comment")
+    ///     .await
+    ///     .assert_json(&json!({
+    ///         "comment": "My example comment",
+    ///
+    ///         // Users time may have any timezone
+    ///         "users_created_at": expect::iso_date_time()
+    ///             .allow_non_utc(),
+    ///     }));
+    /// #
+    /// # Ok(()) }
+    /// ```
+    ///
     pub fn allow_non_utc(self) -> Self {
         Self {
             is_utc_only: false,
@@ -93,6 +112,36 @@ impl ExpectIsoDateTime {
     ///  - the datetime is further in the past than the given duration,
     ///  - or ahead of the current time.
     ///
+    /// ```rust
+    /// # async fn test() -> Result<(), Box<dyn ::std::error::Error>> {
+    /// #
+    /// # use axum::Router;
+    /// # use axum::extract::Json;
+    /// # use axum::routing::get;
+    /// # use axum_test::TestServer;
+    /// # use serde_json::json;
+    /// # use std::time::Instant;
+    /// #
+    /// # let server = TestServer::new(Router::new())?;
+    /// #
+    /// use std::time::Duration;
+    /// use axum_test::expect_json::expect;
+    ///
+    /// let server = TestServer::new(Router::new())?;
+    ///
+    /// server.get(&"/latest-comment")
+    ///     .await
+    ///     .assert_json(&json!({
+    ///         "comment": "My example comment",
+    ///
+    ///         // Expect it was updated in the last minute
+    ///         "updated_at": expect::iso_date_time()
+    ///             .within_past(Duration::from_secs(60)),
+    ///     }));
+    /// #
+    /// # Ok(()) }
+    /// ```
+    ///
     pub fn within_past(self, duration: StdDuration) -> Self {
         Self {
             maybe_past_duration: Some(duration),
@@ -107,6 +156,35 @@ impl ExpectIsoDateTime {
     /// The constraint will fail when:
     ///  - the datetime is further ahead than the given duration,
     ///  - or behind the current time.
+    ///
+    /// ```rust
+    /// # async fn test() -> Result<(), Box<dyn ::std::error::Error>> {
+    /// #
+    /// # use axum::Router;
+    /// # use axum::extract::Json;
+    /// # use axum::routing::get;
+    /// # use axum_test::TestServer;
+    /// # use serde_json::json;
+    /// # use std::time::Instant;
+    /// #
+    /// #
+    /// use std::time::Duration;
+    /// use axum_test::expect_json::expect;
+    ///
+    /// let server = TestServer::new(Router::new())?;
+    ///
+    /// server.get(&"/latest-comment")
+    ///     .await
+    ///     .assert_json(&json!({
+    ///         "comment": "My example comment",
+    ///
+    ///         // Expect it also expires in the next minute
+    ///         "expires_at": expect::iso_date_time()
+    ///             .within_future(Duration::from_secs(60)),
+    ///     }));
+    /// #
+    /// # Ok(()) }
+    /// ```
     ///
     pub fn within_future(self, duration: StdDuration) -> Self {
         Self {
