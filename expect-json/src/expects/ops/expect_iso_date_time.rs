@@ -31,8 +31,7 @@ use std::time::Duration as StdDuration;
 /// #
 /// use std::time::Duration;
 ///
-/// use expect_json::expect;
-/// # // use axum_test::expect_json::expect;
+/// use axum_test::expect_json::expect;
 ///
 /// server.get(&"/latest-comment")
 ///     .await

@@ -18,5 +18,4 @@ pretty_assertions = "1.4"
 
 # For Documentation
 axum = "0.8.3"
-# TODO: update this to rc1 after release
-axum-test = "17.3.0"
+axum-test = "18.0.0-rc1"
