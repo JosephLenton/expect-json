@@ -188,3 +188,87 @@ mod test_is_empty {
         );
     }
 }
+
+#[cfg(test)]
+mod test_min_len {
+    use crate::expect;
+    use crate::expect_json_eq;
+    use pretty_assertions::assert_eq;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_pass_when_array_has_exactly_enough_elements() {
+        let left = json!([1, 2, 3]);
+        let right = json!(expect::array().min_len(3));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
+
+    #[test]
+    fn it_should_pass_when_array_has_more_than_enough_elements() {
+        let left = json!([1, 2, 3, 4, 5]);
+        let right = json!(expect::array().min_len(3));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
+
+    #[test]
+    fn it_should_fail_when_array_has_too_few_elements() {
+        let left = json!([1, 2, 3]);
+        let right = json!(expect::array().min_len(4));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            format!(
+                r#"Json expect::array() error at root:
+    expected array to have at least 4 elements, but it has 3,
+    received [1, 2, 3]"#
+            )
+        );
+    }
+}
+
+#[cfg(test)]
+mod test_max_len {
+    use crate::expect;
+    use crate::expect_json_eq;
+    use pretty_assertions::assert_eq;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_pass_when_array_has_exactly_enough_elements() {
+        let left = json!([1, 2, 3]);
+        let right = json!(expect::array().max_len(3));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
+
+    #[test]
+    fn it_should_pass_when_array_has_less_than_enough_elements() {
+        let left = json!([1, 2]);
+        let right = json!(expect::array().max_len(6));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
+
+    #[test]
+    fn it_should_fail_when_array_has_too_few_elements() {
+        let left = json!([1, 2, 3, 4]);
+        let right = json!(expect::array().max_len(3));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            format!(
+                r#"Json expect::array() error at root:
+    expected array to have at most 3 elements, but it has 4,
+    received [1, 2, 3, 4]"#
+            )
+        );
+    }
+}

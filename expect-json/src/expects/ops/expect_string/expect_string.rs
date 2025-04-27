@@ -136,3 +136,87 @@ mod test_is_empty {
         );
     }
 }
+
+#[cfg(test)]
+mod test_min_len {
+    use crate::expect;
+    use crate::expect_json_eq;
+    use pretty_assertions::assert_eq;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_pass_when_string_has_exactly_enough_characters() {
+        let left = json!("123");
+        let right = json!(expect::string().min_len(3));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
+
+    #[test]
+    fn it_should_pass_when_string_has_more_than_enough_characters() {
+        let left = json!("12345");
+        let right = json!(expect::string().min_len(3));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
+
+    #[test]
+    fn it_should_fail_when_string_is_too_short() {
+        let left = json!("12");
+        let right = json!(expect::string().min_len(3));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            format!(
+                r#"Json expect::string() error at root:
+    expected string to have at least 3 characters, but it has 2,
+    received "12""#
+            )
+        );
+    }
+}
+
+#[cfg(test)]
+mod test_max_len {
+    use crate::expect;
+    use crate::expect_json_eq;
+    use pretty_assertions::assert_eq;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_pass_when_string_has_exactly_enough_characters() {
+        let left = json!("123");
+        let right = json!(expect::string().max_len(3));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
+
+    #[test]
+    fn it_should_pass_when_string_has_less_than_enough_characters() {
+        let left = json!("12");
+        let right = json!(expect::string().max_len(5));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
+
+    #[test]
+    fn it_should_fail_when_string_is_too_long() {
+        let left = json!("🦊🦊🦊🦊🦊🦊");
+        let right = json!(expect::string().max_len(3));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            format!(
+                r#"Json expect::string() error at root:
+    expected string to have at most 3 characters, but it has 24,
+    received "🦊🦊🦊🦊🦊🦊""#
+            )
+        );
+    }
+}

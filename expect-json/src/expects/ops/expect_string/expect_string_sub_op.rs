@@ -63,9 +63,11 @@ impl ExpectStringSubOp {
     ) -> ExpectOpResult<()> {
         if received.len() < min_len {
             let error_message = format!(
-                "String is too short, expected length at least {}, received length {}",
+                r#"expected string to have at least {} characters, but it has {},
+    received {}"#,
                 min_len,
-                received.len()
+                received.len(),
+                StringObject::from(received),
             );
             return Err(ExpectOpError::custom(context, parent, error_message));
         }
@@ -81,9 +83,11 @@ impl ExpectStringSubOp {
     ) -> ExpectOpResult<()> {
         if received.len() > max_len {
             let error_message = format!(
-                "String is too long, expected length at most {}, received length {}",
+                r#"expected string to have at most {} characters, but it has {},
+    received {}"#,
                 max_len,
-                received.len()
+                received.len(),
+                StringObject::from(received),
             );
             return Err(ExpectOpError::custom(context, parent, error_message));
         }

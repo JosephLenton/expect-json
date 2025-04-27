@@ -69,9 +69,11 @@ impl ExpectArraySubOp {
     ) -> ExpectOpResult<()> {
         if received.len() < min_len {
             let error_message = format!(
-                "Array is too short, expected length at least {}, received length {}",
+                r#"expected array to have at least {} elements, but it has {},
+    received {}"#,
                 min_len,
-                received.len()
+                received.len(),
+                ArrayObject::from(received.to_owned())
             );
             return Err(ExpectOpError::custom(context, parent, error_message));
         }
@@ -87,9 +89,11 @@ impl ExpectArraySubOp {
     ) -> ExpectOpResult<()> {
         if received.len() > max_len {
             let error_message = format!(
-                "Array is too long, expected length at most {}, received length {}",
+                r#"expected array to have at most {} elements, but it has {},
+    received {}"#,
                 max_len,
-                received.len()
+                received.len(),
+                ArrayObject::from(received.to_owned())
             );
             return Err(ExpectOpError::custom(context, parent, error_message));
         }
