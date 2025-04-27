@@ -21,7 +21,7 @@ rustdoc-args = ["--cfg", "docsrs"]
 default = []
 
 [dependencies]
-expect-json-macros = { path = "../expect-json-macros" }
+expect-json-macros = { path = "../expect-json-macros", version = "1.0.0-rc1" }
 
 chrono = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
