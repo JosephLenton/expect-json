@@ -15,7 +15,7 @@ use std::time::Duration as StdDuration;
 ///
 /// Expects an ISO 8601 date time string.
 ///
-/// By _default_ this expects a UTC timezone, and this can be disabled with [IsoDateTime::allow_non_utc()].
+/// By _default_ this expects a UTC timezone, and this can be disabled with [Self::allow_non_utc()].
 ///
 /// ```rust
 /// # async fn test() -> Result<(), Box<dyn ::std::error::Error>> {
