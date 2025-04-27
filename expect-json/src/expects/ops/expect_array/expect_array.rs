@@ -1,41 +1,52 @@
 use crate::expect_op;
-use crate::expects::ExpectOp;
-use crate::internals::objects::ArrayObject;
 use crate::internals::Context;
-use crate::ExpectOpError;
+use crate::ops::expect_array::ExpectArraySubOp;
+use crate::ExpectOp;
 use crate::ExpectOpResult;
 use crate::JsonType;
 use serde_json::Value;
+use std::fmt::Debug;
 
-#[expect_op(internal)]
-#[derive(Clone, Debug, PartialEq)]
-pub struct ArrayContains {
-    values: Vec<Value>,
+#[expect_op(internal, name = "Array")]
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct ExpectArray {
+    sub_ops: Vec<ExpectArraySubOp>,
 }
 
-impl ArrayContains {
-    pub(crate) fn new(values: Vec<Value>) -> Self {
-        Self { values }
+impl ExpectArray {
+    pub(crate) fn new() -> Self {
+        Self { sub_ops: vec![] }
+    }
+
+    pub fn min_len(mut self, min_len: usize) -> Self {
+        self.sub_ops.push(ExpectArraySubOp::MinLen(min_len));
+        self
+    }
+
+    pub fn max_len(mut self, max_len: usize) -> Self {
+        self.sub_ops.push(ExpectArraySubOp::MaxLen(max_len));
+        self
+    }
+
+    pub fn contains<I, V>(mut self, expected_values: I) -> Self
+    where
+        I: IntoIterator<Item = V>,
+        V: Into<Value>,
+    {
+        let inner_expected_values = expected_values
+            .into_iter()
+            .map(Into::into)
+            .collect::<Vec<_>>();
+        self.sub_ops
+            .push(ExpectArraySubOp::Contains(inner_expected_values));
+        self
     }
 }
 
-impl ExpectOp for ArrayContains {
-    fn on_array(&self, context: &mut Context<'_>, received_values: &[Value]) -> ExpectOpResult<()> {
-        // TODO: This is brute force as we don't know if we are containing an inner ExpectOp.
-        // Can this be done without a brute force approach?
-        for expected in &self.values {
-            let is_found = received_values
-                .iter()
-                .any(|received| context.json_eq(received, expected).is_ok());
-
-            if !is_found {
-                return Err(ExpectOpError::ContainsNotFound {
-                    context: context.to_static(),
-                    json_type: JsonType::Array,
-                    expected: expected.clone().into(),
-                    received: ArrayObject::from(received_values.to_owned()).into(),
-                });
-            }
+impl ExpectOp for ExpectArray {
+    fn on_array(&self, context: &mut Context, received: &[Value]) -> ExpectOpResult<()> {
+        for sub_op in &self.sub_ops {
+            sub_op.on_array(self, context, received)?;
         }
 
         Ok(())
@@ -47,7 +58,7 @@ impl ExpectOp for ArrayContains {
 }
 
 #[cfg(test)]
-mod test_array_contains {
+mod test_contains {
     use crate::expect;
     use crate::expect_json_eq;
     use pretty_assertions::assert_eq;
@@ -56,7 +67,7 @@ mod test_array_contains {
     #[test]
     fn it_should_be_equal_for_identical_numeric_arrays() {
         let left = json!([1, 2, 3]);
-        let right = json!(expect.contains([1, 2, 3]));
+        let right = json!(expect.array().contains([1, 2, 3]));
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
@@ -65,7 +76,7 @@ mod test_array_contains {
     #[test]
     fn it_should_be_equal_for_reversed_identical_numeric_arrays() {
         let left = json!([1, 2, 3]);
-        let right = json!(expect.contains([3, 2, 1]));
+        let right = json!(expect.array().contains([3, 2, 1]));
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
@@ -74,7 +85,7 @@ mod test_array_contains {
     #[test]
     fn it_should_be_equal_for_partial_contains() {
         let left = json!([0, 1, 2, 3, 4, 5]);
-        let right = json!(expect.contains([1, 2, 3]));
+        let right = json!(expect.array().contains([1, 2, 3]));
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
@@ -83,7 +94,7 @@ mod test_array_contains {
     #[test]
     fn it_should_error_for_totall_different_values() {
         let left = json!([0, 1, 2, 3]);
-        let right = json!(expect.contains([4, 5, 6]));
+        let right = json!(expect.array().contains([4, 5, 6]));
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
@@ -97,7 +108,7 @@ mod test_array_contains {
     #[test]
     fn it_should_be_ok_for_empty_contains() {
         let left = json!([0, 1, 2, 3]);
-        let right = json!(expect.contains(&[] as &'static [u32]));
+        let right = json!(expect.array().contains([] as [u32; 0]));
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
@@ -106,13 +117,13 @@ mod test_array_contains {
     #[test]
     fn it_should_error_if_used_against_the_wrong_type() {
         let left = json!("🦊");
-        let right = json!(expect.contains([4, 5, 6]));
+        let right = json!(expect.array().contains([4, 5, 6]));
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
             r#"Json comparison on unsupported type, at root:
-    expect.Contains() cannot be performed against string,
+    expect.Array() cannot be performed against string,
     only supported type is: array"#
         );
     }
@@ -130,9 +141,9 @@ mod test_array_contains {
             }
         ]);
 
-        let right = json!(expect.contains([json!({
+        let right = json!(expect.array().contains([json!({
             "text": "Hello",
-            "author": expect.contains("Jane"),
+            "author": expect.string().contains("Jane"),
         }),]));
 
         let output = expect_json_eq(&left, &right);

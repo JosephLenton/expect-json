@@ -1,8 +1,9 @@
-use crate::expects::ops::Contains;
+use crate::ops::ExpectArray;
+use crate::ops::ExpectObject;
+use crate::ops::ExpectString;
 use crate::ops::IsEmpty;
 use crate::ops::IsoDateTime;
 use crate::ExpectNot;
-use serde_json::Value;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Expect {
@@ -14,11 +15,16 @@ impl Expect {
         Self { not: ExpectNot }
     }
 
-    pub fn contains<V>(self, values: V) -> Contains
-    where
-        V: Into<Value>,
-    {
-        Contains::new(values)
+    pub fn object(self) -> ExpectObject {
+        ExpectObject::new()
+    }
+
+    pub fn string(self) -> ExpectString {
+        ExpectString::new()
+    }
+
+    pub fn array(self) -> ExpectArray {
+        ExpectArray::new()
     }
 
     pub fn iso_date_time(self) -> IsoDateTime {

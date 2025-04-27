@@ -12,6 +12,7 @@ use chrono::Offset;
 use chrono::Utc;
 use std::time::Duration as StdDuration;
 
+///
 /// Expects an ISO 8601 date time string.
 ///
 /// By _default_ this expects a UTC timezone, and this can be disabled with [IsoDateTime::allow_non_utc()].
@@ -52,6 +53,7 @@ use std::time::Duration as StdDuration;
 /// #
 /// # Ok(()) }
 /// ```
+///
 #[expect_op(internal)]
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct IsoDateTime {
@@ -69,6 +71,12 @@ impl IsoDateTime {
         }
     }
 
+    ///
+    /// By default, `IsoDateTime` expects all date times to be in UTC.
+    ///
+    /// This method relaxes this constraint,
+    /// and will accept date times in any timezone.
+    ///
     pub fn allow_non_utc(self) -> Self {
         Self {
             is_utc_only: false,
@@ -76,6 +84,14 @@ impl IsoDateTime {
         }
     }
 
+    ///
+    /// Expects the date time to be within a past duration,
+    /// up to the current time.
+    ///
+    /// The constraint will fail when:
+    ///  - the datetime is further in the past than the given duration,
+    ///  - or ahead of the current time.
+    ///
     pub fn within_past(self, duration: StdDuration) -> Self {
         Self {
             maybe_past_duration: Some(duration),
@@ -83,6 +99,14 @@ impl IsoDateTime {
         }
     }
 
+    ///
+    /// Expects the date time to be within the current time,
+    /// and up to a future duration.
+    ///
+    /// The constraint will fail when:
+    ///  - the datetime is further ahead than the given duration,
+    ///  - or behind the current time.
+    ///
     pub fn within_future(self, duration: StdDuration) -> Self {
         Self {
             maybe_future_duration: Some(duration),

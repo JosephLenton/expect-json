@@ -64,7 +64,7 @@ impl ExpectOp for ObjectContainsNot {
 
 /*
 #[cfg(test)]
-mod test_object_contains_not {
+mod test_object().contains_not {
     use crate::expect;
     use crate::expect_json_eq;
     use pretty_assertions::assert_eq;
@@ -301,7 +301,7 @@ mod test_object_contains_not {
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
-            r#"Json object at root.comment.author is missing key for ObjectContains:
+            r#"Json object at root.comment.author is missing key for Object:
     expected field 'something_else',
     but it was not found"#
         );

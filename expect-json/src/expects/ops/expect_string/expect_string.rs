@@ -1,37 +1,45 @@
 use crate::expect_op;
-use crate::expects::ExpectOp;
-use crate::internals::objects::StringObject;
 use crate::internals::Context;
-use crate::ExpectOpError;
+use crate::ops::expect_string::ExpectStringSubOp;
+use crate::ExpectOp;
 use crate::ExpectOpResult;
 use crate::JsonType;
 
-#[expect_op(internal)]
-#[derive(Clone, Debug, PartialEq)]
-pub struct StringContains {
-    content: String,
+#[expect_op(internal, name = "String")]
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct ExpectString {
+    sub_ops: Vec<ExpectStringSubOp>,
 }
 
-impl StringContains {
-    pub(crate) fn new<S>(content: S) -> Self
+impl ExpectString {
+    pub(crate) fn new() -> Self {
+        Self { sub_ops: vec![] }
+    }
+
+    pub fn min_len(mut self, min_len: usize) -> Self {
+        self.sub_ops.push(ExpectStringSubOp::MinLen(min_len));
+        self
+    }
+
+    pub fn max_len(mut self, max_len: usize) -> Self {
+        self.sub_ops.push(ExpectStringSubOp::MaxLen(max_len));
+        self
+    }
+
+    pub fn contains<S>(mut self, expected_sub_string: S) -> Self
     where
         S: Into<String>,
     {
-        Self {
-            content: content.into(),
-        }
+        self.sub_ops
+            .push(ExpectStringSubOp::Contains(expected_sub_string.into()));
+        self
     }
 }
 
-impl ExpectOp for StringContains {
-    fn on_string(&self, context: &mut Context<'_>, received: &str) -> ExpectOpResult<()> {
-        if !received.contains(&self.content) {
-            return Err(ExpectOpError::ContainsNotFound {
-                context: context.to_static(),
-                json_type: JsonType::String,
-                expected: StringObject::from(self.content.clone()).into(),
-                received: StringObject::from(received.to_owned()).into(),
-            });
+impl ExpectOp for ExpectString {
+    fn on_string(&self, context: &mut Context, received: &str) -> ExpectOpResult<()> {
+        for sub_op in &self.sub_ops {
+            sub_op.on_string(self, context, received)?;
         }
 
         Ok(())
@@ -43,7 +51,7 @@ impl ExpectOp for StringContains {
 }
 
 #[cfg(test)]
-mod test_string_contains {
+mod test_contains {
     use crate::expect;
     use crate::expect_json_eq;
     use pretty_assertions::assert_eq;
@@ -52,7 +60,7 @@ mod test_string_contains {
     #[test]
     fn it_should_be_equal_for_identical_strings() {
         let left = json!("1, 2, 3");
-        let right = json!(expect.string_contains("1, 2, 3"));
+        let right = json!(expect.string().contains("1, 2, 3"));
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
@@ -61,7 +69,7 @@ mod test_string_contains {
     #[test]
     fn it_should_be_equal_for_partial_matches_in_middle() {
         let left = json!("0, 1, 2, 3, 4");
-        let right = json!(expect.string_contains("1, 2, 3"));
+        let right = json!(expect.string().contains("1, 2, 3"));
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
@@ -70,7 +78,7 @@ mod test_string_contains {
     #[test]
     fn it_should_be_ok_for_empty_contains() {
         let left = json!("0, 1, 2, 3, 4, 5");
-        let right = json!(expect.string_contains(""));
+        let right = json!(expect.string().contains(""));
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
@@ -79,7 +87,7 @@ mod test_string_contains {
     #[test]
     fn it_should_error_for_totall_different_values() {
         let left = json!("1, 2, 3");
-        let right = json!(expect.string_contains("a, b, c"));
+        let right = json!(expect.string().contains("a, b, c"));
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(

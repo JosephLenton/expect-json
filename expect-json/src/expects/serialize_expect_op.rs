@@ -94,41 +94,60 @@ mod test_serialize {
 
     #[test]
     fn it_should_serialize_into_expected_structure_with_expect_id_marker() {
-        let output = json!(expect.contains([1, 2, 3]));
+        let output = json!(expect.array().contains([1, 2, 3]));
         assert_eq!(
             output,
             json!({
                 "magic_id": "__ExpectJson_MarkerId_0ABDBD14_93D1_4D73_8E26_0177D8A280A4__",
                 "inner": {
-                    "Array": {
-                        "values": [
-                            1,
-                            2,
-                            3,
-                        ],
-                    },
-                    "type": "Contains"
+                    "sub_ops": [
+                        {
+                            "Contains": [
+                                1,
+                                2,
+                                3,
+                            ],
+                        },
+                    ],
+                    "type": "ExpectArray"
                 },
             })
         );
     }
 
     #[test]
-    fn it_should_serialize_an_op_within_an_op_without_() {
-        let output = json!(expect.contains([1, 2, 3]));
+    fn it_should_serialize_an_op_within_an_inner_op_inside() {
+        let output = json!(expect.array().contains([expect.object().contains(json!({
+            "name": "John",
+            "age": 30,
+        }))]));
+
         assert_eq!(
             output,
             json!({
                 "magic_id": "__ExpectJson_MarkerId_0ABDBD14_93D1_4D73_8E26_0177D8A280A4__",
                 "inner": {
-                    "Array": {
-                        "values": [
-                            1,
-                            2,
-                            3,
-                        ],
-                    },
-                    "type": "Contains"
+                    "sub_ops": [
+                        {
+                            "Contains": [
+                                {
+                                    "magic_id": "__ExpectJson_MarkerId_0ABDBD14_93D1_4D73_8E26_0177D8A280A4__",
+                                    "inner": {
+                                        "sub_ops": [
+                                            {
+                                                "Contains": {
+                                                    "age": 30,
+                                                    "name": "John",
+                                                },
+                                            },
+                                        ],
+                                        "type": "ExpectObject"
+                                    },
+                                },
+                            ],
+                        },
+                    ],
+                    "type": "ExpectArray"
                 },
             })
         );

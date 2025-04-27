@@ -158,13 +158,13 @@ mod test_write_fmt_object {
 
     #[test]
     fn it_should_format_object_holding_an_expect_operation() {
-        let object = ValueObject::from(json!({ "key": expect.contains("aaa") }));
+        let object = ValueObject::from(json!({ "key": expect.string().contains("aaa") }));
         let output = format!("{object}");
 
         assert_eq!(
             output,
             r#"{
-        "key": expect.Contains()
+        "key": expect.String()
     }"#
         );
     }
