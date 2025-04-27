@@ -301,7 +301,7 @@ mod test_object().contains_not {
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
-            r#"Json object at root.comment.author is missing key for Object:
+            r#"Json object at root.comment.author is missing key for object:
     expected field 'something_else',
     but it was not found"#
         );

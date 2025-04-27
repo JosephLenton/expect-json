@@ -36,33 +36,33 @@ use std::time::Duration as StdDuration;
 ///     .await
 ///     .assert_json_contains(&json!({
 ///         "comment": "My example comment",
-///         "created_at": expect.iso_date_time(),
+///         "created_at": expect::iso_date_time(),
 ///
 ///         // Expect it was updated in the last minute
-///         "updated_at": expect.iso_date_time()
+///         "updated_at": expect::iso_date_time()
 ///             .within_past(Duration::from_secs(60)),
 ///
 ///         // Expect it also expires in the next minute
-///         "expires_at": expect.iso_date_time()
+///         "expires_at": expect::iso_date_time()
 ///             .within_future(Duration::from_secs(60)),
 ///
 ///         // Users time could have any timezone
-///         "users_created_at": expect.iso_date_time()
+///         "users_created_at": expect::iso_date_time()
 ///             .allow_non_utc(),
 ///     }));
 /// #
 /// # Ok(()) }
 /// ```
 ///
-#[expect_op(internal)]
+#[expect_op(internal, name = "iso_date_time")]
 #[derive(Debug, Clone, Default, PartialEq)]
-pub struct IsoDateTime {
+pub struct ExpectIsoDateTime {
     is_utc_only: bool,
     maybe_past_duration: Option<StdDuration>,
     maybe_future_duration: Option<StdDuration>,
 }
 
-impl IsoDateTime {
+impl ExpectIsoDateTime {
     pub(crate) fn new() -> Self {
         Self {
             is_utc_only: true,
@@ -115,7 +115,7 @@ impl IsoDateTime {
     }
 }
 
-impl ExpectOp for IsoDateTime {
+impl ExpectOp for ExpectIsoDateTime {
     fn on_string(&self, context: &mut Context, received: &str) -> ExpectOpResult<()> {
         let date_time = DateTime::<FixedOffset>::parse_from_rfc3339(received).map_err(|error| {
             let error_message = format!("failed to parse string '{received}' as iso date time");
@@ -205,7 +205,7 @@ mod test_iso_date_time {
     #[test]
     fn it_should_parse_iso_datetime_with_utc_timezone() {
         let left = json!("2024-01-15T13:45:30Z");
-        let right = json!(expect.iso_date_time());
+        let right = json!(expect::iso_date_time());
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok(), "assertion error: {output:#?}");
@@ -214,12 +214,12 @@ mod test_iso_date_time {
     #[test]
     fn it_should_fail_to_parse_iso_datetime_with_non_utc_timezone() {
         let left = json!("2024-01-15T13:45:30+01:00");
-        let right = json!(expect.iso_date_time());
+        let right = json!(expect::iso_date_time());
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
-            r#"Json expect.IsoDateTime() error at root:
+            r#"Json expect::iso_date_time() error at root:
     ISO datetime '2024-01-15T13:45:30+01:00' is using a non-UTC timezone, expected UTC only"#
         );
     }
@@ -227,12 +227,12 @@ mod test_iso_date_time {
     #[test]
     fn it_should_fail_to_parse_iso_datetime_without_timezone() {
         let left = json!("2024-01-15T13:45:30");
-        let right = json!(expect.iso_date_time());
+        let right = json!(expect::iso_date_time());
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
-            r#"Json expect.IsoDateTime() error at root:
+            r#"Json expect::iso_date_time() error at root:
     failed to parse string '2024-01-15T13:45:30' as iso date time,
     premature end of input"#
         );
@@ -248,7 +248,7 @@ mod test_utc_only {
     #[test]
     fn it_should_parse_iso_datetime_with_utc_timezone_when_set() {
         let left = json!("2024-01-15T13:45:30Z");
-        let right = json!(expect.iso_date_time().allow_non_utc());
+        let right = json!(expect::iso_date_time().allow_non_utc());
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok(), "assertion error: {output:#?}");
@@ -257,7 +257,7 @@ mod test_utc_only {
     #[test]
     fn it_should_parse_iso_datetime_with_non_utc_timezone_when_set() {
         let left = json!("2024-01-15T13:45:30+01:00");
-        let right = json!(expect.iso_date_time().allow_non_utc());
+        let right = json!(expect::iso_date_time().allow_non_utc());
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok(), "assertion error: {output:#?}");
@@ -277,9 +277,7 @@ mod test_within_past {
         let now = Utc::now();
         let now_str = (now - ChronoDuration::seconds(30)).to_rfc3339();
         let left = json!(now_str);
-        let right = json!(expect
-            .iso_date_time()
-            .within_past(StdDuration::from_secs(60)));
+        let right = json!(expect::iso_date_time().within_past(StdDuration::from_secs(60)));
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok(), "assertion error: {output:#?}");
@@ -290,15 +288,13 @@ mod test_within_past {
         let now = Utc::now();
         let now_str = (now - ChronoDuration::seconds(90)).to_rfc3339();
         let left = json!(now_str);
-        let right = json!(expect
-            .iso_date_time()
-            .within_past(StdDuration::from_secs(60)));
+        let right = json!(expect::iso_date_time().within_past(StdDuration::from_secs(60)));
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
             format!(
-                r#"Json expect.IsoDateTime() error at root:
+                r#"Json expect::iso_date_time() error at root:
     ISO datetime '{now_str}' is too far from the past, expected between '1 minute' ago and now"#
             )
         );
@@ -309,15 +305,13 @@ mod test_within_past {
         let now = Utc::now();
         let now_str = (now + ChronoDuration::seconds(90)).to_rfc3339();
         let left = json!(now_str);
-        let right = json!(expect
-            .iso_date_time()
-            .within_past(StdDuration::from_secs(60)));
+        let right = json!(expect::iso_date_time().within_past(StdDuration::from_secs(60)));
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
             format!(
-                r#"Json expect.IsoDateTime() error at root:
+                r#"Json expect::iso_date_time() error at root:
     ISO datetime '{now_str}' is in the future of now, expected between '1 minute' ago and now"#
             )
         );
@@ -337,9 +331,7 @@ mod test_within_future {
         let now = Utc::now();
         let now_str = (now + ChronoDuration::seconds(30)).to_rfc3339();
         let left = json!(now_str);
-        let right = json!(expect
-            .iso_date_time()
-            .within_future(StdDuration::from_secs(60)));
+        let right = json!(expect::iso_date_time().within_future(StdDuration::from_secs(60)));
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok(), "assertion error: {output:#?}");
@@ -350,15 +342,13 @@ mod test_within_future {
         let now = Utc::now();
         let now_str = (now + ChronoDuration::seconds(90)).to_rfc3339();
         let left = json!(now_str);
-        let right = json!(expect
-            .iso_date_time()
-            .within_future(StdDuration::from_secs(60)));
+        let right = json!(expect::iso_date_time().within_future(StdDuration::from_secs(60)));
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
             format!(
-                r#"Json expect.IsoDateTime() error at root:
+                r#"Json expect::iso_date_time() error at root:
     ISO datetime '{now_str}' is too far in the future, expected between now and '1 minute' in the future"#
             )
         );
@@ -369,15 +359,13 @@ mod test_within_future {
         let now = Utc::now();
         let now_str = (now - ChronoDuration::seconds(90)).to_rfc3339();
         let left = json!(now_str);
-        let right = json!(expect
-            .iso_date_time()
-            .within_future(StdDuration::from_secs(60)));
+        let right = json!(expect::iso_date_time().within_future(StdDuration::from_secs(60)));
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
             format!(
-                r#"Json expect.IsoDateTime() error at root:
+                r#"Json expect::iso_date_time() error at root:
     ISO datetime '{now_str}' is in the past of now, expected between now and '1 minute' in the future"#
             )
         );

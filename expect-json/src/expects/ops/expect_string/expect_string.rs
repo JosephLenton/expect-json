@@ -5,7 +5,7 @@ use crate::ExpectOp;
 use crate::ExpectOpResult;
 use crate::JsonType;
 
-#[expect_op(internal, name = "String")]
+#[expect_op(internal, name = "string")]
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct ExpectString {
     sub_ops: Vec<ExpectStringSubOp>,
@@ -14,6 +14,11 @@ pub struct ExpectString {
 impl ExpectString {
     pub(crate) fn new() -> Self {
         Self { sub_ops: vec![] }
+    }
+
+    pub fn is_empty(mut self) -> Self {
+        self.sub_ops.push(ExpectStringSubOp::IsEmpty);
+        self
     }
 
     pub fn min_len(mut self, min_len: usize) -> Self {
@@ -60,7 +65,7 @@ mod test_contains {
     #[test]
     fn it_should_be_equal_for_identical_strings() {
         let left = json!("1, 2, 3");
-        let right = json!(expect.string().contains("1, 2, 3"));
+        let right = json!(expect::string().contains("1, 2, 3"));
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
@@ -69,7 +74,7 @@ mod test_contains {
     #[test]
     fn it_should_be_equal_for_partial_matches_in_middle() {
         let left = json!("0, 1, 2, 3, 4");
-        let right = json!(expect.string().contains("1, 2, 3"));
+        let right = json!(expect::string().contains("1, 2, 3"));
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
@@ -78,7 +83,7 @@ mod test_contains {
     #[test]
     fn it_should_be_ok_for_empty_contains() {
         let left = json!("0, 1, 2, 3, 4, 5");
-        let right = json!(expect.string().contains(""));
+        let right = json!(expect::string().contains(""));
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
@@ -87,7 +92,7 @@ mod test_contains {
     #[test]
     fn it_should_error_for_totall_different_values() {
         let left = json!("1, 2, 3");
-        let right = json!(expect.string().contains("a, b, c"));
+        let right = json!(expect::string().contains("a, b, c"));
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
@@ -95,6 +100,39 @@ mod test_contains {
             r#"Json string at root does not contain expected value:
     expected string to contain "a, b, c", but it was not found.
     received "1, 2, 3""#
+        );
+    }
+}
+
+#[cfg(test)]
+mod test_is_empty {
+    use crate::expect;
+    use crate::expect_json_eq;
+    use pretty_assertions::assert_eq;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_pass_when_string_is_empty() {
+        let left = json!("");
+        let right = json!(expect::string().is_empty());
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
+
+    #[test]
+    fn it_should_fail_when_string_is_not_empty() {
+        let left = json!("🦊");
+        let right = json!(expect::string().is_empty());
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            format!(
+                r#"Json expect::string() error at root:
+    expected empty string
+    received "🦊""#
+            )
         );
     }
 }

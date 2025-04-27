@@ -3,11 +3,7 @@ pub mod ops;
 mod expect_magic_id;
 pub(crate) use self::expect_magic_id::*;
 
-mod expect;
-pub use self::expect::*;
-
-mod expect_not;
-pub use self::expect_not::*;
+pub mod expect;
 
 mod expect_op_error;
 pub use self::expect_op_error::*;

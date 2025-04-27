@@ -1,48 +1,20 @@
 use crate::ops::ExpectArray;
+use crate::ops::ExpectIsoDateTime;
 use crate::ops::ExpectObject;
 use crate::ops::ExpectString;
-use crate::ops::IsEmpty;
-use crate::ops::IsoDateTime;
-use crate::ExpectNot;
 
-#[derive(Copy, Clone, Debug, PartialEq)]
-pub struct Expect {
-    pub not: ExpectNot,
+pub fn object() -> ExpectObject {
+    ExpectObject::new()
 }
 
-impl Expect {
-    pub(crate) const fn new() -> Self {
-        Self { not: ExpectNot }
-    }
-
-    pub fn object(self) -> ExpectObject {
-        ExpectObject::new()
-    }
-
-    pub fn string(self) -> ExpectString {
-        ExpectString::new()
-    }
-
-    pub fn array(self) -> ExpectArray {
-        ExpectArray::new()
-    }
-
-    pub fn iso_date_time(self) -> IsoDateTime {
-        IsoDateTime::new()
-    }
-
-    pub fn is_empty(self) -> IsEmpty {
-        IsEmpty
-    }
+pub fn string() -> ExpectString {
+    ExpectString::new()
 }
 
-#[cfg(test)]
-mod test_new {
-    use super::*;
+pub fn array() -> ExpectArray {
+    ExpectArray::new()
+}
 
-    #[test]
-    fn it_should_return_correct_structure() {
-        let expect = Expect::new();
-        assert_eq!(expect, Expect { not: ExpectNot });
-    }
+pub fn iso_date_time() -> ExpectIsoDateTime {
+    ExpectIsoDateTime::new()
 }

@@ -7,7 +7,7 @@ use crate::JsonType;
 use serde_json::Value;
 use std::fmt::Debug;
 
-#[expect_op(internal, name = "Array")]
+#[expect_op(internal, name = "array")]
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct ExpectArray {
     sub_ops: Vec<ExpectArraySubOp>,
@@ -16,6 +16,11 @@ pub struct ExpectArray {
 impl ExpectArray {
     pub(crate) fn new() -> Self {
         Self { sub_ops: vec![] }
+    }
+
+    pub fn is_empty(mut self) -> Self {
+        self.sub_ops.push(ExpectArraySubOp::IsEmpty);
+        self
     }
 
     pub fn min_len(mut self, min_len: usize) -> Self {
@@ -67,7 +72,7 @@ mod test_contains {
     #[test]
     fn it_should_be_equal_for_identical_numeric_arrays() {
         let left = json!([1, 2, 3]);
-        let right = json!(expect.array().contains([1, 2, 3]));
+        let right = json!(expect::array().contains([1, 2, 3]));
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
@@ -76,7 +81,7 @@ mod test_contains {
     #[test]
     fn it_should_be_equal_for_reversed_identical_numeric_arrays() {
         let left = json!([1, 2, 3]);
-        let right = json!(expect.array().contains([3, 2, 1]));
+        let right = json!(expect::array().contains([3, 2, 1]));
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
@@ -85,7 +90,7 @@ mod test_contains {
     #[test]
     fn it_should_be_equal_for_partial_contains() {
         let left = json!([0, 1, 2, 3, 4, 5]);
-        let right = json!(expect.array().contains([1, 2, 3]));
+        let right = json!(expect::array().contains([1, 2, 3]));
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
@@ -94,7 +99,7 @@ mod test_contains {
     #[test]
     fn it_should_error_for_totall_different_values() {
         let left = json!([0, 1, 2, 3]);
-        let right = json!(expect.array().contains([4, 5, 6]));
+        let right = json!(expect::array().contains([4, 5, 6]));
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
@@ -108,7 +113,7 @@ mod test_contains {
     #[test]
     fn it_should_be_ok_for_empty_contains() {
         let left = json!([0, 1, 2, 3]);
-        let right = json!(expect.array().contains([] as [u32; 0]));
+        let right = json!(expect::array().contains([] as [u32; 0]));
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
@@ -117,13 +122,13 @@ mod test_contains {
     #[test]
     fn it_should_error_if_used_against_the_wrong_type() {
         let left = json!("🦊");
-        let right = json!(expect.array().contains([4, 5, 6]));
+        let right = json!(expect::array().contains([4, 5, 6]));
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
             r#"Json comparison on unsupported type, at root:
-    expect.Array() cannot be performed against string,
+    expect::array() cannot be performed against string,
     only supported type is: array"#
         );
     }
@@ -141,12 +146,45 @@ mod test_contains {
             }
         ]);
 
-        let right = json!(expect.array().contains([json!({
+        let right = json!(expect::array().contains([json!({
             "text": "Hello",
-            "author": expect.string().contains("Jane"),
+            "author": expect::string().contains("Jane"),
         }),]));
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok(), "{}", output.unwrap_err().to_string());
+    }
+}
+
+#[cfg(test)]
+mod test_is_empty {
+    use crate::expect;
+    use crate::expect_json_eq;
+    use pretty_assertions::assert_eq;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_pass_when_array_is_empty() {
+        let left = json!([]);
+        let right = json!(expect::array().is_empty());
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
+
+    #[test]
+    fn it_should_fail_when_array_is_not_empty() {
+        let left = json!([1, 2, 3]);
+        let right = json!(expect::array().is_empty());
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            format!(
+                r#"Json expect::array() error at root:
+    expected empty array
+    received [1, 2, 3]"#
+            )
+        );
     }
 }

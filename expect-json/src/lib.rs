@@ -5,11 +5,10 @@
 // pub(crate) mod internals;
 pub mod internals;
 
-#[allow(non_upper_case_globals)]
-pub const expect: Expect = Expect::new();
-
 mod expects;
 pub use self::expects::*;
+
+pub use self::expects::expect;
 
 mod expect_json_error;
 pub use self::expect_json_error::*;

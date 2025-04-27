@@ -1,3 +1,4 @@
+use crate::internals::objects::ObjectObject;
 use crate::internals::Context;
 use crate::internals::ExpectOpMeta;
 use crate::ops::ExpectObject;
@@ -10,6 +11,7 @@ use serde_json::Value;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ExpectObjectSubOp {
+    IsEmpty,
     Contains(Map<String, Value>),
 }
 
@@ -21,10 +23,30 @@ impl ExpectObjectSubOp {
         received: &Map<String, Value>,
     ) -> ExpectOpResult<()> {
         match self {
+            ExpectObjectSubOp::IsEmpty => {
+                ExpectObjectSubOp::on_object_is_empty(parent, context, received)
+            }
             ExpectObjectSubOp::Contains(expected_values) => {
                 ExpectObjectSubOp::on_object_contains(expected_values, parent, context, received)
             }
         }
+    }
+
+    fn on_object_is_empty(
+        parent: &ExpectObject,
+        context: &mut Context<'_>,
+        received: &Map<String, Value>,
+    ) -> ExpectOpResult<()> {
+        if !received.is_empty() {
+            let error_message = format!(
+                r#"expected empty object
+    received {}"#,
+                ObjectObject::from(received.clone())
+            );
+            return Err(ExpectOpError::custom(context, parent, error_message));
+        }
+
+        Ok(())
     }
 
     fn on_object_contains(

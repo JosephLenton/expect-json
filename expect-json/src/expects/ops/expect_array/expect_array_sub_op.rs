@@ -7,12 +7,15 @@ use crate::JsonType;
 use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
+use std::collections::HashSet;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ExpectArraySubOp {
+    IsEmpty,
     MinLen(usize),
     MaxLen(usize),
     Contains(Vec<Value>),
+    AllUnique,
 }
 
 impl ExpectArraySubOp {
@@ -23,6 +26,9 @@ impl ExpectArraySubOp {
         received: &[Value],
     ) -> ExpectOpResult<()> {
         match self {
+            ExpectArraySubOp::IsEmpty => {
+                ExpectArraySubOp::on_array_is_empty(parent, context, received)
+            }
             ExpectArraySubOp::MinLen(min_len) => {
                 ExpectArraySubOp::on_array_min_len(*min_len, parent, context, received)
             }
@@ -32,7 +38,27 @@ impl ExpectArraySubOp {
             ExpectArraySubOp::Contains(expected_values) => {
                 ExpectArraySubOp::on_array_contains(expected_values, parent, context, received)
             }
+            ExpectArraySubOp::AllUnique => {
+                ExpectArraySubOp::on_array_all_unique(parent, context, received)
+            }
         }
+    }
+
+    fn on_array_is_empty(
+        parent: &ExpectArray,
+        context: &mut Context<'_>,
+        received_values: &[Value],
+    ) -> ExpectOpResult<()> {
+        if !received_values.is_empty() {
+            let error_message = format!(
+                r#"expected empty array
+    received {}"#,
+                ArrayObject::from(received_values.iter().cloned())
+            );
+            return Err(ExpectOpError::custom(context, parent, error_message));
+        }
+
+        Ok(())
     }
 
     fn on_array_min_len(
@@ -90,6 +116,27 @@ impl ExpectArraySubOp {
                     json_type: JsonType::Array,
                     expected: expected.clone().into(),
                     received: ArrayObject::from(received_values.to_owned()).into(),
+                });
+            }
+        }
+
+        Ok(())
+    }
+
+    fn on_array_all_unique(
+        _parent: &ExpectArray,
+        context: &mut Context<'_>,
+        received_values: &[Value],
+    ) -> ExpectOpResult<()> {
+        let mut seen = HashSet::<&Value>::new();
+
+        for value in received_values {
+            let is_duplicate = !seen.insert(value);
+            if is_duplicate {
+                return Err(ExpectOpError::ArrayContainsDuplicate {
+                    context: context.to_static(),
+                    duplicate: value.clone().into(),
+                    received_array: ArrayObject::from(received_values.to_owned()),
                 });
             }
         }

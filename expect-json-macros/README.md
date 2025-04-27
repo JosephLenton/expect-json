@@ -27,11 +27,11 @@ server
     .assert_json(&json!({
         "name": "Joe",
         "age": expect.in_range(20..=30),
-        "timestamp": expect.iso_date_time(),
+        "timestamp": expect::iso_date_time(),
         "ids": expect.contains(&[1, 2, 3, 4]),
         "comments": [
             {
-                "timestamp": expect.iso_date_time().greater_than("2025-01-01"),
+                "timestamp": expect::iso_date_time().greater_than("2025-01-01"),
                 "content": "Hello!"
             }
         ]

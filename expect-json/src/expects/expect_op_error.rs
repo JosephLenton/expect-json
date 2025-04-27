@@ -1,3 +1,4 @@
+use crate::internals::objects::ArrayObject;
 use crate::internals::objects::ValueObject;
 use crate::internals::Context;
 use crate::internals::ExpectOpMeta;
@@ -15,7 +16,7 @@ pub enum ExpectOpError {
     // The underlying problem might be the server returned different data to what we expected.
     #[error(
         "Json comparison on unsupported type, at {context}:
-    expect.{}() cannot be performed against {received_type},
+    expect::{}() cannot be performed against {received_type},
     {}",
     expected_operation.name,
     format_expected_operation_types(expected_operation)
@@ -73,7 +74,18 @@ pub enum ExpectOpError {
     },
 
     #[error(
-        "Json expect.{}() error at {context}:
+        "Json array at {context} contains duplicate value, expected array to contain all unique values.
+    duplicate value {duplicate}.
+    received full array {received_array}"
+    )]
+    ArrayContainsDuplicate {
+        context: Context<'static>,
+        duplicate: ValueObject,
+        received_array: ArrayObject,
+    },
+
+    #[error(
+        "Json expect::{}() error at {context}:
     {message},
     {error}",
     expected_operation.name,
@@ -87,7 +99,7 @@ pub enum ExpectOpError {
     },
 
     #[error(
-        "Json expect.{}() error at {context}:
+        "Json expect::{}() error at {context}:
     {message}",
     expected_operation.name,
     )]

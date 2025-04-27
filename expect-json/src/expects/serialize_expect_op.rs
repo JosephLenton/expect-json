@@ -94,7 +94,7 @@ mod test_serialize {
 
     #[test]
     fn it_should_serialize_into_expected_structure_with_expect_id_marker() {
-        let output = json!(expect.array().contains([1, 2, 3]));
+        let output = json!(expect::array().contains([1, 2, 3]));
         assert_eq!(
             output,
             json!({
@@ -117,7 +117,7 @@ mod test_serialize {
 
     #[test]
     fn it_should_serialize_an_op_within_an_inner_op_inside() {
-        let output = json!(expect.array().contains([expect.object().contains(json!({
+        let output = json!(expect::array().contains([expect::object().contains(json!({
             "name": "John",
             "age": 30,
         }))]));

@@ -9,6 +9,7 @@ use serde::Serialize;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ExpectStringSubOp {
+    IsEmpty,
     MinLen(usize),
     MaxLen(usize),
     Contains(String),
@@ -22,6 +23,9 @@ impl ExpectStringSubOp {
         received: &str,
     ) -> ExpectOpResult<()> {
         match self {
+            ExpectStringSubOp::IsEmpty => {
+                ExpectStringSubOp::on_string_is_empty(parent, context, received)
+            }
             ExpectStringSubOp::MinLen(min_len) => {
                 ExpectStringSubOp::on_string_min_len(*min_len, parent, context, received)
             }
@@ -32,6 +36,23 @@ impl ExpectStringSubOp {
                 ExpectStringSubOp::on_string_contains(contains, parent, context, received)
             }
         }
+    }
+
+    fn on_string_is_empty(
+        parent: &ExpectString,
+        context: &mut Context<'_>,
+        received: &str,
+    ) -> ExpectOpResult<()> {
+        if !received.is_empty() {
+            let error_message = format!(
+                r#"expected empty string
+    received {}"#,
+                StringObject::from(received)
+            );
+            return Err(ExpectOpError::custom(context, parent, error_message));
+        }
+
+        Ok(())
     }
 
     fn on_string_min_len(
