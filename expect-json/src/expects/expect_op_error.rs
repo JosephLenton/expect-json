@@ -138,8 +138,8 @@ impl ExpectOpError {
     {
         Self::UnknownError {
             context: context.to_static(),
-            message: message.into(),
             error: Box::new(error),
+            message: message.into(),
             expected_operation: ExpectOpMeta::new(expect_op),
         }
     }
