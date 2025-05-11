@@ -1,4 +1,5 @@
 use crate::internals::objects::ArrayObject;
+use crate::internals::objects::FloatObject;
 use crate::internals::objects::IntegerObject;
 use crate::internals::objects::ValueObject;
 use crate::internals::objects::ValueTypeObject;
@@ -114,6 +115,26 @@ pub enum ExpectOpError {
     IntegerIsNotZero {
         context: Context<'static>,
         received: IntegerObject,
+    },
+
+    #[error(
+        "Json float at {context} is zero:
+    expected non-zero float
+    received {received}"
+    )]
+    FloatIsZero {
+        context: Context<'static>,
+        received: FloatObject,
+    },
+
+    #[error(
+        "Json float at {context} is not zero:
+    expected 0.0
+    received {received}"
+    )]
+    FloatIsNotZero {
+        context: Context<'static>,
+        received: FloatObject,
     },
 
     #[error(

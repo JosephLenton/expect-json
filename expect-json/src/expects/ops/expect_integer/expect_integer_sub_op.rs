@@ -1,4 +1,4 @@
-use crate::ops::expect_integer::SerializableBound;
+use crate::ops::utils::SerializableBound;
 use crate::ops::ExpectInteger;
 use crate::Context;
 use crate::ExpectOpError;

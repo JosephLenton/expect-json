@@ -6,7 +6,7 @@ use serde::Serialize;
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(bound = "V: DeserializeOwned")]
-pub(crate) enum SerializableBound<V>
+pub enum SerializableBound<V>
 where
     V: Debug + Copy + Clone + PartialOrd<V> + Serialize + DeserializeOwned,
 {
