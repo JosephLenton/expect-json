@@ -16,4 +16,7 @@ pub use self::expect_email::*;
 mod expect_iso_date_time;
 pub use self::expect_iso_date_time::*;
 
+mod expect_uuid;
+pub use self::expect_uuid::*;
+
 mod utils;

@@ -4,6 +4,7 @@ use crate::ops::ExpectInteger;
 use crate::ops::ExpectIsoDateTime;
 use crate::ops::ExpectObject;
 use crate::ops::ExpectString;
+use crate::ops::ExpectUuid;
 
 pub fn object() -> ExpectObject {
     ExpectObject::new()
@@ -78,6 +79,40 @@ pub fn array() -> ExpectArray {
 /// ```
 pub fn iso_date_time() -> ExpectIsoDateTime {
     ExpectIsoDateTime::new()
+}
+
+///
+/// Expect a valid UUID in the received JSON.
+///
+/// ```rust
+/// # async fn test() -> Result<(), Box<dyn ::std::error::Error>> {
+/// #
+/// # use axum::Router;
+/// # use axum::extract::Json;
+/// # use axum::routing::get;
+/// # use axum_test::TestServer;
+/// # use serde_json::json;
+/// # use std::time::Instant;
+/// #
+/// # let server = TestServer::new(Router::new())?;
+/// #
+/// use std::time::Duration;
+/// use axum_test::expect_json::expect;
+///
+/// let server = TestServer::new(Router::new())?;
+///
+/// server.get(&"/user/alice")
+///     .await
+///     .assert_json(&json!({
+///         "name": "Alice",
+///         "id": expect::uuid(),
+///     }));
+/// #
+/// # Ok(()) }
+/// ```
+///
+pub fn uuid() -> ExpectUuid {
+    ExpectUuid::new()
 }
 
 ///
