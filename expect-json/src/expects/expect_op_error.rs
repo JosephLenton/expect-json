@@ -98,7 +98,7 @@ pub enum ExpectOpError {
 
     #[error(
         "Json integer at {context} is zero:
-    expected non-zero
+    expected non-zero integer
     received {received}"
     )]
     IntegerIsZero {

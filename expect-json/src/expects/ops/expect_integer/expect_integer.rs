@@ -160,3 +160,70 @@ mod test_is_zero {
         );
     }
 }
+
+#[cfg(test)]
+mod test_is_not_zero {
+    use crate::expect;
+    use crate::expect_json_eq;
+    use pretty_assertions::assert_eq;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_be_false_for_zero() {
+        let left = json!(0);
+        let right = json!(expect::integer().is_not_zero());
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            r#"Json integer at root is zero:
+    expected non-zero integer
+    received 0"#
+        );
+    }
+
+    #[test]
+    fn it_should_be_true_for_negative_value() {
+        let left = json!(-1);
+        let right = json!(expect::integer().is_not_zero());
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok());
+    }
+
+    #[test]
+    fn it_should_be_true_for_negative_max() {
+        let left = json!(i64::MIN);
+        let right = json!(expect::integer().is_not_zero());
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok());
+    }
+
+    #[test]
+    fn it_should_be_true_for_positive_value() {
+        let left = json!(1);
+        let right = json!(expect::integer().is_not_zero());
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok());
+    }
+
+    #[test]
+    fn it_should_be_true_for_i64_max() {
+        let left = json!(i64::MAX);
+        let right = json!(expect::integer().is_not_zero());
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok());
+    }
+
+    #[test]
+    fn it_should_be_true_for_u64_max() {
+        let left = json!(u64::MAX);
+        let right = json!(expect::integer().is_not_zero());
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok());
+    }
+}
