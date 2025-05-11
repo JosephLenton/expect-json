@@ -51,13 +51,13 @@ impl ExpectEmail {
     ///     .await
     ///     .assert_json(&json!({
     ///         "name": "Joe",
-    ///         "email": expect::email().with_local_part("joe"),
+    ///         "email": expect::email().local_part("joe"),
     ///     }));
     /// #
     /// # Ok(()) }
     /// ```
     ///
-    pub fn with_local_part<S>(mut self, local_part: S) -> Self
+    pub fn local_part<S>(mut self, local_part: S) -> Self
     where
         S: Into<String>,
     {
@@ -88,13 +88,13 @@ impl ExpectEmail {
     ///     .await
     ///     .assert_json(&json!({
     ///         "name": "Joe",
-    ///         "email": expect::email().with_domain("example.com"),
+    ///         "email": expect::email().domain("example.com"),
     ///     }));
     /// #
     /// # Ok(()) }
     /// ```
     ///
-    pub fn with_domain<S>(mut self, domain: S) -> Self
+    pub fn domain<S>(mut self, domain: S) -> Self
     where
         S: Into<String>,
     {
@@ -208,7 +208,7 @@ mod test_local_part {
     #[test]
     fn it_should_accept_valid_local_part() {
         let left = json!("test@example.com");
-        let right = json!(expect::email().with_local_part("test"));
+        let right = json!(expect::email().local_part("test"));
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
@@ -217,7 +217,7 @@ mod test_local_part {
     #[test]
     fn it_should_reject_invalid_local_part() {
         let left = json!("test@example.com");
-        let right = json!(expect::email().with_local_part("🦊"));
+        let right = json!(expect::email().local_part("🦊"));
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
@@ -240,7 +240,7 @@ mod test_domain {
     #[test]
     fn it_should_accept_valid_domain() {
         let left = json!("test@example.com");
-        let right = json!(expect::email().with_domain("example.com"));
+        let right = json!(expect::email().domain("example.com"));
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
@@ -249,7 +249,7 @@ mod test_domain {
     #[test]
     fn it_should_reject_invalid_domain() {
         let left = json!("test@example.com");
-        let right = json!(expect::email().with_domain("🦊.fox"));
+        let right = json!(expect::email().domain("🦊.fox"));
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(

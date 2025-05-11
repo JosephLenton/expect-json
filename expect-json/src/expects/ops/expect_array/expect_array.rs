@@ -51,6 +51,46 @@ impl ExpectArray {
             .push(ExpectArraySubOp::Contains(inner_expected_values));
         self
     }
+
+    /// Expects all values in the array match the expected value.
+    /// This can be an exact value, or an `ExpectOp`.
+    ///
+    /// Note an empty array will match this.
+    ///
+    /// ```rust
+    /// # async fn test() -> Result<(), Box<dyn ::std::error::Error>> {
+    /// #
+    /// # use axum::Router;
+    /// # use axum::extract::Json;
+    /// # use axum::routing::get;
+    /// # use axum_test::TestServer;
+    /// # use serde_json::json;
+    /// #
+    /// # let server = TestServer::new(Router::new())?;
+    /// #
+    /// use axum_test::expect_json::expect;
+    ///
+    /// let server = TestServer::new(Router::new())?;
+    ///
+    /// server.get(&"/users")
+    ///     .await
+    ///     .assert_json(&json!(expect::array().all(
+    ///         json!({
+    ///             "name": expect::string().is_not_empty(),
+    ///             "email": expect::email(),
+    ///         })
+    ///     )));
+    /// #
+    /// # Ok(()) }
+    /// ```
+    pub fn all<V>(mut self, expected: V) -> Self
+    where
+        V: Into<Value>,
+    {
+        self.sub_ops
+            .push(ExpectArraySubOp::AllEqual(expected.into()));
+        self
+    }
 }
 
 impl ExpectOp for ExpectArray {
@@ -306,6 +346,136 @@ mod test_max_len {
                 r#"Json expect::array() error at root:
     expected array to have at most 3 elements, but it has 4,
     received [1, 2, 3, 4]"#
+            )
+        );
+    }
+}
+
+#[cfg(test)]
+mod test_all {
+    use crate::expect;
+    use crate::expect_json_eq;
+    use pretty_assertions::assert_eq;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_pass_when_array_is_empty() {
+        let left = json!([]);
+        let right = json!(expect::array().all(expect::string()));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
+
+    #[test]
+    fn it_should_fail_when_array_values_do_not_match_expect_op() {
+        let left = json!([1, 2, 3]);
+        let right = json!(expect::array().all(expect::string()));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            format!(
+                r#"Json expect::string() at root[0], received wrong type:
+    expected string
+    received integer 1
+    received full array [1, 2, 3]"#
+            )
+        );
+    }
+
+    #[test]
+    fn it_should_fail_when_array_values_do_not_match_values() {
+        let left = json!([1, 2, 3]);
+        let right = json!(expect::array().all("🦊"));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            format!(
+                r#"Json values at root[0] are different types:
+    expected string "🦊"
+    received integer 1
+    received full array [1, 2, 3]"#
+            )
+        );
+    }
+
+    #[test]
+    fn it_should_pass_when_array_values_do_match_expect_op() {
+        let left = json!(["alice@example.com", "bob@example.com"]);
+        let right = json!(expect::array().all(expect::email()));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
+
+    #[test]
+    fn it_should_pass_when_array_values_do_match_values() {
+        let left = json!([1, 1, 1]);
+        let right = json!(expect::array().all(1));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
+
+    #[test]
+    fn it_should_pass_when_array_values_do_match_complex_objects() {
+        let left = json!([
+            {
+                "name": "Alice Candles",
+                "email": "alice@example.com"
+            },
+            {
+                "name": "Bob Kettles",
+                "email": "bob@example.com"
+            },
+        ]);
+
+        let right = json!(expect::array().all(json!({
+            "name": expect::string().is_not_empty(),
+            "email": expect::email(),
+        })));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
+
+    #[test]
+    fn it_should_not_pass_when_array_values_do_not_match_complex_objects() {
+        let left = json!([
+            {
+                "name": "Alice Candles",
+                "email": "alice@example.com"
+            },
+            {
+                "name": "",
+                "email": "bob@example.com"
+            },
+        ]);
+
+        let right = json!(expect::array().all(json!({
+            "name": expect::string().is_not_empty(),
+            "email": expect::email(),
+        })));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            format!(
+                r#"Json expect::string() error at root[1].name:
+    expected non-empty string
+    received ""
+    received full array [
+        {{
+            "email": "alice@example.com",
+            "name": "Alice Candles"
+        }},
+        {{
+            "email": "bob@example.com",
+            "name": ""
+        }}
+    ]"#
             )
         );
     }

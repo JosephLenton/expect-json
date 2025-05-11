@@ -17,6 +17,7 @@ pub enum ExpectArraySubOp {
     MaxLen(usize),
     Contains(Vec<Value>),
     AllUnique,
+    AllEqual(Value),
 }
 
 impl ExpectArraySubOp {
@@ -44,6 +45,9 @@ impl ExpectArraySubOp {
             }
             ExpectArraySubOp::AllUnique => {
                 ExpectArraySubOp::on_array_all_unique(parent, context, received)
+            }
+            ExpectArraySubOp::AllEqual(expected_value) => {
+                ExpectArraySubOp::on_array_all_equal(expected_value, parent, context, received)
             }
         }
     }
@@ -164,6 +168,28 @@ impl ExpectArraySubOp {
                     received_array: ArrayObject::from(received_values.to_owned()),
                 });
             }
+        }
+
+        Ok(())
+    }
+
+    fn on_array_all_equal(
+        expected_value: &Value,
+        _parent: &ExpectArray,
+        context: &mut Context<'_>,
+        received_values: &[Value],
+    ) -> ExpectOpResult<()> {
+        for (index, value) in received_values.iter().enumerate() {
+            context.push(index);
+
+            context.json_eq(value, expected_value).map_err(|error| {
+                ExpectOpError::ArrayAllEqual {
+                    error: Box::new(error),
+                    received_full_array: ArrayObject::from(received_values.to_owned()),
+                }
+            })?;
+
+            context.pop();
         }
 
         Ok(())

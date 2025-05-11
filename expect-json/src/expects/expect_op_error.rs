@@ -86,6 +86,16 @@ pub enum ExpectOpError {
     },
 
     #[error(
+        "{error}
+    received full array {received_full_array}"
+    )]
+    ArrayAllEqual {
+        #[source]
+        error: Box<ExpectJsonError>,
+        received_full_array: ArrayObject,
+    },
+
+    #[error(
         "Json expect::{}() error at {context}:
     {message},
     {error}",
