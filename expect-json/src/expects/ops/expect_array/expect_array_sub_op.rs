@@ -28,26 +28,16 @@ impl ExpectArraySubOp {
         received: &[Value],
     ) -> ExpectOpResult<()> {
         match self {
-            ExpectArraySubOp::IsEmpty => {
-                ExpectArraySubOp::on_array_is_empty(parent, context, received)
+            Self::IsEmpty => Self::on_array_is_empty(parent, context, received),
+            Self::IsNotEmpty => Self::on_array_is_not_empty(parent, context, received),
+            Self::MinLen(min_len) => Self::on_array_min_len(*min_len, parent, context, received),
+            Self::MaxLen(max_len) => Self::on_array_max_len(*max_len, parent, context, received),
+            Self::Contains(expected_values) => {
+                Self::on_array_contains(expected_values, parent, context, received)
             }
-            ExpectArraySubOp::IsNotEmpty => {
-                ExpectArraySubOp::on_array_is_not_empty(parent, context, received)
-            }
-            ExpectArraySubOp::MinLen(min_len) => {
-                ExpectArraySubOp::on_array_min_len(*min_len, parent, context, received)
-            }
-            ExpectArraySubOp::MaxLen(max_len) => {
-                ExpectArraySubOp::on_array_max_len(*max_len, parent, context, received)
-            }
-            ExpectArraySubOp::Contains(expected_values) => {
-                ExpectArraySubOp::on_array_contains(expected_values, parent, context, received)
-            }
-            ExpectArraySubOp::AllUnique => {
-                ExpectArraySubOp::on_array_all_unique(parent, context, received)
-            }
-            ExpectArraySubOp::AllEqual(expected_value) => {
-                ExpectArraySubOp::on_array_all_equal(expected_value, parent, context, received)
+            Self::AllUnique => Self::on_array_all_unique(parent, context, received),
+            Self::AllEqual(expected_value) => {
+                Self::on_array_all_equal(expected_value, parent, context, received)
             }
         }
     }

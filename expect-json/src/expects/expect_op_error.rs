@@ -1,4 +1,5 @@
 use crate::internals::objects::ArrayObject;
+use crate::internals::objects::IntegerObject;
 use crate::internals::objects::ValueObject;
 use crate::internals::objects::ValueTypeObject;
 use crate::internals::ExpectOpMeta;
@@ -76,7 +77,7 @@ pub enum ExpectOpError {
 
     #[error(
         "Json array at {context} contains duplicate value, expected array to contain all unique values.
-    duplicate value {duplicate}.
+    duplicate value {duplicate}
     received full array {received_array}"
     )]
     ArrayContainsDuplicate {
@@ -93,6 +94,26 @@ pub enum ExpectOpError {
         #[source]
         error: Box<ExpectJsonError>,
         received_full_array: ArrayObject,
+    },
+
+    #[error(
+        "Json integer at {context} is zero:
+    expected non-zero
+    received {received}"
+    )]
+    IntegerIsZero {
+        context: Context<'static>,
+        received: IntegerObject,
+    },
+
+    #[error(
+        "Json integer at {context} is not zero:
+    expected 0
+    received {received}"
+    )]
+    IntegerIsNotZero {
+        context: Context<'static>,
+        received: IntegerObject,
     },
 
     #[error(

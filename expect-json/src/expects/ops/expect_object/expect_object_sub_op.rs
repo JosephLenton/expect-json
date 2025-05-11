@@ -24,14 +24,10 @@ impl ExpectObjectSubOp {
         received: &Map<String, Value>,
     ) -> ExpectOpResult<()> {
         match self {
-            ExpectObjectSubOp::IsEmpty => {
-                ExpectObjectSubOp::on_object_is_empty(parent, context, received)
-            }
-            ExpectObjectSubOp::IsNotEmpty => {
-                ExpectObjectSubOp::on_object_is_not_empty(parent, context, received)
-            }
-            ExpectObjectSubOp::Contains(expected_values) => {
-                ExpectObjectSubOp::on_object_contains(expected_values, parent, context, received)
+            Self::IsEmpty => Self::on_object_is_empty(parent, context, received),
+            Self::IsNotEmpty => Self::on_object_is_not_empty(parent, context, received),
+            Self::Contains(expected_values) => {
+                Self::on_object_contains(expected_values, parent, context, received)
             }
         }
     }

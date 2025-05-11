@@ -1,6 +1,9 @@
 mod expect_array;
 pub use self::expect_array::*;
 
+mod expect_integer;
+pub use self::expect_integer::*;
+
 mod expect_object;
 pub use self::expect_object::*;
 

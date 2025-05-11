@@ -24,20 +24,12 @@ impl ExpectStringSubOp {
         received: &str,
     ) -> ExpectOpResult<()> {
         match self {
-            ExpectStringSubOp::IsEmpty => {
-                ExpectStringSubOp::on_string_is_empty(parent, context, received)
-            }
-            ExpectStringSubOp::IsNotEmpty => {
-                ExpectStringSubOp::on_string_is_not_empty(parent, context, received)
-            }
-            ExpectStringSubOp::MinLen(min_len) => {
-                ExpectStringSubOp::on_string_min_len(*min_len, parent, context, received)
-            }
-            ExpectStringSubOp::MaxLen(max_len) => {
-                ExpectStringSubOp::on_string_max_len(*max_len, parent, context, received)
-            }
-            ExpectStringSubOp::Contains(contains) => {
-                ExpectStringSubOp::on_string_contains(contains, parent, context, received)
+            Self::IsEmpty => Self::on_string_is_empty(parent, context, received),
+            Self::IsNotEmpty => Self::on_string_is_not_empty(parent, context, received),
+            Self::MinLen(min_len) => Self::on_string_min_len(*min_len, parent, context, received),
+            Self::MaxLen(max_len) => Self::on_string_max_len(*max_len, parent, context, received),
+            Self::Contains(contains) => {
+                Self::on_string_contains(contains, parent, context, received)
             }
         }
     }
