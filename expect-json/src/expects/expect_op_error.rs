@@ -98,7 +98,7 @@ pub enum ExpectOpError {
     },
 
     #[error(
-        "Json integer at {context} is zero:
+        "Json expect::integer() error at {context}, is zero:
     expected non-zero integer
     received {received}"
     )]
@@ -108,7 +108,7 @@ pub enum ExpectOpError {
     },
 
     #[error(
-        "Json integer at {context} is not zero:
+        "Json expect::integer() error at {context}, is not zero:
     expected 0
     received {received}"
     )]
@@ -118,7 +118,7 @@ pub enum ExpectOpError {
     },
 
     #[error(
-        "Json float at {context} is zero:
+        "Json expect::float() error at {context}, is zero:
     expected non-zero float
     received {received}"
     )]
@@ -128,7 +128,7 @@ pub enum ExpectOpError {
     },
 
     #[error(
-        "Json float at {context} is not zero:
+        "Json expect::float() error at {context}, is not zero:
     expected 0.0
     received {received}"
     )]

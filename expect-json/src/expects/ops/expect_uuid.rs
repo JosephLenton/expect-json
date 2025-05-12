@@ -79,12 +79,10 @@ impl ExpectOp for ExpectUuid {
             }
         }
 
-        if self.is_not_nil_flag {
-            if uuid.is_nil() {
-                let error_message =
-                    format!("expected uuid to be not nil, but it is, received '{received}'");
-                return Err(ExpectOpError::custom(context, self, error_message));
-            }
+        if self.is_not_nil_flag && uuid.is_nil() {
+            let error_message =
+                format!("expected uuid to be not nil, but it is, received '{received}'");
+            return Err(ExpectOpError::custom(context, self, error_message));
         }
 
         Ok(())

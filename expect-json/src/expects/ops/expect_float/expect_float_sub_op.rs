@@ -1,3 +1,4 @@
+use crate::internals::objects::FloatObject;
 use crate::ops::expect_float::ExpectFloat;
 use crate::ops::utils::SerializableBound;
 use crate::Context;
@@ -39,7 +40,14 @@ impl ExpectFloatSubOp {
                     return Err(ExpectOpError::custom(
                         context,
                         parent,
-                        "float is not in range",
+                        format!(
+                            "float is not in range
+    expected {}..{}
+    received {}",
+                            min.as_lowerbound(),
+                            max,
+                            FloatObject::from(received)
+                        ),
                     ));
                 }
             }
@@ -64,7 +72,11 @@ impl ExpectFloatSubOp {
                     return Err(ExpectOpError::custom(
                         context,
                         parent,
-                        "float is not positive",
+                        format!(
+                            "float is not positive
+    received {}",
+                            FloatObject::from(received)
+                        ),
                     ));
                 }
             }
@@ -73,7 +85,11 @@ impl ExpectFloatSubOp {
                     return Err(ExpectOpError::custom(
                         context,
                         parent,
-                        "float is not negative",
+                        format!(
+                            "float is not negative
+    received {}",
+                            FloatObject::from(received)
+                        ),
                     ));
                 }
             }

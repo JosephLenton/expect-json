@@ -31,7 +31,13 @@ impl ExpectIntegerSubOp {
                     return Err(ExpectOpError::custom(
                         context,
                         parent,
-                        "integer is not in range",
+                        format!(
+                            "integer is not in range
+    expected {}..{}
+    received {received}",
+                            min.as_lowerbound(),
+                            max,
+                        ),
                     ));
                 }
             }
@@ -56,7 +62,10 @@ impl ExpectIntegerSubOp {
                     return Err(ExpectOpError::custom(
                         context,
                         parent,
-                        "integer is not positive",
+                        format!(
+                            "integer is not positive
+    received {received}"
+                        ),
                     ));
                 }
             }
@@ -65,7 +74,10 @@ impl ExpectIntegerSubOp {
                     return Err(ExpectOpError::custom(
                         context,
                         parent,
-                        "integer is not negative",
+                        format!(
+                            "integer is not negative
+    received {received}"
+                        ),
                     ));
                 }
             }
@@ -93,7 +105,13 @@ impl ExpectIntegerSubOp {
                     return Err(ExpectOpError::custom(
                         context,
                         parent,
-                        "integer is not in range",
+                        format!(
+                            "integer is not in range
+    expected {}..{}
+    received {received}",
+                            min.as_lowerbound(),
+                            max,
+                        ),
                     ));
                 } else {
                     max.into_u64()
@@ -103,7 +121,13 @@ impl ExpectIntegerSubOp {
                     return Err(ExpectOpError::custom(
                         context,
                         parent,
-                        "integer is not in range",
+                        format!(
+                            "integer is not in range
+    expected {}..{}
+    received {received}",
+                            min.as_lowerbound(),
+                            max,
+                        ),
                     ));
                 }
             }
@@ -130,7 +154,10 @@ impl ExpectIntegerSubOp {
                 return Err(ExpectOpError::custom(
                     context,
                     parent,
-                    "integer is not negative",
+                    format!(
+                        "integer is not negative
+    received {received}"
+                    ),
                 ));
             }
         }

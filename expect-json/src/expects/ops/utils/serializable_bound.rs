@@ -1,4 +1,8 @@
+use crate::internals::objects::FloatObject;
 use core::fmt::Debug;
+use core::fmt::Display;
+use core::fmt::Formatter;
+use core::fmt::Result as FmtResult;
 use core::ops::Bound;
 use serde::de::DeserializeOwned;
 use serde::Deserialize;
@@ -36,6 +40,16 @@ where
     }
 }
 
+impl<V> SerializableBound<V>
+where
+    V: Debug + Copy + Clone + PartialOrd<V> + Serialize + DeserializeOwned + Display,
+    SerializableLowerBound<V>: Display + Copy,
+{
+    pub(crate) fn as_lowerbound(self) -> SerializableLowerBound<V> {
+        SerializableLowerBound(self)
+    }
+}
+
 impl SerializableBound<i64> {
     pub fn is_negative(self) -> bool {
         match self {
@@ -63,6 +77,55 @@ where
             Bound::Included(value) => Self::Included(value),
             Bound::Excluded(value) => Self::Excluded(value),
             Bound::Unbounded => Self::Unbounded,
+        }
+    }
+}
+
+impl Display for SerializableBound<i64> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        match self {
+            Self::Included(value) => write!(f, "={value}"),
+            Self::Excluded(value) => write!(f, "{value}"),
+            Self::Unbounded => write!(f, ""),
+        }
+    }
+}
+
+impl Display for SerializableBound<f64> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        match self {
+            Self::Included(value) => write!(f, "={}", FloatObject::from(*value)),
+            Self::Excluded(value) => write!(f, "{}", FloatObject::from(*value)),
+            Self::Unbounded => write!(f, ""),
+        }
+    }
+}
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub(crate) struct SerializableLowerBound<V>(SerializableBound<V>)
+where
+    V: Debug + Copy + Clone + PartialOrd<V> + Serialize + DeserializeOwned + Display;
+
+impl Display for SerializableLowerBound<f64> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        match self.0 {
+            SerializableBound::Included(inner_value) => {
+                let inner = SerializableBound::Excluded(inner_value);
+                write!(f, "{inner}")
+            }
+            inner => write!(f, "{inner}"),
+        }
+    }
+}
+
+impl Display for SerializableLowerBound<i64> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        match self.0 {
+            SerializableBound::Included(inner_value) => {
+                let inner = SerializableBound::Excluded(inner_value);
+                write!(f, "{inner}")
+            }
+            inner => write!(f, "{inner}"),
         }
     }
 }
