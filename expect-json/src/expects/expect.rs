@@ -7,6 +7,36 @@ use crate::ops::ExpectObject;
 use crate::ops::ExpectString;
 use crate::ops::ExpectUuid;
 
+///
+/// Expects a JSON object.
+///
+/// ```rust
+/// # async fn test() -> Result<(), Box<dyn ::std::error::Error>> {
+/// #
+/// # use axum::Router;
+/// # use axum::extract::Json;
+/// # use axum::routing::get;
+/// # use axum_test::TestServer;
+/// # use serde_json::json;
+/// #
+/// # let server = TestServer::new(Router::new())?;
+/// #
+/// use axum_test::expect_json::expect;
+///
+/// let server = TestServer::new(Router::new())?;
+///
+/// server.get(&"/user/barrington")
+///     .await
+///     .assert_json(&json!({
+///         "name": "Barrington",
+///         "metadata": expect::object().contains(json!({
+///             "age": expect::integer().is_in_range(18..=100),
+///             "email": expect::email(),
+///         })),
+///     }));
+/// #
+/// # Ok(()) }
+/// ```
 pub fn object() -> ExpectObject {
     ExpectObject::new()
 }
@@ -73,16 +103,74 @@ pub fn integer() -> ExpectInteger {
     ExpectInteger::new()
 }
 
+///
+/// Expects a JSON string.
+///
+/// ```rust
+/// # async fn test() -> Result<(), Box<dyn ::std::error::Error>> {
+/// #
+/// # use axum::Router;
+/// # use axum::extract::Json;
+/// # use axum::routing::get;
+/// # use axum_test::TestServer;
+/// # use serde_json::json;
+/// #
+/// # let server = TestServer::new(Router::new())?;
+/// #
+/// use axum_test::expect_json::expect;
+///
+/// let server = TestServer::new(Router::new())?;
+///
+/// server.get(&"/user/barrington")
+///     .await
+///     .assert_json(&json!({
+///         "name": "Barrington",
+///         "metadata": expect::object().contains(json!({
+///             "age": expect::integer().is_in_range(18..=100),
+///             "email": expect::email(),
+///         })),
+///     }));
+/// #
+/// # Ok(()) }
+/// ```
 pub fn string() -> ExpectString {
     ExpectString::new()
 }
 
+///
+/// Expects a JSON array. This has further operations to assert the length,
+/// uniqueness, all values meet a condition, etc.
+///
+/// ```rust
+/// # async fn test() -> Result<(), Box<dyn ::std::error::Error>> {
+/// #
+/// # use axum::Router;
+/// # use axum::extract::Json;
+/// # use axum::routing::get;
+/// # use axum_test::TestServer;
+/// # use serde_json::json;
+/// #
+/// # let server = TestServer::new(Router::new())?;
+/// #
+/// use axum_test::expect_json::expect;
+///
+/// let server = TestServer::new(Router::new())?;
+///
+/// server.get(&"/user/barrington")
+///     .await
+///     .assert_json(&json!({
+///         "name": "Barrington",
+///         "tags": expect::array().all(expect::string()),
+///     }));
+/// #
+/// # Ok(()) }
+/// ```
 pub fn array() -> ExpectArray {
     ExpectArray::new()
 }
 
 ///
-/// Expects a valid email address in the received JSON.
+/// Expects a valid-looking ISO date time.
 ///
 /// ```rust
 /// # async fn test() -> Result<(), Box<dyn ::std::error::Error>> {
@@ -114,7 +202,7 @@ pub fn iso_date_time() -> ExpectIsoDateTime {
 }
 
 ///
-/// Expect a valid UUID in the received JSON.
+/// Expect a valid UUID.
 ///
 /// ```rust
 /// # async fn test() -> Result<(), Box<dyn ::std::error::Error>> {
@@ -148,7 +236,7 @@ pub fn uuid() -> ExpectUuid {
 }
 
 ///
-/// Expects a valid email address in the received JSON.
+/// Expects a valid-looking email address.
 ///
 /// ```rust
 /// # async fn test() -> Result<(), Box<dyn ::std::error::Error>> {
