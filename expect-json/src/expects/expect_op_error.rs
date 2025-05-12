@@ -77,8 +77,9 @@ pub enum ExpectOpError {
     },
 
     #[error(
-        "Json array at {context} contains duplicate value, expected array to contain all unique values.
-    duplicate value {duplicate}
+        "Json expect::array() error at {context},
+    expected array to contain all unique values.
+    found duplicate {duplicate}
     received full array {received_array}"
     )]
     ArrayContainsDuplicate {

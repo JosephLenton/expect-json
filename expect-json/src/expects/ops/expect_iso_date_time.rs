@@ -449,4 +449,55 @@ mod test_within_future {
             )
         );
     }
+
+    #[test]
+    fn it_should_pass_if_date_within_past_and_future() {
+        let now = Utc::now();
+        let now_str = now.to_rfc3339();
+        let left = json!(now_str);
+        let right = json!(expect::iso_date_time()
+            .within_past(StdDuration::from_secs(60))
+            .within_future(StdDuration::from_secs(60)));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
+
+    #[test]
+    fn it_should_fail_if_date_behind_past_and_future() {
+        let now = Utc::now();
+        let now_str = (now - ChronoDuration::seconds(90)).to_rfc3339();
+        let left = json!(now_str);
+        let right = json!(expect::iso_date_time()
+            .within_past(StdDuration::from_secs(60))
+            .within_future(StdDuration::from_secs(60)));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            format!(
+                r#"Json expect::iso_date_time() error at root:
+    ISO datetime '{now_str}' is too far from the past, expected between '1 minute' ago and now"#
+            )
+        );
+    }
+
+    #[test]
+    fn it_should_fail_if_date_ahead_of_past_and_future() {
+        let now = Utc::now();
+        let now_str = (now + ChronoDuration::seconds(90)).to_rfc3339();
+        let left = json!(now_str);
+        let right = json!(expect::iso_date_time()
+            .within_past(StdDuration::from_secs(60))
+            .within_future(StdDuration::from_secs(60)));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            format!(
+                r#"Json expect::iso_date_time() error at root:
+    ISO datetime '{now_str}' is too far in the future, expected between now and '1 minute' in the future"#
+            )
+        );
+    }
 }

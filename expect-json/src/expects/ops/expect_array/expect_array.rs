@@ -33,6 +33,11 @@ impl ExpectArray {
         self
     }
 
+    pub fn len(mut self, len: usize) -> Self {
+        self.sub_ops.push(ExpectArraySubOp::Len(len));
+        self
+    }
+
     pub fn max_len(mut self, max_len: usize) -> Self {
         self.sub_ops.push(ExpectArraySubOp::MaxLen(max_len));
         self
@@ -89,6 +94,39 @@ impl ExpectArray {
     {
         self.sub_ops
             .push(ExpectArraySubOp::AllEqual(expected.into()));
+        self
+    }
+
+    /// Expects all values in the array are unique. No duplicates.
+    ///
+    /// ```rust
+    /// # async fn test() -> Result<(), Box<dyn ::std::error::Error>> {
+    /// #
+    /// # use axum::Router;
+    /// # use axum::extract::Json;
+    /// # use axum::routing::get;
+    /// # use axum_test::TestServer;
+    /// # use serde_json::json;
+    /// #
+    /// # let server = TestServer::new(Router::new())?;
+    /// #
+    /// use axum_test::expect_json::expect;
+    ///
+    /// let server = TestServer::new(Router::new())?;
+    ///
+    /// server.get(&"/users")
+    ///     .await
+    ///     .assert_json(&json!({
+    ///         // expect an array of unique UUIDs
+    ///         "user_ids": expect::array()
+    ///             .all(expect::uuid())
+    ///             .all_unique(),
+    ///     }));
+    /// #
+    /// # Ok(()) }
+    /// ```
+    pub fn all_unique(mut self) -> Self {
+        self.sub_ops.push(ExpectArraySubOp::AllUnique);
         self
     }
 }
@@ -302,7 +340,56 @@ mod test_min_len {
             output,
             format!(
                 r#"Json expect::array() error at root:
-    expected array to have at least 4 elements, but it has 3,
+    expected array to have at least 4 elements, but it has 3.
+    received [1, 2, 3]"#
+            )
+        );
+    }
+}
+
+#[cfg(test)]
+mod test_len {
+    use crate::expect;
+    use crate::expect_json_eq;
+    use pretty_assertions::assert_eq;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_pass_when_array_has_exactly_enough_elements() {
+        let left = json!([1, 2, 3]);
+        let right = json!(expect::array().len(3));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
+
+    #[test]
+    fn it_should_fail_when_array_has_more_than_enough_elements() {
+        let left = json!([1, 2, 3, 4, 5]);
+        let right = json!(expect::array().len(3));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            format!(
+                r#"Json expect::array() error at root:
+    expected array to have 3 elements, but it has 5.
+    received [1, 2, 3, 4, 5]"#
+            )
+        );
+    }
+
+    #[test]
+    fn it_should_fail_when_array_has_too_few_elements() {
+        let left = json!([1, 2, 3]);
+        let right = json!(expect::array().len(4));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            format!(
+                r#"Json expect::array() error at root:
+    expected array to have 4 elements, but it has 3.
     received [1, 2, 3]"#
             )
         );
@@ -344,7 +431,7 @@ mod test_max_len {
             output,
             format!(
                 r#"Json expect::array() error at root:
-    expected array to have at most 3 elements, but it has 4,
+    expected array to have at most 3 elements, but it has 4.
     received [1, 2, 3, 4]"#
             )
         );
@@ -365,6 +452,40 @@ mod test_all {
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
+
+    #[test]
+    fn it_should_pass_with_mix_of_operations() {
+        let left = json!([
+            "123e4567-e89b-12d3-a456-426614174000",
+            "123e4567-e89b-12d3-a456-426614174001",
+            "123e4567-e89b-12d3-a456-426614174002",
+        ]);
+        let right = json!(expect::array().all(expect::uuid()).len(3).all_unique());
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
+
+    #[test]
+    fn it_should_fail_with_mix_of_operations() {
+        let left = json!([
+            "123e4567-e89b-12d3-a456-426614174000",
+            "123e4567-e89b-12d3-a456-426614174001",
+            "123e4567-e89b-12d3-a456-426614174002",
+            "123e4567-e89b-12d3-a456-426614174003",
+        ]);
+        let right = json!(expect::array().all(expect::uuid()).len(3).all_unique());
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            format!(
+                r#"Json expect::array() error at root:
+    expected array to have 3 elements, but it has 4.
+    received ["123e4567-e89b-12d3-a456-426614174000", "123e4567-e89b-12d3-a456-426614174001", "123e4567-e89b-12d3-a456-426614174002", "123e4567-e89b-12d3-a456-426614174003"]"#
+            )
+        );
     }
 
     #[test]
@@ -476,6 +597,40 @@ mod test_all {
             "name": ""
         }}
     ]"#
+            )
+        );
+    }
+}
+
+#[cfg(test)]
+mod test_all_unique {
+    use crate::expect;
+    use crate::expect_json_eq;
+    use pretty_assertions::assert_eq;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_pass_when_array_is_empty() {
+        let left = json!([]);
+        let right = json!(expect::array().all_unique());
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
+
+    #[test]
+    fn it_should_fail_when_array_is_not_unique() {
+        let left = json!([1, 1, 2]);
+        let right = json!(expect::array().all_unique());
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            format!(
+                r#"Json expect::array() error at root[1],
+    expected array to contain all unique values.
+    found duplicate 1
+    received full array [1, 1, 2]"#
             )
         );
     }

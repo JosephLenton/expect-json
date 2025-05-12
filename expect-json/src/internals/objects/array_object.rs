@@ -50,3 +50,33 @@ impl PrettyDisplay for ArrayObject {
             .unwrap_or(false)
     }
 }
+
+#[cfg(test)]
+mod test_len {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_have_len_of_inner_array() {
+        let array_object = ArrayObject::from(vec![json!(1), json!(2), json!(3)]);
+        assert_eq!(array_object.len(), 3);
+    }
+}
+
+#[cfg(test)]
+mod test_is_empty {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_be_true_when_inner_array_is_empty() {
+        let array_object = ArrayObject::from(vec![]);
+        assert!(array_object.is_empty());
+    }
+
+    #[test]
+    fn it_should_be_false_when_inner_array_is_not_empty() {
+        let array_object = ArrayObject::from(vec![json!(1)]);
+        assert!(!array_object.is_empty());
+    }
+}

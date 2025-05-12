@@ -31,18 +31,6 @@ impl<'a> Context<'a> {
         self.stack.pop();
     }
 
-    pub fn with_path<P, F>(&mut self, path: P, inner: F) -> ExpectJsonResult<()>
-    where
-        P: Into<ContextPathPart<'a>>,
-        F: FnOnce(&mut Context) -> ExpectJsonResult<()> + 'a,
-    {
-        self.push(path);
-        let result = inner(self);
-        self.pop();
-
-        result
-    }
-
     pub(crate) fn to_static(&self) -> Context<'static> {
         let stack = self.stack.iter().map(ContextPathPart::to_static).collect();
 

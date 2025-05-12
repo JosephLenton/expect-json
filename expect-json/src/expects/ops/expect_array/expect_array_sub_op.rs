@@ -14,6 +14,7 @@ pub enum ExpectArraySubOp {
     IsEmpty,
     IsNotEmpty,
     MinLen(usize),
+    Len(usize),
     MaxLen(usize),
     Contains(Vec<Value>),
     AllUnique,
@@ -31,6 +32,7 @@ impl ExpectArraySubOp {
             Self::IsEmpty => Self::on_array_is_empty(parent, context, received),
             Self::IsNotEmpty => Self::on_array_is_not_empty(parent, context, received),
             Self::MinLen(min_len) => Self::on_array_min_len(*min_len, parent, context, received),
+            Self::Len(len) => Self::on_array_len(*len, parent, context, received),
             Self::MaxLen(max_len) => Self::on_array_max_len(*max_len, parent, context, received),
             Self::Contains(expected_values) => {
                 Self::on_array_contains(expected_values, parent, context, received)
@@ -84,9 +86,29 @@ impl ExpectArraySubOp {
     ) -> ExpectOpResult<()> {
         if received.len() < min_len {
             let error_message = format!(
-                r#"expected array to have at least {} elements, but it has {},
+                r#"expected array to have at least {} elements, but it has {}.
     received {}"#,
                 min_len,
+                received.len(),
+                ArrayObject::from(received.to_owned())
+            );
+            return Err(ExpectOpError::custom(context, parent, error_message));
+        }
+
+        Ok(())
+    }
+
+    fn on_array_len(
+        len: usize,
+        parent: &ExpectArray,
+        context: &mut Context<'_>,
+        received: &[Value],
+    ) -> ExpectOpResult<()> {
+        if received.len() != len {
+            let error_message = format!(
+                r#"expected array to have {} elements, but it has {}.
+    received {}"#,
+                len,
                 received.len(),
                 ArrayObject::from(received.to_owned())
             );
@@ -104,7 +126,7 @@ impl ExpectArraySubOp {
     ) -> ExpectOpResult<()> {
         if received.len() > max_len {
             let error_message = format!(
-                r#"expected array to have at most {} elements, but it has {},
+                r#"expected array to have at most {} elements, but it has {}.
     received {}"#,
                 max_len,
                 received.len(),
@@ -149,9 +171,10 @@ impl ExpectArraySubOp {
     ) -> ExpectOpResult<()> {
         let mut seen = HashSet::<&Value>::new();
 
-        for value in received_values {
+        for (index, value) in received_values.iter().enumerate() {
             let is_duplicate = !seen.insert(value);
             if is_duplicate {
+                context.push(index);
                 return Err(ExpectOpError::ArrayContainsDuplicate {
                     context: context.to_static(),
                     duplicate: value.clone().into(),
