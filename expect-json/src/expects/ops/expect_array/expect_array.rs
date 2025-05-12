@@ -120,12 +120,12 @@ impl ExpectArray {
     ///         // expect an array of unique UUIDs
     ///         "user_ids": expect::array()
     ///             .all(expect::uuid())
-    ///             .all_unique(),
+    ///             .unique(),
     ///     }));
     /// #
     /// # Ok(()) }
     /// ```
-    pub fn all_unique(mut self) -> Self {
+    pub fn unique(mut self) -> Self {
         self.sub_ops.push(ExpectArraySubOp::AllUnique);
         self
     }
@@ -461,7 +461,7 @@ mod test_all {
             "123e4567-e89b-12d3-a456-426614174001",
             "123e4567-e89b-12d3-a456-426614174002",
         ]);
-        let right = json!(expect::array().all(expect::uuid()).len(3).all_unique());
+        let right = json!(expect::array().all(expect::uuid()).len(3).unique());
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok(), "assertion error: {output:#?}");
@@ -475,7 +475,7 @@ mod test_all {
             "123e4567-e89b-12d3-a456-426614174002",
             "123e4567-e89b-12d3-a456-426614174003",
         ]);
-        let right = json!(expect::array().all(expect::uuid()).len(3).all_unique());
+        let right = json!(expect::array().all(expect::uuid()).len(3).unique());
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
@@ -603,7 +603,7 @@ mod test_all {
 }
 
 #[cfg(test)]
-mod test_all_unique {
+mod test_unique {
     use crate::expect;
     use crate::expect_json_eq;
     use pretty_assertions::assert_eq;
@@ -612,7 +612,7 @@ mod test_all_unique {
     #[test]
     fn it_should_pass_when_array_is_empty() {
         let left = json!([]);
-        let right = json!(expect::array().all_unique());
+        let right = json!(expect::array().unique());
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok(), "assertion error: {output:#?}");
@@ -621,7 +621,7 @@ mod test_all_unique {
     #[test]
     fn it_should_fail_when_array_is_not_unique() {
         let left = json!([1, 1, 2]);
-        let right = json!(expect::array().all_unique());
+        let right = json!(expect::array().unique());
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(

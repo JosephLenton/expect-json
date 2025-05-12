@@ -37,7 +37,7 @@ impl ExpectArraySubOp {
             Self::Contains(expected_values) => {
                 Self::on_array_contains(expected_values, parent, context, received)
             }
-            Self::AllUnique => Self::on_array_all_unique(parent, context, received),
+            Self::AllUnique => Self::on_array_unique(parent, context, received),
             Self::AllEqual(expected_value) => {
                 Self::on_array_all_equal(expected_value, parent, context, received)
             }
@@ -164,7 +164,7 @@ impl ExpectArraySubOp {
         Ok(())
     }
 
-    fn on_array_all_unique(
+    fn on_array_unique(
         _parent: &ExpectArray,
         context: &mut Context<'_>,
         received_values: &[Value],
