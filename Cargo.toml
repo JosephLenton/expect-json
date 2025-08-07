@@ -3,23 +3,23 @@ members = ["expect-json", "expect-json-macros", "test-standalone"]
 resolver = "2"
 
 [workspace.dependencies]
-chrono = "0.4.40"
+chrono = "0.4.41"
 email_address = "0.2.9"
 serde = "1.0.219"
-serde_json = "1.0.140"
+serde_json = "1.0.142"
 typetag = "0.2.20"
 thiserror = "2.0.12"
-uuid = "1.16.0"
+uuid = "1.17.0"
 
 proc-macro2 = "1.0.95"
 quote = "1.0.40"
-syn = "2.0.101"
+syn = "2.0.104"
 
-pretty_assertions = "1.4"
+pretty_assertions = "1.4.1"
 
 # For Documentation
-axum = "0.8.3"
-axum-test = "18.0.0-rc1"
+axum = "0.8.4"
+axum-test = "18.0.0-rc3"
 
 [replace]
 # This allows us perform doc tests using local crate with Axum Test
