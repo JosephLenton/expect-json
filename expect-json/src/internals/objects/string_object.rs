@@ -31,12 +31,12 @@ mod test_fmt {
     #[test]
     fn it_should_display_empty_string() {
         let string_object = StringObject("".to_string());
-        assert_eq!(format!("{}", string_object), r#""""#);
+        assert_eq!(format!("{string_object}"), r#""""#);
     }
 
     #[test]
     fn it_should_display_string() {
         let string_object = StringObject("Hello, world!".to_string());
-        assert_eq!(format!("{}", string_object), r#""Hello, world!""#);
+        assert_eq!(format!("{string_object}"), r#""Hello, world!""#);
     }
 }

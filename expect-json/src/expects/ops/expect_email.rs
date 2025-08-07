@@ -116,8 +116,7 @@ impl ExpectOp for ExpectEmail {
                     context,
                     self,
                     format!(
-                        "Local part mismatch, expected '{}', received '{received}'",
-                        expected_local_part
+                        "Local part mismatch, expected '{expected_local_part}', received '{received}'"
                     ),
                 ));
             }
@@ -128,10 +127,7 @@ impl ExpectOp for ExpectEmail {
                 return Err(ExpectOpError::custom(
                     context,
                     self,
-                    format!(
-                        "Domain mismatch, expected '{}', received '{received}'",
-                        expected_domain
-                    ),
+                    format!("Domain mismatch, expected '{expected_domain}', received '{received}'"),
                 ));
             }
         }

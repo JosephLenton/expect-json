@@ -17,8 +17,8 @@ pub trait PrettyDisplay: Display {
 impl PrettyDisplay for Value {
     fn pretty_fmt(&self, formatter: &mut PrettyFormatter<'_, '_>) -> FmtResult {
         match self {
-            Value::Bool(inner) => write!(formatter, "{}", inner),
-            Value::String(inner) => write!(formatter, r#""{}""#, inner),
+            Value::Bool(inner) => write!(formatter, "{inner}"),
+            Value::String(inner) => write!(formatter, r#""{inner}""#),
             Value::Null => write!(formatter, "null"),
             Value::Number(inner) => {
                 let num_obj = ValueObject::from(self.clone());

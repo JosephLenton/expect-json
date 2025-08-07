@@ -30,7 +30,7 @@ impl Display for DurationFormatter {
             if days == 1 {
                 write!(f, "1 day")?;
             } else {
-                write!(f, "{} days", days)?;
+                write!(f, "{days} days")?;
             }
             has_written = true;
         }
@@ -42,7 +42,7 @@ impl Display for DurationFormatter {
             if hours == 1 {
                 write!(f, "1 hour")?;
             } else {
-                write!(f, "{} hours", hours)?;
+                write!(f, "{hours} hours")?;
             }
             has_written = true;
         }
@@ -54,7 +54,7 @@ impl Display for DurationFormatter {
             if minutes == 1 {
                 write!(f, "1 minute")?;
             } else {
-                write!(f, "{} minutes", minutes)?;
+                write!(f, "{minutes} minutes")?;
             }
             has_written = true;
         }
@@ -66,7 +66,7 @@ impl Display for DurationFormatter {
             if seconds == 1 {
                 write!(f, "1 second")?;
             } else {
-                write!(f, "{} seconds", seconds)?;
+                write!(f, "{seconds} seconds")?;
             }
         }
 

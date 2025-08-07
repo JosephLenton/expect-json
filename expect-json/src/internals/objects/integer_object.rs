@@ -24,8 +24,8 @@ impl From<i64> for IntegerObject {
 impl Display for IntegerObject {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> FmtResult {
         match *self {
-            Self::Positive(n) => write!(formatter, "{}", n),
-            Self::Negative(n) => write!(formatter, "{}", n),
+            Self::Positive(n) => write!(formatter, "{n}"),
+            Self::Negative(n) => write!(formatter, "{n}"),
         }
     }
 }

@@ -6,7 +6,7 @@ use std::fmt::Result as FmtResult;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum ContextPathPart<'a> {
-    String(Cow<'a, String>),
+    String(Cow<'a, str>),
     Index(usize),
 }
 
@@ -15,7 +15,7 @@ impl ContextPathPart<'_> {
         match self {
             Self::String(inner) => {
                 let cloned_inner = inner.clone().into_owned();
-                let cow = Cow::<'static, String>::Owned(cloned_inner);
+                let cow = Cow::<'static, str>::Owned(cloned_inner);
                 ContextPathPart::String(cow)
             }
             Self::Index(index) => ContextPathPart::Index(*index),
@@ -27,7 +27,7 @@ impl Display for ContextPathPart<'_> {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> FmtResult {
         match self {
             Self::String(inner) => {
-                if is_unquotable_js_identifier(inner.as_str()) {
+                if is_unquotable_js_identifier(inner) {
                     write!(formatter, ".{inner}")
                 } else {
                     write!(formatter, r#"."{inner}""#)

@@ -83,10 +83,10 @@ pub enum ExpectJsonError {
     )]
     ArrayContainsDifferentTypes {
         context: Context<'static>,
-        received: ValueTypeObject,
-        received_array: ArrayObject,
-        expected: ValueTypeObject,
-        expected_full_array: ArrayObject,
+        received: Box<ValueTypeObject>,
+        received_array: Box<ArrayObject>,
+        expected: Box<ValueTypeObject>,
+        expected_full_array: Box<ArrayObject>,
     },
 
     #[error(
@@ -99,10 +99,10 @@ pub enum ExpectJsonError {
     ArrayContainsDifferentValues {
         context: Context<'static>,
         json_type: JsonType,
-        received: ValueObject,
-        received_array: ArrayObject,
-        expected: ValueObject,
-        expected_full_array: ArrayObject,
+        received: Box<ValueObject>,
+        received_array: Box<ArrayObject>,
+        expected: Box<ValueObject>,
+        expected_full_array: Box<ArrayObject>,
     },
 
     #[error(
@@ -259,10 +259,10 @@ impl ExpectJsonError {
                 Self::ArrayContainsDifferentValues {
                     context: source_error_context,
                     json_type,
-                    received,
-                    received_array: ArrayObject::from(received_array.to_owned()),
-                    expected,
-                    expected_full_array: ArrayObject::from(expected_array.to_owned()),
+                    received: Box::new(received),
+                    received_array: Box::new(ArrayObject::from(received_array.to_owned())),
+                    expected: Box::new(expected),
+                    expected_full_array: Box::new(ArrayObject::from(expected_array.to_owned())),
                 }
             }
             Self::DifferentTypes {
@@ -281,10 +281,10 @@ impl ExpectJsonError {
 
                 Self::ArrayContainsDifferentTypes {
                     context: source_error_context,
-                    received,
-                    received_array: ArrayObject::from(received_array.to_owned()),
-                    expected,
-                    expected_full_array: ArrayObject::from(expected_array.to_owned()),
+                    received: Box::new(received),
+                    received_array: Box::new(ArrayObject::from(received_array.to_owned())),
+                    expected: Box::new(expected),
+                    expected_full_array: Box::new(ArrayObject::from(expected_array.to_owned())),
                 }
             }
 
