@@ -12,6 +12,6 @@ test:
 lint:
 	cargo +stable clippy
 
-publish: fmt clippy test
+publish: fmt lint test
 	cargo publish --package expect-json-macros
 	cargo publish --package expect-json
