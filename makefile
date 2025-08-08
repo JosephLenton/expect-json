@@ -1,16 +1,16 @@
-.PHONY: fmt build test lint publish
+.PHONY: fmt lint test build publish
 
 fmt:
 	cargo fmt
 
-build:
-	cargo +stable build
+lint:
+	cargo +stable clippy
 
 test:
 	cargo +stable test
 
-lint:
-	cargo +stable clippy
+build:
+	cargo +stable build
 
 publish: fmt lint test
 	cargo publish --package expect-json-macros
