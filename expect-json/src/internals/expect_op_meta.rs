@@ -1,4 +1,4 @@
-use crate::expect_op::ExpectOp;
+use crate::expect_core::ExpectOp;
 use crate::JsonType;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -14,7 +14,7 @@ impl ExpectOpMeta {
     {
         Self {
             name: op.name(),
-            types: op.supported_types(),
+            types: op.debug_supported_types(),
         }
     }
 }

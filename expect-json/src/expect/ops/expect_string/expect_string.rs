@@ -1,8 +1,8 @@
 use crate::expect::ops::expect_string::ExpectStringSubOp;
-use crate::expect_op;
-use crate::expect_op::Context;
-use crate::expect_op::ExpectOp;
-use crate::expect_op::ExpectOpResult;
+use crate::expect_core::expect_op;
+use crate::expect_core::Context;
+use crate::expect_core::ExpectOp;
+use crate::expect_core::ExpectOpResult;
 use crate::JsonType;
 
 #[expect_op(internal, name = "string")]
@@ -55,7 +55,7 @@ impl ExpectOp for ExpectString {
         Ok(())
     }
 
-    fn supported_types(&self) -> &'static [JsonType] {
+    fn debug_supported_types(&self) -> &'static [JsonType] {
         &[JsonType::String]
     }
 }

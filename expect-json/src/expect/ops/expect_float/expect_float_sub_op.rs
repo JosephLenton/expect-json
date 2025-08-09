@@ -1,8 +1,8 @@
 use crate::expect::ops::expect_float::ExpectFloat;
 use crate::expect::ops::utils::SerializableBound;
-use crate::expect_op::Context;
-use crate::expect_op::ExpectOpError;
-use crate::expect_op::ExpectOpResult;
+use crate::expect_core::Context;
+use crate::expect_core::ExpectOpError;
+use crate::expect_core::ExpectOpResult;
 use crate::internals::objects::FloatObject;
 use serde::Deserialize;
 use serde::Serialize;

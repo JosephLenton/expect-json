@@ -1,4 +1,4 @@
-use crate::expect_op;
+use crate::expect_op::expect_op;
 use crate::expect_op::ExpectOp;
 use crate::internals::objects::ArrayObject;
 use crate::expect_op::Context;

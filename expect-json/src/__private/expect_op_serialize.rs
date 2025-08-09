@@ -1,4 +1,4 @@
-use crate::expect_op::ExpectOp;
+use crate::expect_core::ExpectOp;
 
 #[doc(hidden)]
 #[typetag::serde(tag = "type")]

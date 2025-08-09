@@ -1,9 +1,9 @@
 use crate::expect::ops::utils::DurationFormatter;
-use crate::expect_op;
-use crate::expect_op::Context;
-use crate::expect_op::ExpectOp;
-use crate::expect_op::ExpectOpError;
-use crate::expect_op::ExpectOpResult;
+use crate::expect_core::expect_op;
+use crate::expect_core::Context;
+use crate::expect_core::ExpectOp;
+use crate::expect_core::ExpectOpError;
+use crate::expect_core::ExpectOpResult;
 use crate::JsonType;
 use chrono::DateTime;
 use chrono::Duration as ChronoDuration;
@@ -265,7 +265,7 @@ impl ExpectOp for ExpectIsoDateTime {
         Ok(())
     }
 
-    fn supported_types(&self) -> &'static [JsonType] {
+    fn debug_supported_types(&self) -> &'static [JsonType] {
         &[JsonType::String]
     }
 }

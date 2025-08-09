@@ -1,7 +1,7 @@
 use crate::__private::ExpectOpExt;
-use crate::expect_op::Context;
-use crate::expect_op::ExpectOpError;
-use crate::expect_op::ExpectOpResult;
+use crate::expect_core::Context;
+use crate::expect_core::ExpectOpError;
+use crate::expect_core::ExpectOpResult;
 use crate::internals::objects::IntegerObject;
 use crate::internals::objects::NullObject;
 use crate::internals::objects::ValueObject;
@@ -10,6 +10,68 @@ use serde_json::Map;
 use serde_json::Value;
 use std::fmt::Debug;
 
+/// The trait that represents an expectation. It needs to be used in
+/// conjunction with the [`super::expect_op`] macro.
+///
+/// # Example
+///
+/// Here is an example checking if the value returned is a string,
+/// and of a minimum length, using Axum Test.
+///
+/// ```rust
+/// # async fn test() -> Result<(), Box<dyn ::std::error::Error>> {
+/// #
+/// # use axum::Router;
+/// # use axum::extract::Json;
+/// # use axum::routing::get;
+/// # use axum_test::TestServer;
+/// # use serde_json::json;
+/// #
+/// # let server = TestServer::new(Router::new())?;
+/// #
+/// use axum_test::expect_json;
+/// use axum_test::expect_json::expect_core::ExpectOp;
+/// use axum_test::expect_json::expect_core::ExpectOpResult;
+/// use axum_test::expect_json::expect_core::expect_op;
+/// use axum_test::expect_json::expect_core::Context;
+///
+/// // 1. Implement a struct representing your expectation.
+/// // This needs to include the `expect_op`, and the contents must be serializable.
+/// #[expect_op]
+/// #[derive(Clone, Debug)]
+/// struct ExpectStrMinLen {
+///     min: usize,
+/// }
+///
+/// // 2. Implement `ExpectOp`, and implement the types you want to check for. Here we check against strings.
+/// impl ExpectOp for ExpectStrMinLen {
+///     fn on_string(&self, _context: &mut Context<'_>, received: &str) -> ExpectOpResult<()> {
+///         if received.len() < self.min {
+///             panic!("String is too short, received: {received}");
+///         }
+///
+///         Ok(())
+///     }
+/// }
+///
+/// // 3. Build a router to test against.
+/// let app = Router::new().route(&"/user", get(|| async {
+///     Json(json!({
+///         "name": "Joe",
+///         "age": 20,
+///     }))
+/// }));
+/// let server = TestServer::new(app).unwrap();
+///
+/// // 4. Use the new expectation!
+/// server.get(&"/user").await.assert_json(&json!({
+///     "name": ExpectStrMinLen { min: 3 },
+///     "age": 20,
+/// }));
+/// #
+/// # Ok(()) }
+/// ```
+///
 pub trait ExpectOp: ExpectOpExt + Debug + Send + 'static {
     fn on_any(&self, context: &mut Context<'_>, received: &Value) -> ExpectOpResult<()> {
         match received {
@@ -96,7 +158,10 @@ pub trait ExpectOp: ExpectOpExt + Debug + Send + 'static {
         ))
     }
 
-    fn supported_types(&self) -> &'static [JsonType] {
+    /// This is optional to implement. This method returns a list of types this is targeting.
+    ///
+    /// This is used for debug messages for the user, when the type doesn't match up.
+    fn debug_supported_types(&self) -> &'static [JsonType] {
         &[]
     }
 }
@@ -114,7 +179,7 @@ mod test_on_any {
     use serde_json::json;
 
     // An empty implementation which will hit the errors by default.
-    #[crate::expect_op(internal)]
+    #[crate::expect_core::expect_op(internal)]
     #[derive(Debug, Clone)]
     struct TestJsonExpectOp;
 

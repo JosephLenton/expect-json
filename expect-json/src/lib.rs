@@ -5,7 +5,7 @@
 pub(crate) mod internals;
 
 pub mod expect;
-pub mod expect_op;
+pub mod expect_core;
 
 mod expect_json_error;
 pub use self::expect_json_error::*;
@@ -15,8 +15,6 @@ pub use self::expect_json_eq::*;
 
 mod json_type;
 pub use self::json_type::*;
-
-pub use ::expect_json_macros::*;
 
 #[doc(hidden)]
 pub mod __private;

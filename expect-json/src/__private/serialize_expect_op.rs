@@ -1,5 +1,5 @@
 use crate::__private::ExpectOpSerialize;
-use crate::expect_op::ExpectOpMarkerId;
+use crate::expect_core::ExpectOpMarkerId;
 use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Map;

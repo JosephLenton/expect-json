@@ -1,8 +1,8 @@
 use crate::expect::ops::expect_integer::ExpectIntegerSubOp;
-use crate::expect_op;
-use crate::expect_op::Context;
-use crate::expect_op::ExpectOp;
-use crate::expect_op::ExpectOpResult;
+use crate::expect_core::expect_op;
+use crate::expect_core::Context;
+use crate::expect_core::ExpectOp;
+use crate::expect_core::ExpectOpResult;
 use crate::JsonType;
 use core::ops::RangeBounds;
 
@@ -69,7 +69,7 @@ impl ExpectOp for ExpectInteger {
         Ok(())
     }
 
-    fn supported_types(&self) -> &'static [JsonType] {
+    fn debug_supported_types(&self) -> &'static [JsonType] {
         &[JsonType::Integer]
     }
 }

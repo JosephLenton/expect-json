@@ -1,4 +1,4 @@
-use crate::expect_op::context::ContextPathPart;
+use crate::expect_core::context::ContextPathPart;
 use crate::internals::json_eq;
 use crate::ExpectJsonResult;
 use serde_json::Value;
