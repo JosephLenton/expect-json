@@ -19,7 +19,7 @@ pretty_assertions = "1.4.1"
 
 # For Documentation
 axum = "0.8.4"
-axum-test = "18.0.0-rc3"
+axum-test = { version = "18.0.0-rc3", path = "../axum-test" }
 
 [replace]
 # This allows us perform doc tests using local crate with Axum Test

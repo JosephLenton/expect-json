@@ -51,15 +51,15 @@ fn expect_op_impl(args: Args, input: TokenStream) -> TokenStream {
             where
                 S: #crate_name::__private::serde::Serializer,
             {
-                #crate_name::SerializeExpectOp::serialize(self, serializer)
+                #crate_name::__private::SerializeExpectOp::serialize(self, serializer)
             }
         }
 
         use #crate_name::__private::typetag;
         #[#crate_name::__private::typetag::serde]
-        impl #crate_name::ExpectOpSerialize for #struct_name {}
+        impl #crate_name::__private::ExpectOpSerialize for #struct_name {}
 
-        impl #crate_name::ExpectOpExt for #struct_name {
+        impl #crate_name::__private::ExpectOpExt for #struct_name {
             fn name(&self) -> &'static str {
                 #struct_name_str
             }

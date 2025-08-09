@@ -1,5 +1,5 @@
+use crate::__private::SerializeExpectOp;
 use crate::internals::pretty_formatter::PrettyDisplay;
-use crate::SerializeExpectOp;
 use serde_json::Map;
 use serde_json::Value;
 use std::fmt::Arguments;

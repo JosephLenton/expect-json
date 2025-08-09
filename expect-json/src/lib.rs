@@ -2,15 +2,10 @@
 #![cfg_attr(docsrs, feature(doc_cfg, doc_auto_cfg))]
 #![allow(clippy::module_inception)]
 
-mod context;
-pub use self::context::*;
-
 pub(crate) mod internals;
 
-mod expects;
-pub use self::expects::*;
-
-pub use self::expects::expect;
+pub mod expect;
+pub mod expect_op;
 
 mod expect_json_error;
 pub use self::expect_json_error::*;

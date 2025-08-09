@@ -1,4 +1,4 @@
-use crate::expects::ExpectOp;
+use crate::expect_op::ExpectOp;
 use crate::JsonType;
 
 #[derive(Debug, Clone, PartialEq)]

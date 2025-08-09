@@ -1,4 +1,4 @@
-use expect_json::ExpectOp;
+use expect_json::expect_op::ExpectOp;
 
 #[expect_json::expect_op]
 #[derive(Debug, Clone)]
