@@ -55,7 +55,7 @@ impl ExpectArraySubOp {
     received {}"#,
                 ArrayObject::from(received_values.iter().cloned())
             );
-            return Err(ExpectOpError::custom(context, parent, error_message));
+            return Err(ExpectOpError::custom(parent, context, error_message));
         }
 
         Ok(())
@@ -72,7 +72,7 @@ impl ExpectArraySubOp {
     received {}"#,
                 ArrayObject::from(received_values.iter().cloned())
             );
-            return Err(ExpectOpError::custom(context, parent, error_message));
+            return Err(ExpectOpError::custom(parent, context, error_message));
         }
 
         Ok(())
@@ -92,7 +92,7 @@ impl ExpectArraySubOp {
                 received.len(),
                 ArrayObject::from(received.to_owned())
             );
-            return Err(ExpectOpError::custom(context, parent, error_message));
+            return Err(ExpectOpError::custom(parent, context, error_message));
         }
 
         Ok(())
@@ -112,7 +112,7 @@ impl ExpectArraySubOp {
                 received.len(),
                 ArrayObject::from(received.to_owned())
             );
-            return Err(ExpectOpError::custom(context, parent, error_message));
+            return Err(ExpectOpError::custom(parent, context, error_message));
         }
 
         Ok(())
@@ -132,7 +132,7 @@ impl ExpectArraySubOp {
                 received.len(),
                 ArrayObject::from(received.to_owned())
             );
-            return Err(ExpectOpError::custom(context, parent, error_message));
+            return Err(ExpectOpError::custom(parent, context, error_message));
         }
 
         Ok(())

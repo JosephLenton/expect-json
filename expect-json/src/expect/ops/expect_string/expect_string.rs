@@ -133,11 +133,9 @@ mod test_is_empty {
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
-            format!(
-                r#"Json expect::string() error at root:
+            r#"Json expect::string() error at root:
     expected empty string
     received "🦊""#
-            )
         );
     }
 }
@@ -166,11 +164,9 @@ mod test_is_not_empty {
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
-            format!(
-                r#"Json expect::string() error at root:
+            r#"Json expect::string() error at root:
     expected non-empty string
     received """#
-            )
         );
     }
 }
@@ -208,11 +204,9 @@ mod test_min_len {
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
-            format!(
-                r#"Json expect::string() error at root:
+            r#"Json expect::string() error at root:
     expected string to have at least 3 characters, but it has 2,
     received "12""#
-            )
         );
     }
 }
@@ -250,11 +244,9 @@ mod test_max_len {
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
-            format!(
-                r#"Json expect::string() error at root:
+            r#"Json expect::string() error at root:
     expected string to have at most 3 characters, but it has 24,
     received "🦊🦊🦊🦊🦊🦊""#
-            )
         );
     }
 }

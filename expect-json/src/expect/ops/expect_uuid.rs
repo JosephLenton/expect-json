@@ -64,21 +64,21 @@ impl ExpectOp for ExpectUuid {
     fn on_string(&self, context: &mut Context, received: &str) -> ExpectOpResult<()> {
         let uuid = Uuid::parse_str(received).map_err(|error| {
             let error_message = format!("failed to parse string '{received}' as uuid");
-            ExpectOpError::custom_error(context, self, error_message, error)
+            ExpectOpError::custom_error(self, context, error_message, error)
         })?;
 
         if let Some(expected_version) = self.expected_version {
             let received_version = uuid.get_version_num();
             if received_version != (expected_version as usize) {
                 let error_message = format!("expected uuid version '{expected_version}', received version '{received_version}', for uuid '{received}'");
-                return Err(ExpectOpError::custom(context, self, error_message));
+                return Err(ExpectOpError::custom(self, context, error_message));
             }
         }
 
         if self.is_not_nil_flag && uuid.is_nil() {
             let error_message =
                 format!("expected uuid to be not nil, but it is, received '{received}'");
-            return Err(ExpectOpError::custom(context, self, error_message));
+            return Err(ExpectOpError::custom(self, context, error_message));
         }
 
         Ok(())

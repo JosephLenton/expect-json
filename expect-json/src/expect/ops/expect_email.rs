@@ -107,14 +107,14 @@ impl ExpectOp for ExpectEmail {
     fn on_string(&self, context: &mut Context, received: &str) -> ExpectOpResult<()> {
         let email = EmailAddress::from_str(received).map_err(|e| {
             let error_message = format!("Invalid email address, received '{received}'");
-            ExpectOpError::custom_error(context, self, error_message, e)
+            ExpectOpError::custom_error(self, context, error_message, e)
         })?;
 
         if let Some(expected_local_part) = &self.expected_local_part {
             if email.local_part() != expected_local_part {
                 return Err(ExpectOpError::custom(
-                    context,
                     self,
+                    context,
                     format!(
                         "Local part mismatch, expected '{expected_local_part}', received '{received}'"
                     ),
@@ -125,8 +125,8 @@ impl ExpectOp for ExpectEmail {
         if let Some(expected_domain) = &self.expected_domain {
             if email.domain() != expected_domain {
                 return Err(ExpectOpError::custom(
-                    context,
                     self,
+                    context,
                     format!("Domain mismatch, expected '{expected_domain}', received '{received}'"),
                 ));
             }
@@ -185,11 +185,9 @@ mod test_email {
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
-            format!(
-                r#"Json expect::email() error at root:
+            r#"Json expect::email() error at root:
     Invalid email address, received '🦊',
     Missing separator character '@'."#
-            )
         );
     }
 }
@@ -218,10 +216,8 @@ mod test_local_part {
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
-            format!(
-                r#"Json expect::email() error at root:
+            r#"Json expect::email() error at root:
     Local part mismatch, expected '🦊', received 'test@example.com'"#
-            )
         );
     }
 }
@@ -250,10 +246,8 @@ mod test_domain {
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
-            format!(
-                r#"Json expect::email() error at root:
+            r#"Json expect::email() error at root:
     Domain mismatch, expected '🦊.fox', received 'test@example.com'"#
-            )
         );
     }
 }

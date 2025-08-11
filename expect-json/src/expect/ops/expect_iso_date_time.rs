@@ -194,7 +194,7 @@ impl ExpectOp for ExpectIsoDateTime {
     fn on_string(&self, context: &mut Context, received: &str) -> ExpectOpResult<()> {
         let date_time = DateTime::<FixedOffset>::parse_from_rfc3339(received).map_err(|error| {
             let error_message = format!("failed to parse string '{received}' as iso date time");
-            ExpectOpError::custom_error(context, self, error_message, error)
+            ExpectOpError::custom_error(self, context, error_message, error)
         })?;
 
         if self.is_utc_only {
@@ -203,7 +203,7 @@ impl ExpectOp for ExpectIsoDateTime {
                 let error_message = format!(
                     "ISO datetime '{received}' is using a non-UTC timezone, expected UTC only"
                 );
-                return Err(ExpectOpError::custom(context, self, error_message));
+                return Err(ExpectOpError::custom(self, context, error_message));
             }
         }
 
@@ -215,7 +215,7 @@ impl ExpectOp for ExpectIsoDateTime {
                     let duration =
                         DurationFormatter::new(ChronoDuration::from_std(past_duration).unwrap());
                     let error_message = format!("ISO datetime '{received}' is too far from the past, expected between '{duration}' ago and now");
-                    return Err(ExpectOpError::custom(context, self, error_message));
+                    return Err(ExpectOpError::custom(self, context, error_message));
                 }
 
                 let is_date_time_ahead_of_now = date_time > Utc::now();
@@ -223,7 +223,7 @@ impl ExpectOp for ExpectIsoDateTime {
                     let duration =
                         DurationFormatter::new(ChronoDuration::from_std(past_duration).unwrap());
                     let error_message = format!("ISO datetime '{received}' is in the future of now, expected between '{duration}' ago and now");
-                    return Err(ExpectOpError::custom(context, self, error_message));
+                    return Err(ExpectOpError::custom(self, context, error_message));
                 }
             }
             (None, Some(future_duration)) => {
@@ -232,7 +232,7 @@ impl ExpectOp for ExpectIsoDateTime {
                     let duration =
                         DurationFormatter::new(ChronoDuration::from_std(future_duration).unwrap());
                     let error_message = format!("ISO datetime '{received}' is too far in the future, expected between now and '{duration}' in the future");
-                    return Err(ExpectOpError::custom(context, self, error_message));
+                    return Err(ExpectOpError::custom(self, context, error_message));
                 }
 
                 let is_date_time_behind_of_now = date_time < Utc::now();
@@ -240,7 +240,7 @@ impl ExpectOp for ExpectIsoDateTime {
                     let duration =
                         DurationFormatter::new(ChronoDuration::from_std(future_duration).unwrap());
                     let error_message = format!("ISO datetime '{received}' is in the past of now, expected between now and '{duration}' in the future");
-                    return Err(ExpectOpError::custom(context, self, error_message));
+                    return Err(ExpectOpError::custom(self, context, error_message));
                 }
             }
             (Some(past_duration), Some(future_duration)) => {
@@ -249,7 +249,7 @@ impl ExpectOp for ExpectIsoDateTime {
                     let duration =
                         DurationFormatter::new(ChronoDuration::from_std(past_duration).unwrap());
                     let error_message = format!("ISO datetime '{received}' is too far from the past, expected between '{duration}' ago and now");
-                    return Err(ExpectOpError::custom(context, self, error_message));
+                    return Err(ExpectOpError::custom(self, context, error_message));
                 }
 
                 let is_date_time_outside_future = date_time > Utc::now() + future_duration;
@@ -257,7 +257,7 @@ impl ExpectOp for ExpectIsoDateTime {
                     let duration =
                         DurationFormatter::new(ChronoDuration::from_std(future_duration).unwrap());
                     let error_message = format!("ISO datetime '{received}' is too far in the future, expected between now and '{duration}' in the future");
-                    return Err(ExpectOpError::custom(context, self, error_message));
+                    return Err(ExpectOpError::custom(self, context, error_message));
                 }
             }
         }

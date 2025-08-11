@@ -43,7 +43,7 @@ impl ExpectObjectSubOp {
     received {}"#,
                 ObjectObject::from(received.clone())
             );
-            return Err(ExpectOpError::custom(context, parent, error_message));
+            return Err(ExpectOpError::custom(parent, context, error_message));
         }
 
         Ok(())
@@ -60,7 +60,7 @@ impl ExpectObjectSubOp {
     received {}"#,
                 ObjectObject::from(received.clone())
             );
-            return Err(ExpectOpError::custom(context, parent, error_message));
+            return Err(ExpectOpError::custom(parent, context, error_message));
         }
 
         Ok(())

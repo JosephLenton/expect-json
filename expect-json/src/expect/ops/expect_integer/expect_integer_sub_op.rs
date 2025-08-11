@@ -29,8 +29,8 @@ impl ExpectIntegerSubOp {
             Self::InRange { min, max } => {
                 if !SerializableBound::contains(*min, *max, received) {
                     return Err(ExpectOpError::custom(
-                        context,
                         parent,
+                        context,
                         format!(
                             "integer is not in range
     expected {}..{}
@@ -60,8 +60,8 @@ impl ExpectIntegerSubOp {
             Self::Positive => {
                 if !received.is_positive() {
                     return Err(ExpectOpError::custom(
-                        context,
                         parent,
+                        context,
                         format!(
                             "integer is not positive
     received {received}"
@@ -72,8 +72,8 @@ impl ExpectIntegerSubOp {
             Self::Negative => {
                 if !received.is_negative() {
                     return Err(ExpectOpError::custom(
-                        context,
                         parent,
+                        context,
                         format!(
                             "integer is not negative
     received {received}"
@@ -103,8 +103,8 @@ impl ExpectIntegerSubOp {
 
                 let max_u64 = if max.is_negative() {
                     return Err(ExpectOpError::custom(
-                        context,
                         parent,
+                        context,
                         format!(
                             "integer is not in range
     expected {}..{}
@@ -119,8 +119,8 @@ impl ExpectIntegerSubOp {
 
                 if !SerializableBound::contains(min_u64, max_u64, received) {
                     return Err(ExpectOpError::custom(
-                        context,
                         parent,
+                        context,
                         format!(
                             "integer is not in range
     expected {}..{}
@@ -152,8 +152,8 @@ impl ExpectIntegerSubOp {
             }
             Self::Negative => {
                 return Err(ExpectOpError::custom(
-                    context,
                     parent,
+                    context,
                     format!(
                         "integer is not negative
     received {received}"

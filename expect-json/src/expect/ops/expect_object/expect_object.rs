@@ -342,13 +342,11 @@ mod test_is_empty {
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
-            format!(
-                r#"Json expect::object() error at root:
+            r#"Json expect::object() error at root:
     expected empty object
-    received {{
+    received {
         "foo": "bar"
-    }}"#
-            )
+    }"#
         );
     }
 }
@@ -377,11 +375,9 @@ mod test_is_not_empty {
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
-            format!(
-                r#"Json expect::object() error at root:
+            r#"Json expect::object() error at root:
     expected non-empty object
-    received {{}}"#
-            )
+    received {}"#
         );
     }
 }

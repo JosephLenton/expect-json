@@ -28,8 +28,8 @@ impl ExpectFloatSubOp {
     ) -> ExpectOpResult<()> {
         if received.is_nan() {
             return Err(ExpectOpError::custom(
-                context,
                 parent,
+                context,
                 "float is not a number (this is an internal error, please report it at: https://github.com/JosephLenton/expect-json/issues)",
             ));
         }
@@ -38,8 +38,8 @@ impl ExpectFloatSubOp {
             Self::InRange { min, max } => {
                 if !SerializableBound::contains(*min, *max, received) {
                     return Err(ExpectOpError::custom(
-                        context,
                         parent,
+                        context,
                         format!(
                             "float is not in range
     expected {}..{}
@@ -70,8 +70,8 @@ impl ExpectFloatSubOp {
             Self::Positive => {
                 if !received.is_sign_positive() {
                     return Err(ExpectOpError::custom(
-                        context,
                         parent,
+                        context,
                         format!(
                             "float is not positive
     received {}",
@@ -83,8 +83,8 @@ impl ExpectFloatSubOp {
             Self::Negative => {
                 if !received.is_sign_negative() {
                     return Err(ExpectOpError::custom(
-                        context,
                         parent,
+                        context,
                         format!(
                             "float is not negative
     received {}",

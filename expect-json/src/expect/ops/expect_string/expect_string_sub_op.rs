@@ -45,7 +45,7 @@ impl ExpectStringSubOp {
     received {}"#,
                 StringObject::from(received)
             );
-            return Err(ExpectOpError::custom(context, parent, error_message));
+            return Err(ExpectOpError::custom(parent, context, error_message));
         }
 
         Ok(())
@@ -62,7 +62,7 @@ impl ExpectStringSubOp {
     received {}"#,
                 StringObject::from(received)
             );
-            return Err(ExpectOpError::custom(context, parent, error_message));
+            return Err(ExpectOpError::custom(parent, context, error_message));
         }
 
         Ok(())
@@ -82,7 +82,7 @@ impl ExpectStringSubOp {
                 received.len(),
                 StringObject::from(received),
             );
-            return Err(ExpectOpError::custom(context, parent, error_message));
+            return Err(ExpectOpError::custom(parent, context, error_message));
         }
 
         Ok(())
@@ -102,7 +102,7 @@ impl ExpectStringSubOp {
                 received.len(),
                 StringObject::from(received),
             );
-            return Err(ExpectOpError::custom(context, parent, error_message));
+            return Err(ExpectOpError::custom(parent, context, error_message));
         }
 
         Ok(())

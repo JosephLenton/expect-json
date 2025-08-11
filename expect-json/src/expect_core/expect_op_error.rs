@@ -171,7 +171,7 @@ pub enum ExpectOpError {
 }
 
 impl ExpectOpError {
-    pub fn custom<O, S>(context: &Context<'_>, expect_op: &O, message: S) -> Self
+    pub fn custom<O, S>(expect_op: &O, context: &Context<'_>, message: S) -> Self
     where
         O: ExpectOp + ?Sized,
         S: Into<String>,
@@ -183,7 +183,7 @@ impl ExpectOpError {
         }
     }
 
-    pub fn custom_error<O, S, E>(context: &Context<'_>, expect_op: &O, message: S, error: E) -> Self
+    pub fn custom_error<O, S, E>(expect_op: &O, context: &Context<'_>, message: S, error: E) -> Self
     where
         O: ExpectOp + ?Sized,
         S: Into<String>,

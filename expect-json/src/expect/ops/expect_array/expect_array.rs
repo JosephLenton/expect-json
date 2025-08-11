@@ -263,11 +263,9 @@ mod test_is_empty {
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
-            format!(
-                r#"Json expect::array() error at root:
+            r#"Json expect::array() error at root:
     expected empty array
     received [1, 2, 3]"#
-            )
         );
     }
 }
@@ -296,11 +294,9 @@ mod test_is_not_empty {
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
-            format!(
-                r#"Json expect::array() error at root:
+            r#"Json expect::array() error at root:
     expected non-empty array
     received []"#
-            )
         );
     }
 }
@@ -338,11 +334,9 @@ mod test_min_len {
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
-            format!(
-                r#"Json expect::array() error at root:
+            r#"Json expect::array() error at root:
     expected array to have at least 4 elements, but it has 3.
     received [1, 2, 3]"#
-            )
         );
     }
 }
@@ -371,11 +365,9 @@ mod test_len {
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
-            format!(
-                r#"Json expect::array() error at root:
+            r#"Json expect::array() error at root:
     expected array to have 3 elements, but it has 5.
     received [1, 2, 3, 4, 5]"#
-            )
         );
     }
 
@@ -387,11 +379,9 @@ mod test_len {
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
-            format!(
-                r#"Json expect::array() error at root:
+            r#"Json expect::array() error at root:
     expected array to have 4 elements, but it has 3.
     received [1, 2, 3]"#
-            )
         );
     }
 }
@@ -429,11 +419,9 @@ mod test_max_len {
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
-            format!(
-                r#"Json expect::array() error at root:
+            r#"Json expect::array() error at root:
     expected array to have at most 3 elements, but it has 4.
     received [1, 2, 3, 4]"#
-            )
         );
     }
 }
@@ -480,11 +468,9 @@ mod test_all {
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
-            format!(
-                r#"Json expect::array() error at root:
+            r#"Json expect::array() error at root:
     expected array to have 3 elements, but it has 4.
     received ["123e4567-e89b-12d3-a456-426614174000", "123e4567-e89b-12d3-a456-426614174001", "123e4567-e89b-12d3-a456-426614174002", "123e4567-e89b-12d3-a456-426614174003"]"#
-            )
         );
     }
 
@@ -496,12 +482,10 @@ mod test_all {
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
-            format!(
-                r#"Json expect::string() at root[0], received wrong type:
+            r#"Json expect::string() at root[0], received wrong type:
     expected string
     received integer 1
     received full array [1, 2, 3]"#
-            )
         );
     }
 
@@ -513,12 +497,10 @@ mod test_all {
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
-            format!(
-                r#"Json values at root[0] are different types:
+            r#"Json values at root[0] are different types:
     expected string "🦊"
     received integer 1
     received full array [1, 2, 3]"#
-            )
         );
     }
 
@@ -583,21 +565,19 @@ mod test_all {
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
-            format!(
-                r#"Json expect::string() error at root[1].name:
+            r#"Json expect::string() error at root[1].name:
     expected non-empty string
     received ""
     received full array [
-        {{
+        {
             "email": "alice@example.com",
             "name": "Alice Candles"
-        }},
-        {{
+        },
+        {
             "email": "bob@example.com",
             "name": ""
-        }}
+        }
     ]"#
-            )
         );
     }
 }
@@ -626,12 +606,10 @@ mod test_unique {
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
-            format!(
-                r#"Json expect::array() error at root[1],
+            r#"Json expect::array() error at root[1],
     expected array to contain all unique values.
     found duplicate 1
     received full array [1, 1, 2]"#
-            )
         );
     }
 }
