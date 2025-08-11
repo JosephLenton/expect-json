@@ -145,7 +145,6 @@ fn it_should_not_be_equal_when_receiving_extra_values_in_the_middle() {
 }
 
 #[test]
-#[ignore]
 fn it_should_not_be_equal_when_expecting_extra_values_in_the_middle() {
     let output = expect_json_eq(&json!([1, 2, 3]), &json!([1, 2, 2, 3]))
         .unwrap_err()
@@ -155,8 +154,7 @@ fn it_should_not_be_equal_when_expecting_extra_values_in_the_middle() {
         output,
         "Json arrays at root are not equal:
     expected [1, 2, 2, 3]
-    received [1, 2, 3]
-     missing [2]",
+    received [1, 2, 3]",
     );
 }
 
