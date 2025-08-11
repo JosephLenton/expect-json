@@ -1,5 +1,5 @@
 [workspace]
-members = ["expect-json", "expect-json-macros", "test-standalone"]
+members = ["expect-json", "expect-json-macros"]
 resolver = "2"
 
 [workspace.dependencies]
@@ -9,9 +9,9 @@ serde = "1.0.219"
 serde_json = "1.0.142"
 typetag = "0.2.20"
 thiserror = "2.0.12"
-uuid = "1.17.0"
+uuid = "1.18.0"
 
-proc-macro2 = "1.0.95"
+proc-macro2 = "1.0.96"
 quote = "1.0.40"
 syn = "2.0.104"
 
