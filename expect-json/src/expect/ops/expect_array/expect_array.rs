@@ -28,13 +28,13 @@ impl ExpectArray {
         self
     }
 
-    pub fn min_len(mut self, min_len: usize) -> Self {
-        self.sub_ops.push(ExpectArraySubOp::MinLen(min_len));
+    pub fn len(mut self, len: usize) -> Self {
+        self.sub_ops.push(ExpectArraySubOp::Len(len));
         self
     }
 
-    pub fn len(mut self, len: usize) -> Self {
-        self.sub_ops.push(ExpectArraySubOp::Len(len));
+    pub fn min_len(mut self, min_len: usize) -> Self {
+        self.sub_ops.push(ExpectArraySubOp::MinLen(min_len));
         self
     }
 

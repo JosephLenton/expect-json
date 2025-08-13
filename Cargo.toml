@@ -5,15 +5,16 @@ resolver = "2"
 [workspace.dependencies]
 chrono = "0.4.41"
 email_address = "0.2.9"
+num = "0.4.3"
 serde = "1.0.219"
 serde_json = "1.0.142"
 typetag = "0.2.20"
-thiserror = "2.0.12"
+thiserror = "2.0.14"
 uuid = "1.18.0"
 
-proc-macro2 = "1.0.96"
+proc-macro2 = "1.0.97"
 quote = "1.0.40"
-syn = "2.0.104"
+syn = "2.0.105"
 
 pretty_assertions = "1.4.1"
 

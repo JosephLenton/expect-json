@@ -26,6 +26,11 @@ impl ExpectString {
         self
     }
 
+    pub fn len(mut self, len: usize) -> Self {
+        self.sub_ops.push(ExpectStringSubOp::Len(len));
+        self
+    }
+
     pub fn min_len(mut self, min_len: usize) -> Self {
         self.sub_ops.push(ExpectStringSubOp::MinLen(min_len));
         self
@@ -167,6 +172,51 @@ mod test_is_not_empty {
             r#"Json expect::string() error at root:
     expected non-empty string
     received """#
+        );
+    }
+}
+
+#[cfg(test)]
+mod test_len {
+    use crate::expect;
+    use crate::expect_json_eq;
+    use pretty_assertions::assert_eq;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_pass_when_string_has_same_number_of_characters() {
+        let left = json!("123");
+        let right = json!(expect::string().len(3));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
+
+    #[test]
+    fn it_should_fail_when_string_is_too_short() {
+        let left = json!("12");
+        let right = json!(expect::string().len(3));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            r#"Json expect::string() error at root:
+    expected string to have 3 characters, but it has 2,
+    received "12""#
+        );
+    }
+
+    #[test]
+    fn it_should_fail_when_string_is_too_long() {
+        let left = json!("1234");
+        let right = json!(expect::string().len(3));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            r#"Json expect::string() error at root:
+    expected string to have 3 characters, but it has 4,
+    received "1234""#
         );
     }
 }

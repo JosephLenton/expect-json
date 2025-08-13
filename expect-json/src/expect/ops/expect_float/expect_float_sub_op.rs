@@ -1,5 +1,6 @@
 use crate::expect::ops::expect_float::ExpectFloat;
 use crate::expect::ops::utils::SerializableBound;
+use crate::expect::ops::utils::SerializableBoundContains;
 use crate::expect_core::Context;
 use crate::expect_core::ExpectOpError;
 use crate::expect_core::ExpectOpResult;

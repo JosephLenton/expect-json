@@ -30,6 +30,7 @@ serde_json = { workspace = true }
 typetag = { workspace = true }
 thiserror = { workspace = true }
 uuid = { workspace = true }
+num = { workspace = true }
 
 [dev-dependencies]
 pretty_assertions = { workspace = true }

@@ -11,6 +11,7 @@ use serde::Serialize;
 pub enum ExpectStringSubOp {
     IsEmpty,
     IsNotEmpty,
+    Len(usize),
     MinLen(usize),
     MaxLen(usize),
     Contains(String),
@@ -26,6 +27,7 @@ impl ExpectStringSubOp {
         match self {
             Self::IsEmpty => Self::on_string_is_empty(parent, context, received),
             Self::IsNotEmpty => Self::on_string_is_not_empty(parent, context, received),
+            Self::Len(len) => Self::on_string_len(*len, parent, context, received),
             Self::MinLen(min_len) => Self::on_string_min_len(*min_len, parent, context, received),
             Self::MaxLen(max_len) => Self::on_string_max_len(*max_len, parent, context, received),
             Self::Contains(contains) => {
@@ -61,6 +63,26 @@ impl ExpectStringSubOp {
                 r#"expected non-empty string
     received {}"#,
                 StringObject::from(received)
+            );
+            return Err(ExpectOpError::custom(parent, context, error_message));
+        }
+
+        Ok(())
+    }
+
+    fn on_string_len(
+        len: usize,
+        parent: &ExpectString,
+        context: &mut Context<'_>,
+        received: &str,
+    ) -> ExpectOpResult<()> {
+        if received.len() != len {
+            let error_message = format!(
+                r#"expected string to have {} characters, but it has {},
+    received {}"#,
+                len,
+                received.len(),
+                StringObject::from(received),
             );
             return Err(ExpectOpError::custom(parent, context, error_message));
         }

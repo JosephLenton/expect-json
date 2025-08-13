@@ -8,6 +8,13 @@ use serde::de::DeserializeOwned;
 use serde::Deserialize;
 use serde::Serialize;
 
+pub trait SerializableBoundContains<V>
+where
+    V: Debug + Copy + Clone + PartialOrd<V> + Serialize + DeserializeOwned,
+{
+    fn contains(min: Self, max: Self, value: V) -> bool;
+}
+
 #[derive(Debug, Copy, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(bound = "V: DeserializeOwned")]
 pub enum SerializableBound<V>
@@ -19,20 +26,39 @@ where
     Unbounded,
 }
 
-impl<V> SerializableBound<V>
+impl SerializableBoundContains<u64> for SerializableBound<i64> {
+    fn contains(min: Self, max: Self, received: u64) -> bool {
+        // We can max min up to 0, given all u64 values are positive
+        let min_u64 = if min.is_negative() {
+            SerializableBound::Unbounded
+        } else {
+            min.into_u64()
+        };
+
+        if max.is_negative() {
+            return false;
+        }
+
+        // Now convert all into u64, and do the contains there
+        let max_u64 = max.into_u64();
+        SerializableBoundContains::<u64>::contains(min_u64, max_u64, received)
+    }
+}
+
+impl<V> SerializableBoundContains<V> for SerializableBound<V>
 where
     V: Debug + Copy + Clone + PartialOrd<V> + Serialize + DeserializeOwned,
 {
-    pub(crate) fn contains(min: Self, max: Self, value: V) -> bool {
+    fn contains(min: Self, max: Self, received: V) -> bool {
         let is_min_match = match min {
-            Self::Included(min) => value >= min,
-            Self::Excluded(min) => value > min,
+            Self::Included(min) => received >= min,
+            Self::Excluded(min) => received > min,
             Self::Unbounded => true,
         };
 
         let is_max_match = match max {
-            Self::Included(max) => value <= max,
-            Self::Excluded(max) => value < max,
+            Self::Included(max) => received <= max,
+            Self::Excluded(max) => received < max,
             Self::Unbounded => true,
         };
 

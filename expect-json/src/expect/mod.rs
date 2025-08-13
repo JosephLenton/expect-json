@@ -32,7 +32,7 @@ use crate::expect::ops::ExpectUuid;
 ///     .assert_json(&json!({
 ///         "name": "Barrington",
 ///         "metadata": expect_json::object().contains(json!({
-///             "age": expect_json::integer().is_in_range(18..=100),
+///             "age": expect_json::integer().in_range(18..=100),
 ///             "email": expect_json::email(),
 ///         })),
 ///     }));
@@ -65,7 +65,7 @@ pub fn object() -> ExpectObject {
 ///     .await
 ///     .assert_json(&json!({
 ///         "name": "Barrington",
-///         "height_in_meters": expect_json::float().is_in_range(0.5..=2.5),
+///         "height_in_meters": expect_json::float().in_range(0.5..=2.5),
 ///     }));
 /// #
 /// # Ok(()) }
@@ -96,7 +96,7 @@ pub fn float() -> ExpectFloat {
 ///     .await
 ///     .assert_json(&json!({
 ///         "name": "Barrington",
-///         "age": expect_json::integer().is_in_range(18..=100),
+///         "age": expect_json::integer().in_range(18..=100),
 ///     }));
 /// #
 /// # Ok(()) }
@@ -128,7 +128,7 @@ pub fn integer() -> ExpectInteger {
 ///     .assert_json(&json!({
 ///         "name": "Barrington",
 ///         "metadata": expect_json::object().contains(json!({
-///             "age": expect_json::integer().is_in_range(18..=100),
+///             "age": expect_json::integer().in_range(18..=100),
 ///             "email": expect_json::email(),
 ///         })),
 ///     }));

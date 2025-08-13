@@ -17,7 +17,7 @@ impl ExpectFloat {
         Self { sub_ops: vec![] }
     }
 
-    pub fn is_in_range<R>(mut self, range: R) -> Self
+    pub fn in_range<R>(mut self, range: R) -> Self
     where
         R: RangeBounds<f64>,
     {
@@ -31,22 +31,22 @@ impl ExpectFloat {
         self
     }
 
-    pub fn is_zero(mut self) -> Self {
+    pub fn zero(mut self) -> Self {
         self.sub_ops.push(ExpectFloatSubOp::Zero);
         self
     }
 
-    pub fn is_not_zero(mut self) -> Self {
+    pub fn not_zero(mut self) -> Self {
         self.sub_ops.push(ExpectFloatSubOp::NotZero);
         self
     }
 
-    pub fn is_positive(mut self) -> Self {
+    pub fn positive(mut self) -> Self {
         self.sub_ops.push(ExpectFloatSubOp::Positive);
         self
     }
 
-    pub fn is_negative(mut self) -> Self {
+    pub fn negative(mut self) -> Self {
         self.sub_ops.push(ExpectFloatSubOp::Negative);
         self
     }
@@ -67,7 +67,7 @@ impl ExpectOp for ExpectFloat {
 }
 
 #[cfg(test)]
-mod test_is_in_range {
+mod test_in_range {
     use crate::expect;
     use crate::expect_json_eq;
     use pretty_assertions::assert_eq;
@@ -76,12 +76,12 @@ mod test_is_in_range {
     #[test]
     fn it_should_be_true_for_all_values_in_total_range() {
         let left = json!(1.0);
-        let right = json!(expect::float().is_in_range(..));
+        let right = json!(expect::float().in_range(..));
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
 
         let left = json!(f64::MIN);
-        let right = json!(expect::float().is_in_range(..));
+        let right = json!(expect::float().in_range(..));
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
     }
@@ -89,7 +89,7 @@ mod test_is_in_range {
     #[test]
     fn it_should_be_true_for_all_values_in_partial_range() {
         let left = json!(0.5);
-        let right = json!(expect::float().is_in_range(0.0..1.0));
+        let right = json!(expect::float().in_range(0.0..1.0));
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
     }
@@ -97,7 +97,7 @@ mod test_is_in_range {
     #[test]
     fn it_should_be_false_for_all_values_out_of_range() {
         let left = json!(1.0);
-        let right = json!(expect::float().is_in_range(0.0..1.0));
+        let right = json!(expect::float().in_range(0.0..1.0));
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
@@ -112,7 +112,7 @@ mod test_is_in_range {
     #[test]
     fn it_should_be_true_for_value_in_inclusive_range() {
         let left = json!(1.0);
-        let right = json!(expect::float().is_in_range(0.0..=1.0));
+        let right = json!(expect::float().in_range(0.0..=1.0));
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
@@ -120,7 +120,7 @@ mod test_is_in_range {
 }
 
 #[cfg(test)]
-mod test_is_zero {
+mod test_zero {
     use crate::expect;
     use crate::expect_json_eq;
     use pretty_assertions::assert_eq;
@@ -129,7 +129,7 @@ mod test_is_zero {
     #[test]
     fn it_should_be_true_for_zero() {
         let left = json!(0.0);
-        let right = json!(expect::float().is_zero());
+        let right = json!(expect::float().zero());
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
@@ -138,7 +138,7 @@ mod test_is_zero {
     #[test]
     fn it_should_be_false_for_negative_value() {
         let left = json!(-1.0);
-        let right = json!(expect::float().is_zero());
+        let right = json!(expect::float().zero());
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
@@ -152,7 +152,7 @@ mod test_is_zero {
     #[test]
     fn it_should_be_false_for_positive_value() {
         let left = json!(1.0);
-        let right = json!(expect::float().is_zero());
+        let right = json!(expect::float().zero());
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
@@ -166,7 +166,7 @@ mod test_is_zero {
     #[test]
     fn it_should_be_false_for_min() {
         let left = json!(f64::MIN);
-        let right = json!(expect::float().is_zero());
+        let right = json!(expect::float().zero());
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
@@ -180,7 +180,7 @@ mod test_is_zero {
     #[test]
     fn it_should_be_false_for_max() {
         let left = json!(f64::MAX);
-        let right = json!(expect::float().is_zero());
+        let right = json!(expect::float().zero());
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
@@ -193,7 +193,7 @@ mod test_is_zero {
 }
 
 #[cfg(test)]
-mod test_is_not_zero {
+mod test_not_zero {
     use crate::expect;
     use crate::expect_json_eq;
     use pretty_assertions::assert_eq;
@@ -202,7 +202,7 @@ mod test_is_not_zero {
     #[test]
     fn it_should_be_false_for_zero() {
         let left = json!(0.0);
-        let right = json!(expect::float().is_not_zero());
+        let right = json!(expect::float().not_zero());
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
@@ -216,7 +216,7 @@ mod test_is_not_zero {
     #[test]
     fn it_should_be_true_for_negative_value() {
         let left = json!(-1.0);
-        let right = json!(expect::float().is_not_zero());
+        let right = json!(expect::float().not_zero());
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
@@ -225,7 +225,7 @@ mod test_is_not_zero {
     #[test]
     fn it_should_be_true_for_positive_value() {
         let left = json!(1.0);
-        let right = json!(expect::float().is_not_zero());
+        let right = json!(expect::float().not_zero());
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
@@ -233,7 +233,7 @@ mod test_is_not_zero {
 }
 
 #[cfg(test)]
-mod test_is_positive {
+mod test_positive {
     use crate::expect;
     use crate::expect_json_eq;
     use pretty_assertions::assert_eq;
@@ -242,7 +242,7 @@ mod test_is_positive {
     #[test]
     fn it_should_be_false_for_zero() {
         let left = json!(0.0);
-        let right = json!(expect::float().is_positive());
+        let right = json!(expect::float().positive());
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
@@ -251,7 +251,7 @@ mod test_is_positive {
     #[test]
     fn it_should_be_false_for_negative_value() {
         let left = json!(-1.0);
-        let right = json!(expect::float().is_positive());
+        let right = json!(expect::float().positive());
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
@@ -265,7 +265,7 @@ mod test_is_positive {
     #[test]
     fn it_should_be_true_for_positive_value() {
         let left = json!(1.0);
-        let right = json!(expect::float().is_positive());
+        let right = json!(expect::float().positive());
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
@@ -273,7 +273,7 @@ mod test_is_positive {
 }
 
 #[cfg(test)]
-mod test_is_negative {
+mod test_negative {
     use crate::expect;
     use crate::expect_json_eq;
     use pretty_assertions::assert_eq;
@@ -282,7 +282,7 @@ mod test_is_negative {
     #[test]
     fn it_should_be_false_for_zero() {
         let left = json!(0.0);
-        let right = json!(expect::float().is_negative());
+        let right = json!(expect::float().negative());
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
@@ -296,7 +296,7 @@ mod test_is_negative {
     #[test]
     fn it_should_be_true_for_negative_value() {
         let left = json!(-1.0);
-        let right = json!(expect::float().is_negative());
+        let right = json!(expect::float().negative());
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
@@ -305,7 +305,7 @@ mod test_is_negative {
     #[test]
     fn it_should_be_false_for_positive_value() {
         let left = json!(1.0);
-        let right = json!(expect::float().is_negative());
+        let right = json!(expect::float().negative());
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
