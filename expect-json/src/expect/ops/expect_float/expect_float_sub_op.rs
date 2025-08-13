@@ -14,6 +14,10 @@ pub enum ExpectFloatSubOp {
         min: SerializableBound<f64>,
         max: SerializableBound<f64>,
     },
+    OutsideRange {
+        min: SerializableBound<f64>,
+        max: SerializableBound<f64>,
+    },
     Zero,
     NotZero,
     Positive,
@@ -43,6 +47,22 @@ impl ExpectFloatSubOp {
                         context,
                         format!(
                             "float is not in range
+    expected {}..{}
+    received {}",
+                            min.as_lowerbound(),
+                            max,
+                            FloatObject::from(received)
+                        ),
+                    ));
+                }
+            }
+            Self::OutsideRange { min, max } => {
+                if SerializableBound::contains(*min, *max, received) {
+                    return Err(ExpectOpError::custom(
+                        parent,
+                        context,
+                        format!(
+                            "float is in range
     expected {}..{}
     received {}",
                             min.as_lowerbound(),

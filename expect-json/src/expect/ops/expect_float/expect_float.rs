@@ -28,6 +28,22 @@ impl ExpectFloat {
             min: min.into(),
             max: max.into(),
         });
+
+        self
+    }
+
+    pub fn outside_range<R>(mut self, range: R) -> Self
+    where
+        R: RangeBounds<f64>,
+    {
+        let min = range.start_bound().cloned();
+        let max = range.end_bound().cloned();
+
+        self.sub_ops.push(ExpectFloatSubOp::OutsideRange {
+            min: min.into(),
+            max: max.into(),
+        });
+
         self
     }
 
@@ -116,6 +132,78 @@ mod test_in_range {
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
+    }
+}
+
+#[cfg(test)]
+mod test_outside_range {
+    use crate::expect;
+    use crate::expect_json_eq;
+    use pretty_assertions::assert_eq;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_be_false_for_all_values_in_total_range() {
+        let left = json!(1.0);
+        let right = json!(expect::float().outside_range(..));
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            r#"Json expect::float() error at root:
+    float is in range
+    expected ..
+    received 1.0"#
+        );
+
+        let left = json!(f64::MIN);
+        let right = json!(expect::float().outside_range(..));
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            r#"Json expect::float() error at root:
+    float is in range
+    expected ..
+    received -179769313486231570814527423731704356798070567525844996598917476803157260780028538760589558632766878171540458953514382464234321326889464182768467546703537516986049910576551282076245490090389328944075868508455133942304583236903222948165808559332123348274797826204144723168738177180919299881250404026184124858368.0"#
+        );
+    }
+
+    #[test]
+    fn it_should_be_false_for_all_values_in_partial_range() {
+        let left = json!(0.5);
+        let right = json!(expect::float().outside_range(0.0..1.0));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            r#"Json expect::float() error at root:
+    float is in range
+    expected 0.0..1.0
+    received 0.5"#
+        );
+    }
+
+    #[test]
+    fn it_should_be_true_for_all_values_out_of_range() {
+        let left = json!(1.0);
+        let right = json!(expect::float().outside_range(0.0..1.0));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok());
+    }
+
+    #[test]
+    fn it_should_be_false_for_value_in_inclusive_range() {
+        let left = json!(1.0);
+        let right = json!(expect::float().outside_range(0.0..=1.0));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            r#"Json expect::float() error at root:
+    float is in range
+    expected 0.0..=1.0
+    received 1.0"#
+        );
     }
 }
 
