@@ -27,8 +27,8 @@ use uuid::Uuid;
 /// server.get(&"/user")
 ///     .await
 ///     .assert_json(&json!({
-///         "name": "Alice",
 ///         "id": expect_json::uuid(),
+///         "name": "Alice",
 ///     }));
 /// #
 /// # Ok(()) }
@@ -49,11 +49,15 @@ impl ExpectUuid {
         }
     }
 
-    pub fn is_not_nil(mut self) -> Self {
+    /// Expects this is not the 'nil' UUID, which is "00000000-0000-0000-0000-000000000000".
+    pub fn not_nil(mut self) -> Self {
         self.is_not_nil_flag = true;
         self
     }
 
+    /// Expects this meets the given UUID version.
+    ///
+    /// Details on the different versions can be found on Wikipedia: https://en.wikipedia.org/wiki/Universally_unique_identifier#Versions_of_the_OSF_DCE_variant
     pub fn version(mut self, version: u8) -> Self {
         self.expected_version = Some(version);
         self
@@ -130,7 +134,7 @@ mod test_uuid {
 }
 
 #[cfg(test)]
-mod test_is_not_nil {
+mod test_not_nil {
     use crate::expect;
     use crate::expect_json_eq;
     use serde_json::json;
@@ -138,7 +142,7 @@ mod test_is_not_nil {
     #[test]
     fn it_should_return_true_for_a_non_nil_uuid() {
         let left = json!("a1a2a3a4-b1b2-c1c2-d1d2-d3d4d5d6d7d8");
-        let right = json!(expect::uuid().is_not_nil());
+        let right = json!(expect::uuid().not_nil());
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok(), "assertion error: {output:#?}");
@@ -147,7 +151,7 @@ mod test_is_not_nil {
     #[test]
     fn it_should_return_false_for_a_nil_uuid() {
         let left = json!("00000000-0000-0000-0000-000000000000");
-        let right = json!(expect::uuid().is_not_nil());
+        let right = json!(expect::uuid().not_nil());
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(

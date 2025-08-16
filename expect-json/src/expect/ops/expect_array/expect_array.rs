@@ -18,13 +18,13 @@ impl ExpectArray {
         Self { sub_ops: vec![] }
     }
 
-    pub fn is_empty(mut self) -> Self {
-        self.sub_ops.push(ExpectArraySubOp::IsEmpty);
+    pub fn empty(mut self) -> Self {
+        self.sub_ops.push(ExpectArraySubOp::Empty);
         self
     }
 
-    pub fn is_not_empty(mut self) -> Self {
-        self.sub_ops.push(ExpectArraySubOp::IsNotEmpty);
+    pub fn not_empty(mut self) -> Self {
+        self.sub_ops.push(ExpectArraySubOp::NotEmpty);
         self
     }
 
@@ -81,7 +81,7 @@ impl ExpectArray {
     ///     .await
     ///     .assert_json(&json!(expect_json::array().all(
     ///         json!({
-    ///             "name": expect_json::string().is_not_empty(),
+    ///             "name": expect_json::string().not_empty(),
     ///             "email": expect_json::email(),
     ///         })
     ///     )));
@@ -237,10 +237,49 @@ mod test_contains {
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok(), "{}", output.unwrap_err().to_string());
     }
+
+    #[test]
+    fn it_should_fail_nested_contains_that_do_not_match() {
+        let left = json!([
+            {
+                "text": "Hello",
+                "author": "Jane Candle"
+            },
+            {
+                "text": "Goodbye",
+                "author": "John Lighthouse"
+            }
+        ]);
+
+        let right = json!(expect::array().contains([json!({
+            "text": "Hello",
+            "author": expect::string().contains("🦊"),
+        }),]));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            r#"Json array at root does not contain expected value:
+    expected array to contain {
+        "author": expect::string(),
+        "text": "Hello"
+    }, but it was not found.
+    received [
+        {
+            "author": "Jane Candle",
+            "text": "Hello"
+        },
+        {
+            "author": "John Lighthouse",
+            "text": "Goodbye"
+        }
+    ]"#
+        );
+    }
 }
 
 #[cfg(test)]
-mod test_is_empty {
+mod test_empty {
     use crate::expect;
     use crate::expect_json_eq;
     use pretty_assertions::assert_eq;
@@ -249,7 +288,7 @@ mod test_is_empty {
     #[test]
     fn it_should_pass_when_array_is_empty() {
         let left = json!([]);
-        let right = json!(expect::array().is_empty());
+        let right = json!(expect::array().empty());
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok(), "assertion error: {output:#?}");
@@ -258,7 +297,7 @@ mod test_is_empty {
     #[test]
     fn it_should_fail_when_array_is_not_empty() {
         let left = json!([1, 2, 3]);
-        let right = json!(expect::array().is_empty());
+        let right = json!(expect::array().empty());
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
@@ -271,7 +310,7 @@ mod test_is_empty {
 }
 
 #[cfg(test)]
-mod test_is_not_empty {
+mod test_not_empty {
     use crate::expect;
     use crate::expect_json_eq;
     use pretty_assertions::assert_eq;
@@ -280,7 +319,7 @@ mod test_is_not_empty {
     #[test]
     fn it_should_pass_when_array_is_not_empty() {
         let left = json!([1]);
-        let right = json!(expect::array().is_not_empty());
+        let right = json!(expect::array().not_empty());
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok(), "assertion error: {output:#?}");
@@ -289,7 +328,7 @@ mod test_is_not_empty {
     #[test]
     fn it_should_fail_when_array_is_empty() {
         let left = json!([]);
-        let right = json!(expect::array().is_not_empty());
+        let right = json!(expect::array().not_empty());
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
@@ -536,7 +575,7 @@ mod test_all {
         ]);
 
         let right = json!(expect::array().all(json!({
-            "name": expect::string().is_not_empty(),
+            "name": expect::string().not_empty(),
             "email": expect::email(),
         })));
 
@@ -558,7 +597,7 @@ mod test_all {
         ]);
 
         let right = json!(expect::array().all(json!({
-            "name": expect::string().is_not_empty(),
+            "name": expect::string().not_empty(),
             "email": expect::email(),
         })));
 

@@ -16,13 +16,13 @@ impl ExpectString {
         Self { sub_ops: vec![] }
     }
 
-    pub fn is_empty(mut self) -> Self {
-        self.sub_ops.push(ExpectStringSubOp::IsEmpty);
+    pub fn empty(mut self) -> Self {
+        self.sub_ops.push(ExpectStringSubOp::Empty);
         self
     }
 
-    pub fn is_not_empty(mut self) -> Self {
-        self.sub_ops.push(ExpectStringSubOp::IsNotEmpty);
+    pub fn not_empty(mut self) -> Self {
+        self.sub_ops.push(ExpectStringSubOp::NotEmpty);
         self
     }
 
@@ -115,7 +115,7 @@ mod test_contains {
 }
 
 #[cfg(test)]
-mod test_is_empty {
+mod test_empty {
     use crate::expect;
     use crate::expect_json_eq;
     use pretty_assertions::assert_eq;
@@ -124,7 +124,7 @@ mod test_is_empty {
     #[test]
     fn it_should_pass_when_string_is_empty() {
         let left = json!("");
-        let right = json!(expect::string().is_empty());
+        let right = json!(expect::string().empty());
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok(), "assertion error: {output:#?}");
@@ -133,7 +133,7 @@ mod test_is_empty {
     #[test]
     fn it_should_fail_when_string_is_not_empty() {
         let left = json!("🦊");
-        let right = json!(expect::string().is_empty());
+        let right = json!(expect::string().empty());
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
@@ -146,7 +146,7 @@ mod test_is_empty {
 }
 
 #[cfg(test)]
-mod test_is_not_empty {
+mod test_not_empty {
     use crate::expect;
     use crate::expect_json_eq;
     use pretty_assertions::assert_eq;
@@ -155,7 +155,7 @@ mod test_is_not_empty {
     #[test]
     fn it_should_pass_when_string_is_not_empty() {
         let left = json!("🦊");
-        let right = json!(expect::string().is_not_empty());
+        let right = json!(expect::string().not_empty());
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok(), "assertion error: {output:#?}");
@@ -164,7 +164,7 @@ mod test_is_not_empty {
     #[test]
     fn it_should_fail_when_string_is_empty() {
         let left = json!("");
-        let right = json!(expect::string().is_not_empty());
+        let right = json!(expect::string().not_empty());
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(

@@ -9,8 +9,8 @@ use serde::Serialize;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ExpectStringSubOp {
-    IsEmpty,
-    IsNotEmpty,
+    Empty,
+    NotEmpty,
     Len(usize),
     MinLen(usize),
     MaxLen(usize),
@@ -25,8 +25,8 @@ impl ExpectStringSubOp {
         received: &str,
     ) -> ExpectOpResult<()> {
         match self {
-            Self::IsEmpty => Self::on_string_is_empty(parent, context, received),
-            Self::IsNotEmpty => Self::on_string_is_not_empty(parent, context, received),
+            Self::Empty => Self::on_string_empty(parent, context, received),
+            Self::NotEmpty => Self::on_string_not_empty(parent, context, received),
             Self::Len(len) => Self::on_string_len(*len, parent, context, received),
             Self::MinLen(min_len) => Self::on_string_min_len(*min_len, parent, context, received),
             Self::MaxLen(max_len) => Self::on_string_max_len(*max_len, parent, context, received),
@@ -36,7 +36,7 @@ impl ExpectStringSubOp {
         }
     }
 
-    fn on_string_is_empty(
+    fn on_string_empty(
         parent: &ExpectString,
         context: &mut Context<'_>,
         received: &str,
@@ -53,7 +53,7 @@ impl ExpectStringSubOp {
         Ok(())
     }
 
-    fn on_string_is_not_empty(
+    fn on_string_not_empty(
         parent: &ExpectString,
         context: &mut Context<'_>,
         received: &str,

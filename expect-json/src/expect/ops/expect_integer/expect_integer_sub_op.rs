@@ -174,7 +174,7 @@ fn on_zero<I>(context: &mut Context<'_>, received: I) -> ExpectOpResult<()>
 where
     I: Zero + Into<IntegerObject>,
 {
-    if received.is_zero() {
+    if !received.is_zero() {
         return Err(ExpectOpError::IntegerIsNotZero {
             context: context.to_static(),
             received: received.into(),

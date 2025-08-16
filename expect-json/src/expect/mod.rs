@@ -10,7 +10,9 @@ use crate::expect::ops::ExpectString;
 use crate::expect::ops::ExpectUuid;
 
 ///
-/// Expects a JSON object.
+/// Expect a JSON object. See [`ExpectObject`] for further methods to
+/// define what is expected. Such as the range it is expected to be within,
+/// or if it should be positive or negative.
 ///
 /// ```rust
 /// # async fn test() -> Result<(), Box<dyn ::std::error::Error>> {
@@ -44,7 +46,9 @@ pub fn object() -> ExpectObject {
 }
 
 ///
-/// Expects a valid email address in the received JSON.
+/// Expect a floating point number. See [`ExpectFloat`] for further methods to
+/// define what is expected. Such as the range it is expected to be within,
+/// or if it should be positive or negative.
 ///
 /// ```rust
 /// # async fn test() -> Result<(), Box<dyn ::std::error::Error>> {
@@ -75,7 +79,9 @@ pub fn float() -> ExpectFloat {
 }
 
 ///
-/// Expects a valid email address in the received JSON.
+/// Expects an integer. See [`ExpectInteger`] for further methods to
+/// define what is expected. Such as the range it is expected to be within,
+/// or if it should be positive or negative.
 ///
 /// ```rust
 /// # async fn test() -> Result<(), Box<dyn ::std::error::Error>> {
@@ -96,7 +102,7 @@ pub fn float() -> ExpectFloat {
 ///     .await
 ///     .assert_json(&json!({
 ///         "name": "Barrington",
-///         "age": expect_json::integer().in_range(18..=100),
+///         "age": expect_json::integer().in_range(18..=110),
 ///     }));
 /// #
 /// # Ok(()) }
@@ -106,7 +112,8 @@ pub fn integer() -> ExpectInteger {
 }
 
 ///
-/// Expects a JSON string.
+/// Expect a string. See [`ExpectString`] for further methods to defined
+/// the length, and partial contents, that is expected.
 ///
 /// ```rust
 /// # async fn test() -> Result<(), Box<dyn ::std::error::Error>> {
@@ -140,8 +147,9 @@ pub fn string() -> ExpectString {
 }
 
 ///
-/// Expects a JSON array. This has further operations to assert the length,
-/// uniqueness, all values meet a condition, etc.
+/// Expects a JSON array. The returned [`ExpectArray`] has methods to
+/// defined the length, uniqueness, all values meet a condition, etc,
+/// that is expected to be returned.
 ///
 /// ```rust
 /// # async fn test() -> Result<(), Box<dyn ::std::error::Error>> {
@@ -172,7 +180,10 @@ pub fn array() -> ExpectArray {
 }
 
 ///
-/// Expects a valid-looking ISO date time.
+/// Expect a valid-looking ISO date time.
+///
+/// Further methods are available on the returned [`ExpectIsoDateTime`]
+/// to check if the time is within certain durations, the time zone, etc.
 ///
 /// ```rust
 /// # async fn test() -> Result<(), Box<dyn ::std::error::Error>> {
@@ -237,7 +248,9 @@ pub fn uuid() -> ExpectUuid {
 }
 
 ///
-/// Expects a valid-looking email address.
+/// Expect a valid-looking email address.
+///
+/// It makes no guarantees if the address is actually registered or in use.
 ///
 /// ```rust
 /// # async fn test() -> Result<(), Box<dyn ::std::error::Error>> {

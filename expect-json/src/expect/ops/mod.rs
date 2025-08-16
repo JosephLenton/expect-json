@@ -1,3 +1,9 @@
+//!
+//! This module holds the implementations for the operations.
+//! Typically the advised way of creating these objects is to use the
+//! matching functions in [`crate::expect`].
+//!
+
 mod expect_array;
 pub use self::expect_array::*;
 

@@ -11,8 +11,8 @@ use std::collections::HashSet;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ExpectArraySubOp {
-    IsEmpty,
-    IsNotEmpty,
+    Empty,
+    NotEmpty,
     MinLen(usize),
     Len(usize),
     MaxLen(usize),
@@ -29,8 +29,8 @@ impl ExpectArraySubOp {
         received: &[Value],
     ) -> ExpectOpResult<()> {
         match self {
-            Self::IsEmpty => Self::on_array_is_empty(parent, context, received),
-            Self::IsNotEmpty => Self::on_array_is_not_empty(parent, context, received),
+            Self::Empty => Self::on_array_empty(parent, context, received),
+            Self::NotEmpty => Self::on_array_not_empty(parent, context, received),
             Self::MinLen(min_len) => Self::on_array_min_len(*min_len, parent, context, received),
             Self::Len(len) => Self::on_array_len(*len, parent, context, received),
             Self::MaxLen(max_len) => Self::on_array_max_len(*max_len, parent, context, received),
@@ -44,7 +44,7 @@ impl ExpectArraySubOp {
         }
     }
 
-    fn on_array_is_empty(
+    fn on_array_empty(
         parent: &ExpectArray,
         context: &mut Context<'_>,
         received_values: &[Value],
@@ -61,7 +61,7 @@ impl ExpectArraySubOp {
         Ok(())
     }
 
-    fn on_array_is_not_empty(
+    fn on_array_not_empty(
         parent: &ExpectArray,
         context: &mut Context<'_>,
         received_values: &[Value],

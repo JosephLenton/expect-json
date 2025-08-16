@@ -11,8 +11,8 @@ use serde_json::Value;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ExpectObjectSubOp {
-    IsEmpty,
-    IsNotEmpty,
+    Empty,
+    NotEmpty,
     Contains(Map<String, Value>),
 }
 
@@ -24,15 +24,15 @@ impl ExpectObjectSubOp {
         received: &Map<String, Value>,
     ) -> ExpectOpResult<()> {
         match self {
-            Self::IsEmpty => Self::on_object_is_empty(parent, context, received),
-            Self::IsNotEmpty => Self::on_object_is_not_empty(parent, context, received),
+            Self::Empty => Self::on_object_empty(parent, context, received),
+            Self::NotEmpty => Self::on_object_not_empty(parent, context, received),
             Self::Contains(expected_values) => {
                 Self::on_object_contains(expected_values, parent, context, received)
             }
         }
     }
 
-    fn on_object_is_empty(
+    fn on_object_empty(
         parent: &ExpectObject,
         context: &mut Context<'_>,
         received: &Map<String, Value>,
@@ -49,7 +49,7 @@ impl ExpectObjectSubOp {
         Ok(())
     }
 
-    fn on_object_is_not_empty(
+    fn on_object_not_empty(
         parent: &ExpectObject,
         context: &mut Context<'_>,
         received: &Map<String, Value>,
