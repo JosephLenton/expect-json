@@ -57,7 +57,7 @@ impl ExpectUuid {
 
     /// Expects this meets the given UUID version.
     ///
-    /// Details on the different versions can be found on Wikipedia: https://en.wikipedia.org/wiki/Universally_unique_identifier#Versions_of_the_OSF_DCE_variant
+    /// Details on the different versions can be found on Wikipedia: <https://en.wikipedia.org/wiki/Universally_unique_identifier#Versions_of_the_OSF_DCE_variant>
     pub fn version(mut self, version: u8) -> Self {
         self.expected_version = Some(version);
         self

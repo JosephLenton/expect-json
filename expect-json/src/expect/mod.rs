@@ -33,10 +33,7 @@ use crate::expect::ops::ExpectUuid;
 ///     .await
 ///     .assert_json(&json!({
 ///         "name": "Barrington",
-///         "metadata": expect_json::object().contains(json!({
-///             "age": expect_json::integer().in_range(18..=100),
-///             "email": expect_json::email(),
-///         })),
+///         "metadata": expect_json::object(),
 ///     }));
 /// #
 /// # Ok(()) }
@@ -69,7 +66,7 @@ pub fn object() -> ExpectObject {
 ///     .await
 ///     .assert_json(&json!({
 ///         "name": "Barrington",
-///         "height_in_meters": expect_json::float().in_range(0.5..=2.5),
+///         "height_in_meters": expect_json::float(),
 ///     }));
 /// #
 /// # Ok(()) }
@@ -102,7 +99,7 @@ pub fn float() -> ExpectFloat {
 ///     .await
 ///     .assert_json(&json!({
 ///         "name": "Barrington",
-///         "age": expect_json::integer().in_range(18..=110),
+///         "age": expect_json::integer(),
 ///     }));
 /// #
 /// # Ok(()) }
@@ -133,11 +130,7 @@ pub fn integer() -> ExpectInteger {
 /// server.get(&"/user/barrington")
 ///     .await
 ///     .assert_json(&json!({
-///         "name": "Barrington",
-///         "metadata": expect_json::object().contains(json!({
-///             "age": expect_json::integer().in_range(18..=100),
-///             "email": expect_json::email(),
-///         })),
+///         "name": expect_json::string(),
 ///     }));
 /// #
 /// # Ok(()) }
@@ -170,7 +163,7 @@ pub fn string() -> ExpectString {
 ///     .await
 ///     .assert_json(&json!({
 ///         "name": "Barrington",
-///         "tags": expect_json::array().all(expect_json::string()),
+///         "tags": expect_json::array(),
 ///     }));
 /// #
 /// # Ok(()) }
@@ -205,7 +198,7 @@ pub fn array() -> ExpectArray {
 ///     .await
 ///     .assert_json(&json!({
 ///         "name": "Barrington",
-///         "created_at": expect_json::iso_date_time().within_past(Duration::from_secs(60)),
+///         "created_at": expect_json::iso_date_time(),
 ///     }));
 /// #
 /// # Ok(()) }

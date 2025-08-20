@@ -17,6 +17,33 @@ impl ExpectInteger {
         Self { sub_ops: vec![] }
     }
 
+    ///
+    /// Expect an integer within the given range.
+    ///
+    /// ```rust
+    /// # async fn test() -> Result<(), Box<dyn ::std::error::Error>> {
+    /// #
+    /// # use axum::Router;
+    /// # use axum::extract::Json;
+    /// # use axum::routing::get;
+    /// # use axum_test::TestServer;
+    /// # use serde_json::json;
+    /// #
+    /// # let server = TestServer::new(Router::new())?;
+    /// #
+    /// use axum_test::expect_json;
+    ///
+    /// let server = TestServer::new(Router::new())?;
+    ///
+    /// server.get(&"/user/barrington")
+    ///     .await
+    ///     .assert_json(&json!({
+    ///         "name": "Barrington",
+    ///         "age": expect_json::integer().in_range(18..=110),
+    ///     }));
+    /// #
+    /// # Ok(()) }
+    /// ```
     pub fn in_range<R>(mut self, range: R) -> Self
     where
         R: RangeBounds<i64>,

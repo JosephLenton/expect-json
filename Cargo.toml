@@ -12,9 +12,9 @@ typetag = "0.2.20"
 thiserror = "2.0.14"
 uuid = "1.18.0"
 
-proc-macro2 = "1.0.97"
+proc-macro2 = "1.0.98"
 quote = "1.0.40"
-syn = "2.0.105"
+syn = "2.0.106"
 
 pretty_assertions = "1.4.1"
 

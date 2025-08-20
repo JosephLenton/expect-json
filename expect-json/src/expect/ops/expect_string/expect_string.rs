@@ -41,6 +41,32 @@ impl ExpectString {
         self
     }
 
+    ///
+    /// Expect a string containing a subset of the string given.
+    ///
+    /// ```rust
+    /// # async fn test() -> Result<(), Box<dyn ::std::error::Error>> {
+    /// #
+    /// # use axum::Router;
+    /// # use axum::extract::Json;
+    /// # use axum::routing::get;
+    /// # use axum_test::TestServer;
+    /// # use serde_json::json;
+    /// #
+    /// # let server = TestServer::new(Router::new())?;
+    /// #
+    /// use axum_test::expect_json;
+    ///
+    /// let server = TestServer::new(Router::new())?;
+    ///
+    /// server.get(&"/user")
+    ///     .await
+    ///     .assert_json(&json!({
+    ///         "name": expect_json::string().contains("apples"),
+    ///     }));
+    /// #
+    /// # Ok(()) }
+    /// ```
     pub fn contains<S>(mut self, expected_sub_string: S) -> Self
     where
         S: Into<String>,

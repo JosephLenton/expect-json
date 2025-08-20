@@ -17,6 +17,32 @@ impl ExpectFloat {
         Self { sub_ops: vec![] }
     }
 
+    /// Expect the float found to be within the given range.
+    ///
+    /// ```rust
+    /// # async fn test() -> Result<(), Box<dyn ::std::error::Error>> {
+    /// #
+    /// # use axum::Router;
+    /// # use axum::extract::Json;
+    /// # use axum::routing::get;
+    /// # use axum_test::TestServer;
+    /// # use serde_json::json;
+    /// #
+    /// # let server = TestServer::new(Router::new())?;
+    /// #
+    /// use axum_test::expect_json;
+    ///
+    /// let server = TestServer::new(Router::new())?;
+    ///
+    /// server.get(&"/user/barrington")
+    ///     .await
+    ///     .assert_json(&json!({
+    ///         "name": "Barrington",
+    ///         "height_in_meters": expect_json::float().in_range(0.5..=2.5),
+    ///     }));
+    /// #
+    /// # Ok(()) }
+    /// ```
     pub fn in_range<R>(mut self, range: R) -> Self
     where
         R: RangeBounds<f64>,

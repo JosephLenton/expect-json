@@ -28,6 +28,36 @@ impl ExpectObject {
         self
     }
 
+    /// Expect an object containing a subset of the JSON object given.
+    ///
+    /// ```rust
+    /// # async fn test() -> Result<(), Box<dyn ::std::error::Error>> {
+    /// #
+    /// # use axum::Router;
+    /// # use axum::extract::Json;
+    /// # use axum::routing::get;
+    /// # use axum_test::TestServer;
+    /// # use serde_json::json;
+    /// #
+    /// # let server = TestServer::new(Router::new())?;
+    /// #
+    /// use axum_test::expect_json;
+    ///
+    /// let server = TestServer::new(Router::new())?;
+    ///
+    /// server.get(&"/user/barrington")
+    ///     .await
+    ///     .assert_json(&json!({
+    ///         "name": "Barrington",
+    ///         "metadata": expect_json::object().contains(json!({
+    ///             "name": "Joe",
+    ///             "age": expect_json::integer().in_range(18..=100),
+    ///             "email": expect_json::email(),
+    ///         })),
+    ///     }));
+    /// #
+    /// # Ok(()) }
+    /// ```
     pub fn contains<V>(mut self, expected_values: V) -> Self
     where
         V: Into<Value>,
