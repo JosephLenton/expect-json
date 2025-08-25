@@ -132,4 +132,11 @@ mod test_fmt {
         let formatter = DurationFormatter::new(duration);
         assert_eq!(formatter.to_string(), "4 seconds");
     }
+
+    #[test]
+    fn it_should_format_hours() {
+        let duration = Duration::minutes(60 * 2);
+        let formatter = DurationFormatter::new(duration);
+        assert_eq!(formatter.to_string(), "2 hours");
+    }
 }

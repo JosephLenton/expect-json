@@ -17,6 +17,29 @@ impl ExpectFloat {
         Self { sub_ops: vec![] }
     }
 
+    pub fn greater_than(mut self, expected: f64) -> Self {
+        self.sub_ops
+            .push(ExpectFloatSubOp::GreaterThan { expected });
+        self
+    }
+
+    pub fn greater_than_equal(mut self, expected: f64) -> Self {
+        self.sub_ops
+            .push(ExpectFloatSubOp::GreaterThanEqual { expected });
+        self
+    }
+
+    pub fn less_than(mut self, expected: f64) -> Self {
+        self.sub_ops.push(ExpectFloatSubOp::LessThan { expected });
+        self
+    }
+
+    pub fn less_than_equal(mut self, expected: f64) -> Self {
+        self.sub_ops
+            .push(ExpectFloatSubOp::LessThanEqual { expected });
+        self
+    }
+
     /// Expect the float found to be within the given range.
     ///
     /// ```rust
@@ -428,5 +451,233 @@ mod test_negative {
     float is not negative
     received 1.0"#
         );
+    }
+}
+
+#[cfg(test)]
+mod test_less_than {
+    use crate::expect;
+    use crate::expect_json_eq;
+    use pretty_assertions::assert_eq;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_be_true_for_correct_positive_comparison() {
+        let left = json!(100.0);
+        let right = json!(expect::float().less_than(123.456));
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "{output:#?}");
+    }
+
+    #[test]
+    fn it_should_be_false_when_equal() {
+        let left = json!(123.456);
+        let right = json!(expect::float().less_than(123.456));
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            "Json expect::float() error at root:
+    float is out of bounds,
+    expected less than 123.456
+    received 123.456"
+        );
+    }
+
+    #[test]
+    fn it_should_be_false_for_incorrect_positive_comparison() {
+        let left = json!(123.456);
+        let right = json!(expect::float().less_than(100.0));
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            "Json expect::float() error at root:
+    float is out of bounds,
+    expected less than 100.0
+    received 123.456"
+        );
+    }
+
+    #[test]
+    fn it_should_be_true_for_correct_negative_positive_mix() {
+        let left = json!(-1.0);
+        let right = json!(expect::float().less_than(0.0));
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "{output:#?}");
+    }
+
+    #[test]
+    fn it_should_be_true_for_correct_negative_comparison() {
+        let left = json!(-123.456);
+        let right = json!(expect::float().less_than(-99.999));
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "{output:#?}");
+    }
+}
+
+#[cfg(test)]
+mod test_less_than_equal {
+    use crate::expect;
+    use crate::expect_json_eq;
+    use pretty_assertions::assert_eq;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_be_true_for_correct_positive_comparison() {
+        let left = json!(100.0);
+        let right = json!(expect::float().less_than_equal(123.456));
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "{output:#?}");
+    }
+
+    #[test]
+    fn it_should_be_true_when_equal() {
+        let left = json!(123.456);
+        let right = json!(expect::float().less_than_equal(123.456));
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "{output:#?}");
+    }
+
+    #[test]
+    fn it_should_be_false_for_incorrect_positive_comparison() {
+        let left = json!(123.456);
+        let right = json!(expect::float().less_than_equal(100.0));
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            "Json expect::float() error at root:
+    float is out of bounds,
+    expected less than equal 100.0
+    received 123.456"
+        );
+    }
+
+    #[test]
+    fn it_should_be_true_for_correct_negative_positive_mix() {
+        let left = json!(-1.0);
+        let right = json!(expect::float().less_than_equal(0.0));
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "{output:#?}");
+    }
+
+    #[test]
+    fn it_should_be_true_for_correct_negative_comparison() {
+        let left = json!(-123.456);
+        let right = json!(expect::float().less_than_equal(-99.999));
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "{output:#?}");
+    }
+}
+
+#[cfg(test)]
+mod test_greater_than {
+    use crate::expect;
+    use crate::expect_json_eq;
+    use pretty_assertions::assert_eq;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_be_true_for_correct_positive_comparison() {
+        let left = json!(123.456);
+        let right = json!(expect::float().greater_than(100.0));
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "{output:#?}");
+    }
+
+    #[test]
+    fn it_should_be_false_when_equal() {
+        let left = json!(123.456);
+        let right = json!(expect::float().greater_than(123.456));
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            "Json expect::float() error at root:
+    float is out of bounds,
+    expected greater than 123.456
+    received 123.456"
+        );
+    }
+
+    #[test]
+    fn it_should_be_false_for_incorrect_positive_comparison() {
+        let left = json!(100.0);
+        let right = json!(expect::float().greater_than(123.456));
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            "Json expect::float() error at root:
+    float is out of bounds,
+    expected greater than 123.456
+    received 100.0"
+        );
+    }
+
+    #[test]
+    fn it_should_be_true_for_correct_negative_positive_mix() {
+        let left = json!(0.0);
+        let right = json!(expect::float().greater_than(-1.0));
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "{output:#?}");
+    }
+
+    #[test]
+    fn it_should_be_true_for_correct_negative_comparison() {
+        let left = json!(-99.999);
+        let right = json!(expect::float().greater_than(-123.456));
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "{output:#?}");
+    }
+}
+
+#[cfg(test)]
+mod test_greater_than_equal {
+    use crate::expect;
+    use crate::expect_json_eq;
+    use pretty_assertions::assert_eq;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_be_true_for_correct_positive_comparison() {
+        let left = json!(123.456);
+        let right = json!(expect::float().greater_than_equal(100.0));
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "{output:#?}");
+    }
+
+    #[test]
+    fn it_should_be_true_when_equal() {
+        let left = json!(123.456);
+        let right = json!(expect::float().greater_than_equal(123.456));
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "{output:#?}");
+    }
+
+    #[test]
+    fn it_should_be_false_for_incorrect_positive_comparison() {
+        let left = json!(100.0);
+        let right = json!(expect::float().greater_than_equal(123.456));
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            "Json expect::float() error at root:
+    float is out of bounds,
+    expected greater than equal 123.456
+    received 100.0"
+        );
+    }
+
+    #[test]
+    fn it_should_be_true_for_correct_negative_positive_mix() {
+        let left = json!(0.0);
+        let right = json!(expect::float().greater_than_equal(-1.0));
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "{output:#?}");
+    }
+
+    #[test]
+    fn it_should_be_true_for_correct_negative_comparison() {
+        let left = json!(-99.999);
+        let right = json!(expect::float().greater_than_equal(-123.456));
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "{output:#?}");
     }
 }

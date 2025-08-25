@@ -80,12 +80,6 @@ impl SerializeExpectOp {
     }
 }
 
-impl From<SerializeExpectOp> for Box<dyn ExpectOpSerialize> {
-    fn from(value: SerializeExpectOp) -> Self {
-        value.inner
-    }
-}
-
 #[cfg(test)]
 mod test_serialize {
     use crate::expect;

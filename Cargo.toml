@@ -17,6 +17,7 @@ quote = "1.0.40"
 syn = "2.0.106"
 
 pretty_assertions = "1.4.1"
+rstest = "0.26.1"
 
 # For Documentation
 axum = "0.8.4"

@@ -5,10 +5,12 @@ use crate::expect_core::Context;
 use crate::expect_core::ExpectOpError;
 use crate::expect_core::ExpectOpResult;
 use crate::internals::objects::IntegerObject;
+use crate::JsonInteger;
 use num::Zero;
 use serde::Deserialize;
 use serde::Serialize;
 use std::fmt::Debug;
+use std::fmt::Display;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ExpectIntegerSubOp {
@@ -24,6 +26,19 @@ pub enum ExpectIntegerSubOp {
     NotZero,
     Positive,
     Negative,
+
+    GreaterThan {
+        expected: JsonInteger,
+    },
+    GreaterThanEqual {
+        expected: JsonInteger,
+    },
+    LessThan {
+        expected: JsonInteger,
+    },
+    LessThanEqual {
+        expected: JsonInteger,
+    },
 }
 
 impl ExpectIntegerSubOp {
@@ -33,15 +48,50 @@ impl ExpectIntegerSubOp {
         context: &mut Context<'_>,
         received: i64,
     ) -> ExpectOpResult<()> {
-        match self {
-            Self::InRange { min, max } => on_i64_in_range(parent, context, received, *min, *max),
+        match *self {
+            Self::InRange { min, max } => on_i64_in_range(parent, context, received, min, max),
             Self::OutsideRange { min, max } => {
-                on_i64_outside_range(parent, context, received, *min, *max)
+                on_i64_outside_range(parent, context, received, min, max)
             }
+
             Self::Zero => on_zero(context, received),
             Self::NotZero => on_not_zero(context, received),
-            Self::Positive => on_i64_positive(parent, context, received),
-            Self::Negative => on_i64_negative(parent, context, received),
+
+            Self::Positive => on_positive(parent, context, received),
+            Self::Negative => on_negative(parent, context, received),
+
+            Self::GreaterThan { expected: num } => on_comparison(
+                parent,
+                context,
+                received.into(),
+                num,
+                JsonInteger::gt,
+                "greater than",
+            ),
+            Self::GreaterThanEqual { expected: num } => on_comparison(
+                parent,
+                context,
+                received.into(),
+                num,
+                JsonInteger::ge,
+                "greater than equal",
+            ),
+            Self::LessThan { expected: num } => on_comparison(
+                parent,
+                context,
+                received.into(),
+                num,
+                JsonInteger::lt,
+                "less than",
+            ),
+            Self::LessThanEqual { expected: num } => on_comparison(
+                parent,
+                context,
+                received.into(),
+                num,
+                JsonInteger::le,
+                "less than equal",
+            ),
         }
     }
 
@@ -51,25 +101,50 @@ impl ExpectIntegerSubOp {
         context: &mut Context<'_>,
         received: u64,
     ) -> ExpectOpResult<()> {
-        match self {
-            Self::InRange { min, max } => on_u64_in_range(parent, context, received, *min, *max),
+        match *self {
+            Self::InRange { min, max } => on_u64_in_range(parent, context, received, min, max),
             Self::OutsideRange { min, max } => {
-                on_u64_outside_range(parent, context, received, *min, *max)
+                on_u64_outside_range(parent, context, received, min, max)
             }
+
             Self::Zero => on_zero(context, received),
             Self::NotZero => on_not_zero(context, received),
-            Self::Positive => {
-                // Do nothing, all u64 values are positive
-                Ok(())
-            }
-            Self::Negative => Err(ExpectOpError::custom(
+
+            Self::Positive => on_positive(parent, context, received),
+            Self::Negative => on_negative(parent, context, received),
+
+            Self::GreaterThan { expected: num } => on_comparison(
                 parent,
                 context,
-                format!(
-                    "integer is not negative
-    received {received}"
-                ),
-            )),
+                received.into(),
+                num,
+                JsonInteger::gt,
+                "greater than",
+            ),
+            Self::GreaterThanEqual { expected: num } => on_comparison(
+                parent,
+                context,
+                received.into(),
+                num,
+                JsonInteger::ge,
+                "greater than equal",
+            ),
+            Self::LessThan { expected: num } => on_comparison(
+                parent,
+                context,
+                received.into(),
+                num,
+                JsonInteger::lt,
+                "less than",
+            ),
+            Self::LessThanEqual { expected: num } => on_comparison(
+                parent,
+                context,
+                received.into(),
+                num,
+                JsonInteger::le,
+                "less than equal",
+            ),
         }
     }
 }
@@ -198,11 +273,14 @@ where
     Ok(())
 }
 
-fn on_i64_positive(
+fn on_positive<N>(
     parent: &ExpectInteger,
     context: &mut Context<'_>,
-    received: i64,
-) -> ExpectOpResult<()> {
+    received: N,
+) -> ExpectOpResult<()>
+where
+    N: IntTrait,
+{
     if !received.is_positive() {
         return Err(ExpectOpError::custom(
             parent,
@@ -217,11 +295,14 @@ fn on_i64_positive(
     Ok(())
 }
 
-fn on_i64_negative(
+fn on_negative<N>(
     parent: &ExpectInteger,
     context: &mut Context<'_>,
-    received: i64,
-) -> ExpectOpResult<()> {
+    received: N,
+) -> ExpectOpResult<()>
+where
+    N: IntTrait,
+{
     if !received.is_negative() {
         return Err(ExpectOpError::custom(
             parent,
@@ -234,4 +315,59 @@ fn on_i64_negative(
     }
 
     Ok(())
+}
+
+fn on_comparison<F>(
+    parent: &ExpectInteger,
+    context: &mut Context<'_>,
+    received: JsonInteger,
+    expected: JsonInteger,
+    comparison: F,
+    comparison_name: &'static str,
+) -> ExpectOpResult<()>
+where
+    F: Fn(JsonInteger, JsonInteger) -> bool,
+{
+    if !comparison(received, expected) {
+        return Err(ExpectOpError::custom(
+            parent,
+            context,
+            format!(
+                "integer is out of bounds,
+    expected {comparison_name} {expected}
+    received {received}"
+            ),
+        ));
+    }
+
+    Ok(())
+}
+
+trait IntTrait: Copy + Display + Debug {
+    fn is_positive(&self) -> bool;
+    fn is_negative(&self) -> bool;
+}
+
+impl IntTrait for i64 {
+    #[inline]
+    fn is_positive(&self) -> bool {
+        *self > 0
+    }
+
+    #[inline]
+    fn is_negative(&self) -> bool {
+        *self < 0
+    }
+}
+
+impl IntTrait for u64 {
+    #[inline]
+    fn is_positive(&self) -> bool {
+        true
+    }
+
+    #[inline]
+    fn is_negative(&self) -> bool {
+        false
+    }
 }

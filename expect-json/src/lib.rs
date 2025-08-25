@@ -13,6 +13,9 @@ pub use self::expect_json_error::*;
 mod expect_json_eq;
 pub use self::expect_json_eq::*;
 
+mod json_integer;
+pub use self::json_integer::*;
+
 mod json_type;
 pub use self::json_type::*;
 

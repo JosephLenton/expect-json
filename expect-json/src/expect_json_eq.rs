@@ -69,9 +69,6 @@ mod test_expect_json_eq {
         let error_dbg = format!("{error:?}");
 
         // assert_matches!(error, ExpectJsonError::DifferentTypes(..));
-        assert!(
-            error_dbg.starts_with("DifferentTypes"),
-            "error_dbg: {error_dbg}"
-        );
+        assert!(error_dbg.starts_with("DifferentTypes"));
     }
 }

@@ -35,3 +35,25 @@ fn format_f64_with_minimum_one_precision(n: f64) -> String {
         float_str
     }
 }
+
+#[cfg(test)]
+mod test_fmt {
+    use super::*;
+    use pretty_assertions::assert_eq;
+
+    #[test]
+    fn it_should_print_whole_numbers_with_min_precision() {
+        let float_obj = FloatObject::from(100.0);
+        let output = float_obj.to_string();
+
+        assert_eq!(output, "100.0");
+    }
+
+    #[test]
+    fn it_should_print_decimal_numbers_with_decimals() {
+        let float_obj = FloatObject::from(123.456);
+        let output = float_obj.to_string();
+
+        assert_eq!(output, "123.456");
+    }
+}

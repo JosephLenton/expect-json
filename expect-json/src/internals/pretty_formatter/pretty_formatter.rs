@@ -116,12 +116,6 @@ impl<'a, 'b> PrettyFormatter<'a, 'b> {
     }
 }
 
-impl<'a, 'b> From<&'a mut Formatter<'b>> for PrettyFormatter<'a, 'b> {
-    fn from(formatter: &'a mut Formatter<'b>) -> Self {
-        Self::new(formatter)
-    }
-}
-
 impl<'b> Deref for PrettyFormatter<'_, 'b> {
     type Target = Formatter<'b>;
 
