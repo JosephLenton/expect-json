@@ -74,6 +74,24 @@ impl ExpectObject {
         self.sub_ops.push(sub_op);
         self
     }
+
+    #[doc(hidden)]
+    pub fn propagated_contains<V>(mut self, expected_values: V) -> Self
+    where
+        V: Into<Value>,
+    {
+        let value = Into::<Value>::into(expected_values);
+        let sub_op = match value {
+            Value::Object(values_object) => ExpectObjectSubOp::PartialContains(values_object),
+            _ => {
+                let value_type = JsonType::from(&value);
+                panic!("object().propagated_contains() expected to take object. Received: {value_type}");
+            }
+        };
+
+        self.sub_ops.push(sub_op);
+        self
+    }
 }
 
 impl ExpectOp for ExpectObject {
@@ -217,6 +235,39 @@ mod test_contains {
     }
 
     #[test]
+    fn it_should_error_if_nested_object_is_missing_fields() {
+        let left = json!({
+            "name": "John",
+            "id": "abd123",
+            "meta": {
+                "location": "uk",
+                "previous_login": "sometime last thursday",
+            }
+        });
+
+        let right = json!(expect::object().contains(json!({
+            "name": "John",
+            "meta": {},
+        })));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            r#"Json object at root.meta has many extra fields over expected:
+    expected {}
+    received {
+        "location": "uk",
+        "previous_login": "sometime last thursday"
+    }
+
+    extra fields in received:
+        location,
+        previous_login,
+"#
+        );
+    }
+
+    #[test]
     fn it_should_error_for_nested_contains_via_array_on_differences() {
         let left = json!({ "name": "John", "comments": [
             {
@@ -327,6 +378,256 @@ mod test_contains {
 
         let right = json!(expect::object().contains(json!({ "comment":
             expect::object().contains(
+                json!({
+                    "text": "Hello",
+                    "author": expect::object().contains(
+                        json!({
+                            "something_else": "🦊",
+                        })
+                    )
+                })
+            )
+        })));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            r#"Json object at root.comment.author is missing key for object:
+    expected field 'something_else',
+    but it was not found"#
+        );
+    }
+}
+
+#[cfg(test)]
+mod test_propagated_contains {
+    use crate::expect;
+    use crate::expect_json_eq;
+    use pretty_assertions::assert_eq;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_be_equal_for_identical_objects() {
+        let left = json!({ "name": "John", "age": 30, "scores": [1, 2, 3] });
+        let right = json!(expect::object()
+            .propagated_contains(json!({ "name": "John", "age": 30, "scores": [1, 2, 3] })));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok());
+    }
+
+    #[test]
+    fn it_should_be_equal_for_reversed_identical_objects() {
+        let left = json!({ "name": "John", "age": 30, "scores": [1, 2, 3] });
+        let right = json!(expect::object()
+            .propagated_contains(json!({ "scores": [1, 2, 3], "age": 30, "name": "John" })));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok());
+    }
+
+    #[test]
+    fn it_should_be_equal_for_partial_contains() {
+        let left = json!({ "name": "John", "age": 30, "scores": [1, 2, 3] });
+        let right =
+            json!(expect::object().propagated_contains(json!({ "name": "John", "age": 30 })));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok());
+    }
+
+    #[test]
+    fn it_should_be_equal_for_nested_contains() {
+        let left = json!({ "name": "John", "comments": [
+            {
+                "text": "Hello",
+                "author": {
+                    "name": "Jane",
+                    "age": 25
+                }
+            },
+            {
+                "text": "Goodbye",
+                "author": {
+                    "name": "John",
+                    "age": 30
+                }
+            }
+        ]});
+
+        let right = json!(expect::object().propagated_contains(
+            json!({ "comments": expect::array().contains([
+                json!({
+                    "text": "Hello",
+                    "author": expect::object().contains(
+                        json!({
+                            "name": "Jane",
+                        })
+                    )
+                }),
+            ])})
+        ));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "{}", output.unwrap_err().to_string());
+    }
+
+    #[test]
+    fn it_should_accept_nested_object_with_missing_fields() {
+        let left = json!({
+            "name": "John",
+            "id": "abd123",
+            "meta": {
+                "location": "uk",
+                "previous_login": "sometime last thursday",
+            }
+        });
+
+        let right = json!(expect::object().propagated_contains(json!({
+            "name": "John",
+            "meta": {},
+        })));
+
+        let result = expect_json_eq(&left, &right);
+        assert!(result.is_ok(), "{result:#?}");
+    }
+
+    #[test]
+    fn it_should_error_if_inner_contains_fails_to_contain_fields() {
+        let left = json!({
+            "name": "John",
+            "id": "abd123",
+            "meta": {
+                "inner": {
+                    "location": "uk",
+                    "previous_login": "sometime last thursday",
+                }
+            }
+        });
+
+        let right = json!(expect::object().propagated_contains(json!({
+            "name": "John",
+            "meta": expect::object().contains(json!({
+                "inner": {}
+            })),
+        })));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            r#"Json object at root.meta.inner has many extra fields over expected:
+    expected {}
+    received {
+        "location": "uk",
+        "previous_login": "sometime last thursday"
+    }
+
+    extra fields in received:
+        location,
+        previous_login,
+"#
+        );
+    }
+
+    #[test]
+    fn it_should_error_for_same_fields_but_different_values() {
+        let left = json!({ "name": "John", "age": 30, "scores": [1, 2, 3] });
+        let right = json!(expect::object()
+            .propagated_contains(json!({ "name": "Joe", "age": 31, "scores": [4, 5, 6] })));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            r#"Json integers at root.age are not equal:
+    expected 31
+    received 30"#
+        );
+    }
+
+    #[test]
+    fn it_should_be_ok_for_empty_contains() {
+        let left = json!({ "name": "John", "age": 30, "scores": [1, 2, 3] });
+        let right = json!(expect::object().propagated_contains(json!({})));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok());
+    }
+
+    #[test]
+    fn it_should_be_ok_for_empty_on_empty_object() {
+        let left = json!({});
+        let right = json!(expect::object().propagated_contains(json!({})));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok());
+    }
+
+    #[test]
+    fn it_should_error_if_used_against_the_wrong_type() {
+        let left = json!("🦊");
+        let right = json!(expect::object().propagated_contains(json!({})));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            r#"Json expect::object() at root, received wrong type:
+    expected object
+    received string "🦊""#
+        );
+    }
+
+    #[test]
+    fn it_should_error_for_nested_contains_via_object_with_inner_contains_error() {
+        let left = json!({
+            "name": "John",
+            "comment": {
+                "text": "Hello",
+                "author": {
+                    "name": "🦊",
+                    "age": 25
+                }
+            },
+        });
+
+        let right = json!(expect::object().propagated_contains(json!({ "comment":
+            expect::object().propagated_contains(
+                json!({
+                    "text": "Hello",
+                    "author": expect::object().contains(
+                        json!({
+                            "name": "Jane",
+                        })
+                    )
+                })
+            )
+        })));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            r#"Json strings at root.comment.author.name are not equal:
+    expected "Jane"
+    received "🦊""#
+        );
+    }
+
+    // TODO, is this correct?
+    // The error message looks like it is checking the key against an expect op.
+    #[test]
+    fn it_should_error_for_nested_contains_via_different_object_with_inner_contains_error() {
+        let left = json!({
+            "name": "John",
+            "comment": {
+                "text": "Hello",
+                "author": {
+                    "name": "Jane",
+                    "age": 25
+                }
+            },
+        });
+
+        let right = json!(expect::object().propagated_contains(json!({ "comment":
+            expect::object().propagated_contains(
                 json!({
                     "text": "Hello",
                     "author": expect::object().contains(

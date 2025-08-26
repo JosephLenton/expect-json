@@ -1,4 +1,5 @@
 use expect_json::*;
+use pretty_assertions::assert_eq;
 use serde_json::json;
 use std::f64;
 use std::i64;

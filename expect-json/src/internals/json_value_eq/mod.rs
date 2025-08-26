@@ -10,6 +10,7 @@ mod json_value_eq_boolean;
 mod json_value_eq_float;
 mod json_value_eq_integer;
 mod json_value_eq_object;
+pub use self::json_value_eq_object::*;
 mod json_value_eq_string;
 
 pub fn json_value_eq<'a>(

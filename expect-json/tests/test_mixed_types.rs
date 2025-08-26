@@ -1,4 +1,5 @@
 use expect_json::expect_json_eq;
+use pretty_assertions::assert_eq;
 use serde_json::json;
 
 #[test]

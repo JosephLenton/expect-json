@@ -193,16 +193,13 @@ impl ExpectArraySubOp {
         received_values: &[Value],
     ) -> ExpectOpResult<()> {
         for (index, value) in received_values.iter().enumerate() {
-            context.push(index);
-
-            context.json_eq(value, expected_value).map_err(|error| {
-                ExpectOpError::ArrayAllEqual {
+            context
+                .with_path(index)
+                .json_eq(value, expected_value)
+                .map_err(|error| ExpectOpError::ArrayAllEqual {
                     error: Box::new(error),
                     received_full_array: ArrayObject::from(received_values.to_owned()),
-                }
-            })?;
-
-            context.pop();
+                })?;
         }
 
         Ok(())

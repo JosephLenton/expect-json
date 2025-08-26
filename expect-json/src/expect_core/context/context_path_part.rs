@@ -44,12 +44,6 @@ impl<'a> From<&'a String> for ContextPathPart<'a> {
     }
 }
 
-impl From<String> for ContextPathPart<'_> {
-    fn from(inner: String) -> Self {
-        Self::String(Cow::Owned(inner))
-    }
-}
-
 impl From<usize> for ContextPathPart<'_> {
     fn from(inner: usize) -> Self {
         Self::Index(inner)

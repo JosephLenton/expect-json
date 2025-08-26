@@ -1,5 +1,4 @@
 use crate::expect_core::Context;
-use crate::internals::json_eq;
 use crate::internals::objects::ArrayObject;
 use crate::ExpectJsonError;
 use crate::ExpectJsonResult;
@@ -77,16 +76,17 @@ pub fn json_value_eq_array<'a>(
     for (index, (expected_value, received_value)) in
         expected_array.iter().zip(received_array).enumerate()
     {
-        context.push(index);
-        json_eq(context, received_value, expected_value).map_err(|source_error| {
-            ExpectJsonError::array_index_missing(
-                context,
-                source_error,
-                received_array,
-                expected_array,
-            )
-        })?;
-        context.pop();
+        context
+            .with_path(index)
+            .json_eq(received_value, expected_value)
+            .map_err(|source_error| {
+                ExpectJsonError::array_index_missing(
+                    context,
+                    source_error,
+                    received_array,
+                    expected_array,
+                )
+            })?;
     }
 
     Ok(())

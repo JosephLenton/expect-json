@@ -74,22 +74,24 @@ use std::fmt::Debug;
 ///
 pub trait ExpectOp: ExpectOpExt + Debug + Send + 'static {
     fn on_any(&self, context: &mut Context<'_>, received: &Value) -> ExpectOpResult<()> {
-        match received {
-            Value::Null => self.on_null(context),
-            Value::Number(received_number) => {
-                let value_num = ValueObject::from(received_number.clone());
-                match value_num {
-                    ValueObject::Float(received_float) => self.on_f64(context, received_float.into()),
-                    ValueObject::Integer(IntegerObject::Positive(received_integer)) => self.on_u64(context, received_integer),
-                    ValueObject::Integer(IntegerObject::Negative(received_integer)) => self.on_i64(context, received_integer),
-                    _ => panic!("Unexpected non-number value, expected a float or an integer, found {value_num:?}. (This is a bug, please report at: https://github.com/JosephLenton/expect-json/issues)"),
+        context.without_propagated_contains().map(|context| {
+            match received {
+                Value::Null => self.on_null(context),
+                Value::Number(received_number) => {
+                    let value_num = ValueObject::from(received_number.clone());
+                    match value_num {
+                        ValueObject::Float(received_float) => self.on_f64(context, received_float.into()),
+                        ValueObject::Integer(IntegerObject::Positive(received_integer)) => self.on_u64(context, received_integer),
+                        ValueObject::Integer(IntegerObject::Negative(received_integer)) => self.on_i64(context, received_integer),
+                        _ => panic!("Unexpected non-number value, expected a float or an integer, found {value_num:?}. (This is a bug, please report at: https://github.com/JosephLenton/expect-json/issues)"),
+                    }
                 }
+                Value::String(received_string) => self.on_string(context, received_string),
+                Value::Bool(received_boolean) => self.on_boolean(context, *received_boolean),
+                Value::Array(received_array) => self.on_array(context, received_array),
+                Value::Object(received_object) => self.on_object(context, received_object),
             }
-            Value::String(received_string) => self.on_string(context, received_string),
-            Value::Bool(received_boolean) => self.on_boolean(context, *received_boolean),
-            Value::Array(received_array) => self.on_array(context, received_array),
-            Value::Object(received_object) => self.on_object(context, received_object),
-        }
+        })
     }
 
     #[allow(unused_variables)]

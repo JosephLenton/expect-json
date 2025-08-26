@@ -1,5 +1,4 @@
 use crate::expect_core::Context;
-use crate::internals::json_eq;
 use crate::internals::objects::ObjectObject;
 use crate::internals::JsonObject;
 use crate::ExpectJsonError;
@@ -11,6 +10,10 @@ pub fn json_value_eq_object<'a>(
     received: &'a JsonObject,
     expected: &'a JsonObject,
 ) -> ExpectJsonResult<()> {
+    if context.is_propagated_contains() {
+        return json_value_eq_object_contains(context, received, expected);
+    }
+
     let received_len = received.len();
     let expected_len = expected.len();
 
@@ -63,9 +66,31 @@ pub fn json_value_eq_object<'a>(
                     expected_key: expected_key.to_string(),
                 })?;
 
-        context.push(expected_key);
-        json_eq(context, received_value, expected_value)?;
-        context.pop();
+        context
+            .with_path(expected_key)
+            .json_eq(received_value, expected_value)?;
+    }
+
+    Ok(())
+}
+
+pub fn json_value_eq_object_contains<'a>(
+    context: &mut Context<'a>,
+    received: &'a JsonObject,
+    expected: &'a JsonObject,
+) -> ExpectJsonResult<()> {
+    for (expected_key, expected_value) in expected {
+        let received_value =
+            received
+                .get(expected_key)
+                .ok_or_else(|| ExpectJsonError::ObjectKeyMissing {
+                    context: context.to_static(),
+                    expected_key: expected_key.to_string(),
+                })?;
+
+        context
+            .with_path(expected_key)
+            .json_eq(received_value, expected_value)?;
     }
 
     Ok(())
