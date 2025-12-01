@@ -1,9 +1,9 @@
 [package]
 name = "expect-json"
 authors = ["Joseph Lenton <josephlenton@gmail.com>"]
-version = "1.6.0"
-edition = "2021"
-rust-version = "1.83"
+version = "1.7.0"
+edition = "2024"
+rust-version = "1.85"
 license = "MIT"
 description = "For comparisons on JSON data"
 keywords = ["testing", "test", "json", "serde_json"]
