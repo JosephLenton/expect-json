@@ -90,14 +90,14 @@ impl ExpectString {
     /// #
     /// # let server = TestServer::new(Router::new())?;
     /// #
+    /// use axum_test::expect_json;
     ///
-    /// use expect_json::expect;
     /// let server = TestServer::new(Router::new())?;
     ///
     /// server.get(&"/user")
     ///     .await
     ///     .assert_json(&json!({
-    ///         "email": expect::string().matches_regex(r#"\w+@(?:\w+\.)+\w+"#),
+    ///         "email": expect_json::string().matches_regex(r#"\w+@(?:\w+\.)+\w+"#),
     ///     }));
     /// #
     /// # Ok(()) }
