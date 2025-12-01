@@ -33,8 +33,10 @@ impl ExpectStringSubOp {
             Self::MaxLen(max_len) => Self::on_string_max_len(*max_len, parent, context, received),
             Self::Contains(contains) => {
                 Self::on_string_contains(contains, parent, context, received)
-            },
-            Self::MatchesRegex(pattern) => Self::on_string_matches_regex(pattern, parent, context, received),
+            }
+            Self::MatchesRegex(pattern) => {
+                Self::on_string_matches_regex(pattern, parent, context, received)
+            }
         }
     }
 

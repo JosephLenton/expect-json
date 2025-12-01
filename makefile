@@ -1,7 +1,7 @@
 .PHONY: fmt lint test build publish docs codecov
 
 fmt:
-	cargo fmt
+	cargo +stable fmt
 
 lint:
 	cargo +stable clippy
