@@ -77,6 +77,18 @@ pub enum ExpectOpError {
     },
 
     #[error(
+        "Json {json_type} error at {context}, regex did not match:
+    expected {json_type} to match regex pattern '{pattern}',
+    received {received}"
+    )]
+    RegexNoMatch {
+        context: Context<'static>,
+        json_type: JsonType,
+        pattern: String,
+        received: ValueObject,
+    },
+
+    #[error(
         "Json expect::array() error at {context},
     expected array to contain all unique values.
     found duplicate {duplicate}

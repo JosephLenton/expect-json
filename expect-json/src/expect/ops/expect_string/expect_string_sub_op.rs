@@ -15,6 +15,7 @@ pub enum ExpectStringSubOp {
     MinLen(usize),
     MaxLen(usize),
     Contains(String),
+    MatchesRegex(String),
 }
 
 impl ExpectStringSubOp {
@@ -32,7 +33,8 @@ impl ExpectStringSubOp {
             Self::MaxLen(max_len) => Self::on_string_max_len(*max_len, parent, context, received),
             Self::Contains(contains) => {
                 Self::on_string_contains(contains, parent, context, received)
-            }
+            },
+            Self::MatchesRegex(pattern) => Self::on_string_matches_regex(pattern, parent, context, received),
         }
     }
 
@@ -141,6 +143,32 @@ impl ExpectStringSubOp {
                 context: context.to_static(),
                 json_type: JsonType::String,
                 expected: StringObject::from(expected_sub_string).into(),
+                received: StringObject::from(received).into(),
+            });
+        }
+
+        Ok(())
+    }
+
+    fn on_string_matches_regex(
+        pattern: &str,
+        _parent: &ExpectString,
+        context: &mut Context<'_>,
+        received: &str,
+    ) -> ExpectOpResult<()> {
+        let regex = regex::Regex::new(pattern).map_err(|e| {
+            ExpectOpError::custom(
+                _parent,
+                context,
+                format!("invalid regex pattern '{}': {}", pattern, e),
+            )
+        })?;
+
+        if !regex.is_match(received) {
+            return Err(ExpectOpError::RegexNoMatch {
+                context: context.to_static(),
+                json_type: JsonType::String,
+                pattern: pattern.to_string(),
                 received: StringObject::from(received).into(),
             });
         }

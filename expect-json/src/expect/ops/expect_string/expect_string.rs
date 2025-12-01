@@ -75,6 +75,41 @@ impl ExpectString {
             .push(ExpectStringSubOp::Contains(expected_sub_string.into()));
         self
     }
+
+    ///
+    /// Expect a string matching the regex given.
+    ///
+    /// ```rust
+    /// # async fn test() -> Result<(), Box<dyn ::std::error::Error>> {
+    /// #
+    /// # use axum::Router;
+    /// # use axum::extract::Json;
+    /// # use axum::routing::get;
+    /// # use axum_test::TestServer;
+    /// # use serde_json::json;
+    /// #
+    /// # let server = TestServer::new(Router::new())?;
+    /// #
+    ///
+    /// use expect_json::expect;
+    /// let server = TestServer::new(Router::new())?;
+    ///
+    /// server.get(&"/user")
+    ///     .await
+    ///     .assert_json(&json!({
+    ///         "email": expect::string().matches_regex(r#"\w+@(?:\w+\.)+\w+"#),
+    ///     }));
+    /// #
+    /// # Ok(()) }
+    /// ```
+    pub fn matches_regex<S>(mut self, pattern: S) -> Self
+    where
+        S: Into<String>,
+    {
+        self.sub_ops
+            .push(ExpectStringSubOp::MatchesRegex(pattern.into()));
+        self
+    }
 }
 
 impl ExpectOp for ExpectString {
@@ -323,6 +358,47 @@ mod test_max_len {
             r#"Json expect::string() error at root:
     expected string to have at most 3 characters, but it has 24,
     received "🦊🦊🦊🦊🦊🦊""#
+        );
+    }
+}
+
+#[cfg(test)]
+mod test_matches_regex {
+    use crate::expect;
+    use crate::expect_json_eq;
+    use pretty_assertions::assert_eq;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_pass_when_string_matches_regex() {
+        let left = json!("abc123xyz");
+        let right = json!(expect::string().matches_regex(r"^[a-z]+[0-9]+[a-z]+$"));
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
+
+    #[test]
+    fn it_should_fail_when_string_does_not_match_regex() {
+        let left = json!("abcxyz");
+        let right = json!(expect::string().matches_regex(r"^[a-z]+[0-9]+[a-z]+$"));
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            r#"Json string error at root, regex did not match:
+    expected string to match regex pattern '^[a-z]+[0-9]+[a-z]+$',
+    received "abcxyz""#
+        );
+    }
+
+    #[test]
+    fn it_should_fail_when_regex_is_invalid() {
+        let left = json!("abc123xyz");
+        let right = json!(expect::string().matches_regex(r"([a-z]+"));
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        // For robustness, we don't specify the error message coming from the regex crate.
+        assert!(
+            output.starts_with(r#"Json expect::string() error at root:"#),
+            "Unexpected error output: {output:#?}"
         );
     }
 }
