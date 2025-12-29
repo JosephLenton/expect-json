@@ -26,4 +26,4 @@ axum-test = { version = "18.4.1", path = "../axum-test" }
 
 [replace]
 # This allows us perform doc tests using local crate with Axum Test
-"expect-json:1.8.0" = { path = "./expect-json" }
+"expect-json:1.7.0" = { path = "./expect-json" }
