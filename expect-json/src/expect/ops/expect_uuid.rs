@@ -1,9 +1,9 @@
-use crate::expect_core::expect_op;
+use crate::JsonType;
 use crate::expect_core::Context;
 use crate::expect_core::ExpectOp;
 use crate::expect_core::ExpectOpError;
 use crate::expect_core::ExpectOpResult;
-use crate::JsonType;
+use crate::expect_core::expect_op;
 use uuid::Uuid;
 
 ///
@@ -74,7 +74,9 @@ impl ExpectOp for ExpectUuid {
         if let Some(expected_version) = self.expected_version {
             let received_version = uuid.get_version_num();
             if received_version != (expected_version as usize) {
-                let error_message = format!("expected uuid version '{expected_version}', received version '{received_version}', for uuid '{received}'");
+                let error_message = format!(
+                    "expected uuid version '{expected_version}', received version '{received_version}', for uuid '{received}'"
+                );
                 return Err(ExpectOpError::custom(self, context, error_message));
             }
         }

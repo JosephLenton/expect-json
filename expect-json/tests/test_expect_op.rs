@@ -1,6 +1,6 @@
-use expect_json::expect_core::expect_op;
 use expect_json::expect_core::ExpectOp;
 use expect_json::expect_core::ExpectOpError;
+use expect_json::expect_core::expect_op;
 use expect_json::*;
 use pretty_assertions::assert_eq;
 use serde_json::json;

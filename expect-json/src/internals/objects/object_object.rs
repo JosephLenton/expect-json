@@ -1,6 +1,6 @@
+use crate::internals::JsonObject;
 use crate::internals::pretty_formatter::PrettyDisplay;
 use crate::internals::pretty_formatter::PrettyFormatter;
-use crate::internals::JsonObject;
 use serde_json::Map;
 use serde_json::Value;
 use std::fmt::Display;

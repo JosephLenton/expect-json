@@ -1,8 +1,8 @@
-use crate::expect_core::Context;
-use crate::internals::objects::IntegerObject;
 use crate::ExpectJsonError;
 use crate::ExpectJsonResult;
 use crate::JsonType;
+use crate::expect_core::Context;
+use crate::internals::objects::IntegerObject;
 
 pub fn json_value_eq_integer(
     context: &mut Context,

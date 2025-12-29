@@ -1,9 +1,9 @@
+use crate::JsonType;
 use crate::expect::ops::ExpectString;
 use crate::expect_core::Context;
 use crate::expect_core::ExpectOpError;
 use crate::expect_core::ExpectOpResult;
 use crate::internals::objects::StringObject;
-use crate::JsonType;
 use serde::Deserialize;
 use serde::Serialize;
 

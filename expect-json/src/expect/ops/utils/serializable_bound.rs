@@ -4,9 +4,9 @@ use core::fmt::Display;
 use core::fmt::Formatter;
 use core::fmt::Result as FmtResult;
 use core::ops::Bound;
-use serde::de::DeserializeOwned;
 use serde::Deserialize;
 use serde::Serialize;
+use serde::de::DeserializeOwned;
 
 pub trait SerializableBoundContains<V>
 where

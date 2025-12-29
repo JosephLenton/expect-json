@@ -1,8 +1,8 @@
-use crate::expect_core::Context;
-use crate::internals::objects::FloatObject;
 use crate::ExpectJsonError;
 use crate::ExpectJsonResult;
 use crate::JsonType;
+use crate::expect_core::Context;
+use crate::internals::objects::FloatObject;
 
 pub fn json_value_eq_float(
     context: &mut Context,

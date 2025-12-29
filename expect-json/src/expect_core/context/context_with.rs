@@ -1,6 +1,6 @@
-use crate::expect_core::context::ContextPathPart;
-use crate::expect_core::Context;
 use crate::ExpectJsonResult;
+use crate::expect_core::Context;
+use crate::expect_core::context::ContextPathPart;
 use serde_json::Value;
 use std::error::Error;
 

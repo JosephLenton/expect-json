@@ -1,9 +1,9 @@
+use crate::JsonType;
 use crate::expect::ops::expect_array::ExpectArraySubOp;
-use crate::expect_core::expect_op;
 use crate::expect_core::Context;
 use crate::expect_core::ExpectOp;
 use crate::expect_core::ExpectOpResult;
-use crate::JsonType;
+use crate::expect_core::expect_op;
 use serde_json::Value;
 use std::fmt::Debug;
 

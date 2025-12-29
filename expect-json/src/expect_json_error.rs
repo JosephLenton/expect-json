@@ -1,10 +1,10 @@
+use crate::JsonType;
 use crate::expect_core::Context;
 use crate::expect_core::ExpectOpError;
 use crate::internals::objects::ArrayObject;
 use crate::internals::objects::ValueObject;
 use crate::internals::objects::ValueTypeObject;
 use crate::internals::utils::is_unquotable_js_identifier;
-use crate::JsonType;
 use serde_json::Error as SerdeJsonError;
 use serde_json::Value;
 use std::fmt::Write;
@@ -295,11 +295,7 @@ impl ExpectJsonError {
 }
 
 fn pluralise_item_word(len: usize) -> &'static str {
-    if len == 1 {
-        "item"
-    } else {
-        "items"
-    }
+    if len == 1 { "item" } else { "items" }
 }
 
 fn value_or_number_type_name(left: &ValueTypeObject, right: &ValueTypeObject) -> &'static str {

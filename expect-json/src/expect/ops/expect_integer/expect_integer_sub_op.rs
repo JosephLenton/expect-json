@@ -1,11 +1,11 @@
+use crate::JsonInteger;
+use crate::expect::ops::ExpectInteger;
 use crate::expect::ops::utils::SerializableBound;
 use crate::expect::ops::utils::SerializableBoundContains;
-use crate::expect::ops::ExpectInteger;
 use crate::expect_core::Context;
 use crate::expect_core::ExpectOpError;
 use crate::expect_core::ExpectOpResult;
 use crate::internals::objects::IntegerObject;
-use crate::JsonInteger;
 use num::Zero;
 use serde::Deserialize;
 use serde::Serialize;

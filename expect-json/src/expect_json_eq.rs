@@ -1,7 +1,7 @@
-use crate::expect_core::Context;
-use crate::internals::json_eq;
 use crate::ExpectJsonError;
 use crate::ExpectJsonResult;
+use crate::expect_core::Context;
+use crate::internals::json_eq;
 use serde::Serialize;
 
 pub fn expect_json_eq<R, E>(received_raw: &R, expected_raw: &E) -> ExpectJsonResult<()>

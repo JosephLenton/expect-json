@@ -1,7 +1,7 @@
-use crate::expect_core::Context;
-use crate::internals::objects::ArrayObject;
 use crate::ExpectJsonError;
 use crate::ExpectJsonResult;
+use crate::expect_core::Context;
+use crate::internals::objects::ArrayObject;
 use serde_json::Value;
 
 pub fn json_value_eq_array<'a>(

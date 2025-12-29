@@ -1,13 +1,13 @@
+use crate::ExpectJsonError;
+use crate::JsonType;
 use crate::expect_core::Context;
 use crate::expect_core::ExpectOp;
+use crate::internals::ExpectOpMeta;
 use crate::internals::objects::ArrayObject;
 use crate::internals::objects::FloatObject;
 use crate::internals::objects::IntegerObject;
 use crate::internals::objects::ValueObject;
 use crate::internals::objects::ValueTypeObject;
-use crate::internals::ExpectOpMeta;
-use crate::ExpectJsonError;
-use crate::JsonType;
 use std::error::Error as StdError;
 use thiserror::Error;
 

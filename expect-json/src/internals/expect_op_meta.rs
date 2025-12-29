@@ -1,5 +1,5 @@
-use crate::expect_core::ExpectOp;
 use crate::JsonType;
+use crate::expect_core::ExpectOp;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct ExpectOpMeta {

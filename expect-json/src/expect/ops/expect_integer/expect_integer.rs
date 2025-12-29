@@ -1,10 +1,10 @@
+use crate::JsonInteger;
+use crate::JsonType;
 use crate::expect::ops::expect_integer::ExpectIntegerSubOp;
-use crate::expect_core::expect_op;
 use crate::expect_core::Context;
 use crate::expect_core::ExpectOp;
 use crate::expect_core::ExpectOpResult;
-use crate::JsonInteger;
-use crate::JsonType;
+use crate::expect_core::expect_op;
 use core::ops::RangeBounds;
 
 #[expect_op(internal, name = "integer")]

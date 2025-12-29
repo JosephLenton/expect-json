@@ -1,9 +1,9 @@
+use crate::JsonType;
 use crate::expect::ops::expect_object::ExpectObjectSubOp;
-use crate::expect_core::expect_op;
 use crate::expect_core::Context;
 use crate::expect_core::ExpectOp;
 use crate::expect_core::ExpectOpResult;
-use crate::JsonType;
+use crate::expect_core::expect_op;
 use serde_json::Map;
 use serde_json::Value;
 
@@ -85,7 +85,9 @@ impl ExpectObject {
             Value::Object(values_object) => ExpectObjectSubOp::PartialContains(values_object),
             _ => {
                 let value_type = JsonType::from(&value);
-                panic!("object().propagated_contains() expected to take object. Received: {value_type}");
+                panic!(
+                    "object().propagated_contains() expected to take object. Received: {value_type}"
+                );
             }
         };
 
@@ -122,9 +124,9 @@ mod test_contains {
     #[test]
     fn it_should_be_equal_for_identical_objects() {
         let left = json!({ "name": "John", "age": 30, "scores": [1, 2, 3] });
-        let right =
-            json!(expect::object()
-                .contains(json!({ "name": "John", "age": 30, "scores": [1, 2, 3] })));
+        let right = json!(
+            expect::object().contains(json!({ "name": "John", "age": 30, "scores": [1, 2, 3] }))
+        );
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
@@ -133,9 +135,9 @@ mod test_contains {
     #[test]
     fn it_should_be_equal_for_reversed_identical_objects() {
         let left = json!({ "name": "John", "age": 30, "scores": [1, 2, 3] });
-        let right =
-            json!(expect::object()
-                .contains(json!({ "scores": [1, 2, 3], "age": 30, "name": "John" })));
+        let right = json!(
+            expect::object().contains(json!({ "scores": [1, 2, 3], "age": 30, "name": "John" }))
+        );
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
@@ -409,8 +411,10 @@ mod test_propagated_contains {
     #[test]
     fn it_should_be_equal_for_identical_objects() {
         let left = json!({ "name": "John", "age": 30, "scores": [1, 2, 3] });
-        let right = json!(expect::object()
-            .propagated_contains(json!({ "name": "John", "age": 30, "scores": [1, 2, 3] })));
+        let right = json!(
+            expect::object()
+                .propagated_contains(json!({ "name": "John", "age": 30, "scores": [1, 2, 3] }))
+        );
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
@@ -419,8 +423,10 @@ mod test_propagated_contains {
     #[test]
     fn it_should_be_equal_for_reversed_identical_objects() {
         let left = json!({ "name": "John", "age": 30, "scores": [1, 2, 3] });
-        let right = json!(expect::object()
-            .propagated_contains(json!({ "scores": [1, 2, 3], "age": 30, "name": "John" })));
+        let right = json!(
+            expect::object()
+                .propagated_contains(json!({ "scores": [1, 2, 3], "age": 30, "name": "John" }))
+        );
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok());
@@ -532,8 +538,10 @@ mod test_propagated_contains {
     #[test]
     fn it_should_error_for_same_fields_but_different_values() {
         let left = json!({ "name": "John", "age": 30, "scores": [1, 2, 3] });
-        let right = json!(expect::object()
-            .propagated_contains(json!({ "name": "Joe", "age": 31, "scores": [4, 5, 6] })));
+        let right = json!(
+            expect::object()
+                .propagated_contains(json!({ "name": "Joe", "age": 31, "scores": [4, 5, 6] }))
+        );
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(

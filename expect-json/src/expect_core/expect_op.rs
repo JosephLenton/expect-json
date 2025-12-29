@@ -1,11 +1,11 @@
 use crate::__private::ExpectOpExt;
+use crate::JsonType;
 use crate::expect_core::Context;
 use crate::expect_core::ExpectOpError;
 use crate::expect_core::ExpectOpResult;
 use crate::internals::objects::IntegerObject;
 use crate::internals::objects::NullObject;
 use crate::internals::objects::ValueObject;
-use crate::JsonType;
 use serde_json::Map;
 use serde_json::Value;
 use std::fmt::Debug;
@@ -171,13 +171,13 @@ pub trait ExpectOp: ExpectOpExt + Debug + Send + 'static {
 #[cfg(test)]
 mod test_on_any {
     use super::*;
+    use crate::internals::ExpectOpMeta;
     use crate::internals::objects::ArrayObject;
     use crate::internals::objects::BooleanObject;
     use crate::internals::objects::FloatObject;
     use crate::internals::objects::ObjectObject;
     use crate::internals::objects::StringObject;
     use crate::internals::objects::ValueTypeObject;
-    use crate::internals::ExpectOpMeta;
     use serde_json::json;
 
     // An empty implementation which will hit the errors by default.

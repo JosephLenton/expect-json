@@ -1,9 +1,9 @@
-use crate::expect_core::Context;
-use crate::internals::objects::ObjectObject;
-use crate::internals::JsonObject;
 use crate::ExpectJsonError;
 use crate::ExpectJsonResult;
 use crate::JsonType;
+use crate::expect_core::Context;
+use crate::internals::JsonObject;
+use crate::internals::objects::ObjectObject;
 
 pub fn json_value_eq_object<'a>(
     context: &mut Context<'a>,

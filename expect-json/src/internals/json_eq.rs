@@ -1,7 +1,7 @@
+use crate::__private::SerializeExpectOp;
+use crate::ExpectJsonResult;
 use crate::expect_core::Context;
 use crate::internals::json_value_eq::json_value_eq;
-use crate::ExpectJsonResult;
-use crate::__private::SerializeExpectOp;
 use serde_json::Value;
 
 pub fn json_eq<'a>(

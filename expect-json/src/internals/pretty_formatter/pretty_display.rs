@@ -25,7 +25,9 @@ impl PrettyDisplay for Value {
                 match num_obj {
                     ValueObject::Float(inner) => inner.pretty_fmt(formatter),
                     ValueObject::Integer(inner) => inner.pretty_fmt(formatter),
-                    _ => panic!("Unexpected non-number value, expected a float or an integer, found {inner:?}. (This is a bug, please report at: https://github.com/JosephLenton/expect-json/issues)"),
+                    _ => panic!(
+                        "Unexpected non-number value, expected a float or an integer, found {inner:?}. (This is a bug, please report at: https://github.com/JosephLenton/expect-json/issues)"
+                    ),
                 }
             }
             Value::Array(inner) => formatter.write_fmt_array(inner),
