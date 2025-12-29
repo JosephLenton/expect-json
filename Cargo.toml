@@ -3,6 +3,9 @@ members = ["expect-json", "expect-json-macros"]
 resolver = "2"
 
 [workspace.dependencies]
+expect-json = { version = "1.8.1", path = "./expect-json" }
+expect-json-macros = { version = "1.8.1", path = "./expect-json-macros" }
+
 chrono = "0.4.42"
 email_address = "0.2.9"
 num = "0.4.3"
@@ -23,7 +26,3 @@ rstest = "0.26.1"
 # For Documentation
 axum = "0.8.8"
 axum-test = { version = "18.4.1", path = "../axum-test" }
-
-[replace]
-# This allows us perform doc tests using local crate with Axum Test
-"expect-json:1.7.0" = { path = "./expect-json" }
