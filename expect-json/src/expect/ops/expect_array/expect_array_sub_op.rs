@@ -4,6 +4,7 @@ use crate::expect_core::Context;
 use crate::expect_core::ExpectOpError;
 use crate::expect_core::ExpectOpResult;
 use crate::internals::objects::ArrayObject;
+use crate::internals::utils::bipartite_match;
 use serde::Deserialize;
 use serde::Serialize;
 use serde_json::Value;
@@ -17,6 +18,7 @@ pub enum ExpectArraySubOp {
     Len(usize),
     MaxLen(usize),
     Contains(Vec<Value>),
+    UnorderedEq(Vec<Value>),
     AllUnique,
     AllEqual(Value),
 }
@@ -36,6 +38,9 @@ impl ExpectArraySubOp {
             Self::MaxLen(max_len) => Self::on_array_max_len(*max_len, parent, context, received),
             Self::Contains(expected_values) => {
                 Self::on_array_contains(expected_values, parent, context, received)
+            }
+            Self::UnorderedEq(expected_values) => {
+                Self::on_array_unordered_eq(expected_values, parent, context, received)
             }
             Self::AllUnique => Self::on_array_unique(parent, context, received),
             Self::AllEqual(expected_value) => {
@@ -161,6 +166,39 @@ impl ExpectArraySubOp {
             }
         }
 
+        Ok(())
+    }
+
+    fn on_array_unordered_eq(
+        expected_values: &[Value],
+        _parent: &ExpectArray,
+        context: &mut Context<'_>,
+        received_values: &[Value],
+    ) -> ExpectOpResult<()> {
+        if expected_values.len() != received_values.len() {
+            return Err(ExpectOpError::ArrayUnorderedMismatch {
+                context: context.to_static(),
+                expected_array: ArrayObject::from(expected_values.to_owned()),
+                received_array: ArrayObject::from(received_values.to_owned()),
+            });
+        }
+        let expected_len = expected_values.len();
+        let mut edges: Vec<(usize, usize)> = Vec::new();
+        for (expected_index, expected_value) in expected_values.iter().enumerate() {
+            for (received_index, received_value) in received_values.iter().enumerate() {
+                if context.json_eq(received_value, expected_value).is_ok() {
+                    edges.push((expected_index, received_index));
+                }
+            }
+        }
+        let matches = bipartite_match(expected_len, &edges);
+        if matches.iter().any(|m| m.is_none()) {
+            return Err(ExpectOpError::ArrayUnorderedMismatch {
+                context: context.to_static(),
+                expected_array: ArrayObject::from(expected_values.to_owned()),
+                received_array: ArrayObject::from(received_values.to_owned()),
+            });
+        }
         Ok(())
     }
 

@@ -57,6 +57,23 @@ impl ExpectArray {
         self
     }
 
+    /// Expects all values in the array match the expected values in some order.
+    /// This can be an exact value, or an `ExpectOp`.
+    /// The lengths of the arrays must be equal.
+    pub fn unordered_eq<I, V>(mut self, expected_values: I) -> Self
+    where
+        I: IntoIterator<Item = V>,
+        V: Into<Value>,
+    {
+        let inner_expected_values = expected_values
+            .into_iter()
+            .map(Into::into)
+            .collect::<Vec<_>>();
+        self.sub_ops
+            .push(ExpectArraySubOp::UnorderedEq(inner_expected_values));
+        self
+    }
+
     /// Expects all values in the array match the expected value.
     /// This can be an exact value, or an `ExpectOp`.
     ///
@@ -461,6 +478,119 @@ mod test_max_len {
             r#"Json expect::array() error at root:
     expected array to have at most 3 elements, but it has 4.
     received [1, 2, 3, 4]"#
+        );
+    }
+}
+
+#[cfg(test)]
+mod test_unordered_match {
+    use crate::expect;
+    use crate::expect_json_eq;
+    use pretty_assertions::assert_eq;
+    use serde_json::json;
+
+    #[test]
+    fn it_should_pass_when_arrays_match_unordered() {
+        let left = json!([1, 2, 3]);
+        let right = json!(expect::array().unordered_eq([3, 2, 1]));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
+
+    #[test]
+    fn it_should_fail_when_arrays_do_not_match_unordered() {
+        let left = json!([1, 2, 3]);
+        let right = json!(expect::array().unordered_eq([4, 5, 6]));
+
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            r#"Json expect::array() error at root, mismatch:
+    expected array (up to order): [4, 5, 6],
+    received array: [1, 2, 3]"#
+        );
+    }
+
+    #[test]
+    fn it_should_fail_when_arrays_have_different_lengths() {
+        let left = json!([1, 2, 3]);
+        let right = json!(expect::array().unordered_eq([1, 2, 3, 4]));
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            r#"Json expect::array() error at root, mismatch:
+    expected array (up to order): [1, 2, 3, 4],
+    received array: [1, 2, 3]"#
+        );
+    }
+
+    #[test]
+    fn it_should_pass_with_complex_matches() {
+        let left = json!(["Alice", "Bob", "Charlie"]);
+        let right = json!(expect::array().unordered_eq([
+            expect::string().contains("C"),
+            expect::string().contains("A"),
+            expect::string().contains("B"),
+        ]));
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
+
+    #[test]
+    fn it_should_pass_not_using_greedy_matching() {
+        // If we used greedy matching, "Alice" would match to the first expect::string(),
+        // then "Charlie" would fail.
+        let left = json!(["Alice", "Bob", "Charlie"]);
+        let right = json!(expect::array().unordered_eq([
+            expect::string(),
+            expect::string().contains("B"),
+            expect::string().contains("A"),
+        ]));
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
+
+    #[test]
+    fn it_should_pass_with_equal_elements() {
+        let left = json!(["Alice", "Alice", "Alice"]);
+        let right = json!(expect::array().unordered_eq([
+            expect::string().contains("A"),
+            expect::string().contains("A"),
+            expect::string().contains("A"),
+        ]));
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
+
+    #[test]
+    fn it_should_pass_on_a_multiset_with_bijection() {
+        let left = json!(["Alice", "Alice", "Bob"]);
+        let right = json!(expect::array().unordered_eq(["Bob", "Alice", "Alice"]));
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
+
+    #[test]
+    fn it_should_fail_when_there_is_no_bijection() {
+        // Both "Bob" and "Boris" should match the same expect::string().contains("B"),
+        // so there is no way to have a perfect matching.
+        let left = json!(["Alice", "Bob", "Boris"]);
+        let right = json!(expect::array().unordered_eq([
+            expect::string().contains("A"),
+            expect::string().contains("A"),
+            expect::string().contains("B"),
+        ]));
+        let output = expect_json_eq(&left, &right).unwrap_err().to_string();
+        assert_eq!(
+            output,
+            r#"Json expect::array() error at root, mismatch:
+    expected array (up to order): [
+        expect::string(),
+        expect::string(),
+        expect::string()
+    ],
+    received array: ["Alice", "Bob", "Boris"]"#
         );
     }
 }
