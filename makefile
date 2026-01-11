@@ -3,6 +3,9 @@
 fmt:
 	cargo +stable fmt
 
+fmt-check:
+	cargo +stable fmt --check
+
 lint:
 	cargo +stable clippy
 
@@ -12,7 +15,7 @@ test:
 build:
 	cargo +stable build
 
-publish: fmt lint test
+publish: fmt-check lint test
 	cargo publish --package expect-json-macros
 	cargo publish --package expect-json
 
