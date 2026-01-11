@@ -1,15 +1,18 @@
 [package]
 name = "expect-json-macros"
-authors = ["Joseph Lenton <josephlenton@gmail.com>"]
-version = "1.8.1"
-edition = "2024"
-rust-version = "1.85"
-license = "MIT"
 description = "Macros for Expect Json"
-repository = "https://github.com/JosephLenton/expect-json"
 documentation = "https://docs.rs/expect-json-macros"
 readme = "README.md"
-publish = true
+
+authors.workspace = true
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+keywords.workspace = true
+categories.workspace = true
+repository.workspace = true
+publish.workspace = true
 
 [package.metadata.docs.rs]
 all-features = true

@@ -2,6 +2,17 @@
 members = ["expect-json", "expect-json-macros"]
 resolver = "2"
 
+[workspace.package]
+authors = ["Joseph Lenton <josephlenton@gmail.com>"]
+version = "1.8.1"
+edition = "2024"
+rust-version = "1.85"
+license = "MIT"
+keywords = ["testing", "test", "json", "serde_json"]
+categories = ["development-tools::testing", "development-tools"]
+repository = "https://github.com/JosephLenton/expect-json"
+publish = true
+
 [workspace.dependencies]
 expect-json = { version = "1.8.1", path = "./expect-json" }
 expect-json-macros = { version = "1.8.1", path = "./expect-json-macros" }

@@ -1,17 +1,18 @@
 [package]
 name = "expect-json"
-authors = ["Joseph Lenton <josephlenton@gmail.com>"]
-version = "1.8.1"
-edition = "2024"
-rust-version = "1.85"
-license = "MIT"
 description = "For comparisons on JSON data"
-keywords = ["testing", "test", "json", "serde_json"]
-categories = ["development-tools::testing", "development-tools"]
-repository = "https://github.com/JosephLenton/expect-json"
 documentation = "https://docs.rs/expect-json"
 readme = "../README.md"
-publish = true
+
+authors.workspace = true
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+keywords.workspace = true
+categories.workspace = true
+repository.workspace = true
+publish.workspace = true
 
 [package.metadata.docs.rs]
 all-features = true
