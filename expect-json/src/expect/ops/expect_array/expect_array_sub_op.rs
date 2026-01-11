@@ -18,7 +18,7 @@ pub enum ExpectArraySubOp {
     Len(usize),
     MaxLen(usize),
     Contains(Vec<Value>),
-    UnorderedEq(Vec<Value>),
+    EqUnordered(Vec<Value>),
     AllUnique,
     AllEqual(Value),
 }
@@ -39,8 +39,8 @@ impl ExpectArraySubOp {
             Self::Contains(expected_values) => {
                 Self::on_array_contains(expected_values, parent, context, received)
             }
-            Self::UnorderedEq(expected_values) => {
-                Self::on_array_unordered_eq(expected_values, parent, context, received)
+            Self::EqUnordered(expected_values) => {
+                Self::on_array_eq_unordered(expected_values, parent, context, received)
             }
             Self::AllUnique => Self::on_array_unique(parent, context, received),
             Self::AllEqual(expected_value) => {
@@ -169,7 +169,7 @@ impl ExpectArraySubOp {
         Ok(())
     }
 
-    fn on_array_unordered_eq(
+    fn on_array_eq_unordered(
         expected_values: &[Value],
         _parent: &ExpectArray,
         context: &mut Context<'_>,

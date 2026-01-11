@@ -60,7 +60,7 @@ impl ExpectArray {
     /// Expects all values in the array match the expected values in some order.
     /// This can be an exact value, or an `ExpectOp`.
     /// The lengths of the arrays must be equal.
-    pub fn unordered_eq<I, V>(mut self, expected_values: I) -> Self
+    pub fn eq_unordered<I, V>(mut self, expected_values: I) -> Self
     where
         I: IntoIterator<Item = V>,
         V: Into<Value>,
@@ -70,7 +70,7 @@ impl ExpectArray {
             .map(Into::into)
             .collect::<Vec<_>>();
         self.sub_ops
-            .push(ExpectArraySubOp::UnorderedEq(inner_expected_values));
+            .push(ExpectArraySubOp::EqUnordered(inner_expected_values));
         self
     }
 
@@ -492,7 +492,7 @@ mod test_unordered_match {
     #[test]
     fn it_should_pass_when_arrays_match_unordered() {
         let left = json!([1, 2, 3]);
-        let right = json!(expect::array().unordered_eq([3, 2, 1]));
+        let right = json!(expect::array().eq_unordered([3, 2, 1]));
 
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok(), "assertion error: {output:#?}");
@@ -501,7 +501,7 @@ mod test_unordered_match {
     #[test]
     fn it_should_fail_when_arrays_do_not_match_unordered() {
         let left = json!([1, 2, 3]);
-        let right = json!(expect::array().unordered_eq([4, 5, 6]));
+        let right = json!(expect::array().eq_unordered([4, 5, 6]));
 
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
@@ -515,7 +515,7 @@ mod test_unordered_match {
     #[test]
     fn it_should_fail_when_arrays_have_different_lengths() {
         let left = json!([1, 2, 3]);
-        let right = json!(expect::array().unordered_eq([1, 2, 3, 4]));
+        let right = json!(expect::array().eq_unordered([1, 2, 3, 4]));
         let output = expect_json_eq(&left, &right).unwrap_err().to_string();
         assert_eq!(
             output,
@@ -528,7 +528,7 @@ mod test_unordered_match {
     #[test]
     fn it_should_pass_with_complex_matches() {
         let left = json!(["Alice", "Bob", "Charlie"]);
-        let right = json!(expect::array().unordered_eq([
+        let right = json!(expect::array().eq_unordered([
             expect::string().contains("C"),
             expect::string().contains("A"),
             expect::string().contains("B"),
@@ -542,7 +542,7 @@ mod test_unordered_match {
         // If we used greedy matching, "Alice" would match to the first expect::string(),
         // then "Charlie" would fail.
         let left = json!(["Alice", "Bob", "Charlie"]);
-        let right = json!(expect::array().unordered_eq([
+        let right = json!(expect::array().eq_unordered([
             expect::string(),
             expect::string().contains("B"),
             expect::string().contains("A"),
@@ -554,7 +554,7 @@ mod test_unordered_match {
     #[test]
     fn it_should_pass_with_equal_elements() {
         let left = json!(["Alice", "Alice", "Alice"]);
-        let right = json!(expect::array().unordered_eq([
+        let right = json!(expect::array().eq_unordered([
             expect::string().contains("A"),
             expect::string().contains("A"),
             expect::string().contains("A"),
@@ -566,7 +566,7 @@ mod test_unordered_match {
     #[test]
     fn it_should_pass_on_a_multiset_with_bijection() {
         let left = json!(["Alice", "Alice", "Bob"]);
-        let right = json!(expect::array().unordered_eq(["Bob", "Alice", "Alice"]));
+        let right = json!(expect::array().eq_unordered(["Bob", "Alice", "Alice"]));
         let output = expect_json_eq(&left, &right);
         assert!(output.is_ok(), "assertion error: {output:#?}");
     }
@@ -576,7 +576,7 @@ mod test_unordered_match {
         // Both "Bob" and "Boris" should match the same expect::string().contains("B"),
         // so there is no way to have a perfect matching.
         let left = json!(["Alice", "Bob", "Boris"]);
-        let right = json!(expect::array().unordered_eq([
+        let right = json!(expect::array().eq_unordered([
             expect::string().contains("A"),
             expect::string().contains("A"),
             expect::string().contains("B"),
