@@ -15,12 +15,16 @@ test:
 build:
 	cargo +stable build
 
-publish: fmt-check lint test
-	cargo publish --package expect-json-macros
-	cargo publish --package expect-json
+cargo-update:
+	cargo +stable update
+
+publish: cargo-update fmt-check lint test
+	cargo +stable publish --package expect-json-macros
+	cargo +stable update
+	cargo +stable publish --package expect-json
 
 docs:
-	cargo doc --open
+	cargo +stable doc --open
 
 codecov:
 	cargo llvm-cov --open
