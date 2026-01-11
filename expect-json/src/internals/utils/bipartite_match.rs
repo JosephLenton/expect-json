@@ -1,8 +1,5 @@
 // Find the best matching in a bipartite graph using the Hopcroft-Karp algorithm.
-pub fn bipartite_match(
-    size: usize,
-    edges: &[(usize, usize)]
-) -> Vec<Option<usize>> {
+pub fn bipartite_match(size: usize, edges: &[(usize, usize)]) -> Vec<Option<usize>> {
     let mut adj_list: Vec<Vec<usize>> = vec![Vec::new(); size];
     for &(u, v) in edges {
         adj_list[u].push(v);

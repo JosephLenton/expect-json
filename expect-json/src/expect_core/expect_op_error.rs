@@ -113,7 +113,7 @@ pub enum ExpectOpError {
     #[error(
         "Json expect::array() error at {context}, mismatch:
     expected array (up to order): {expected_array},
-    received array: {received_array}",
+    received array: {received_array}"
     )]
     ArrayUnorderedMismatch {
         context: Context<'static>,
