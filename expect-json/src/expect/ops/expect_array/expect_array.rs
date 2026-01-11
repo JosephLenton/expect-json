@@ -483,7 +483,7 @@ mod test_max_len {
 }
 
 #[cfg(test)]
-mod test_unordered_match {
+mod test_eq_unordered {
     use crate::expect;
     use crate::expect_json_eq;
     use pretty_assertions::assert_eq;
