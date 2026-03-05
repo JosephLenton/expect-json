@@ -1,4 +1,5 @@
 use crate::JsonType;
+use crate::expect::ExpectObject;
 use crate::expect::ops::expect_array::ExpectArraySubOp;
 use crate::expect_core::Context;
 use crate::expect_core::ExpectOp;
@@ -111,6 +112,74 @@ impl ExpectArray {
     {
         self.sub_ops
             .push(ExpectArraySubOp::AllEqual(expected.into()));
+        self
+    }
+
+    /// Expects all values to be an object, containing the expected value.
+    ///
+    /// # Example Usage
+    /// ```rust
+    /// # async fn test() -> Result<(), Box<dyn ::std::error::Error>> {
+    /// #
+    /// # use axum::Router;
+    /// # use axum::extract::Json;
+    /// # use axum::routing::get;
+    /// # use axum_test::TestServer;
+    /// # use serde_json::json;
+    /// #
+    /// # let server = TestServer::new(Router::new());
+    /// #
+    /// use axum_test::expect_json;
+    ///
+    /// let server = TestServer::new(Router::new());
+    ///
+    /// server.get(&"/users")
+    ///     .await
+    ///     .assert_json(&expect_json::array().all_contains(json!({
+    ///         "name": expect_json::string().not_empty(),
+    ///         "email": expect_json::email(),
+    ///     })));
+    /// #
+    /// # Ok(()) }
+    /// ```
+    ///
+    /// # Equivalent Usage
+    ///
+    /// This is shorthand for using [`ExpectArray::all`] and [`ExpectObject::contains`], like so:
+    /// ```rust
+    /// # async fn test() -> Result<(), Box<dyn ::std::error::Error>> {
+    /// #
+    /// # use axum::Router;
+    /// # use axum::extract::Json;
+    /// # use axum::routing::get;
+    /// # use axum_test::TestServer;
+    /// # use serde_json::json;
+    /// #
+    /// # let server = TestServer::new(Router::new());
+    /// #
+    /// use axum_test::expect_json;
+    ///
+    /// let server = TestServer::new(Router::new());
+    ///
+    /// server.get(&"/users")
+    ///     .await
+    ///     .assert_json(&expect_json::array().all(
+    ///         expect_json::object().contains(json!({
+    ///             "name": expect_json::string().not_empty(),
+    ///             "email": expect_json::email(),
+    ///         }))
+    ///     ));
+    /// #
+    /// # Ok(()) }
+    /// ```
+    pub fn all_contains<V>(mut self, expected: V) -> Self
+    where
+        V: Into<Value>,
+    {
+        let obj_contains = ExpectObject::new().contains(expected);
+        self.sub_ops
+            .push(ExpectArraySubOp::AllEqual(obj_contains.into()));
+
         self
     }
 
