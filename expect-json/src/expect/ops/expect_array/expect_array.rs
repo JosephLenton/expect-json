@@ -749,6 +749,27 @@ mod test_all {
     ]"#
         );
     }
+
+    #[test]
+    fn it_should_pass_with_nested_contains() {
+        let left = json!([
+            {
+                "name": "Alice Candles",
+                "email": "alice@example.com"
+            },
+            {
+                "name": "Bob Kettles",
+                "email": "bob@example.com"
+            },
+        ]);
+
+        let right = json!(expect::array().all(expect::object().contains(json!({
+            "name": expect::string().not_empty(),
+        })),));
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
 }
 
 #[cfg(test)]
