@@ -26,12 +26,12 @@ use std::time::Duration as StdDuration;
 /// # use axum_test::TestServer;
 /// # use serde_json::json;
 /// #
-/// # let server = TestServer::new(Router::new())?;
+/// # let server = TestServer::new(Router::new());
 /// #
 /// use std::time::Duration;
 /// use axum_test::expect_json;
 ///
-/// let server = TestServer::new(Router::new())?;
+/// let server = TestServer::new(Router::new());
 ///
 /// server.get(&"/latest-comment")
 ///     .await
@@ -75,12 +75,12 @@ impl ExpectIsoDateTime {
     /// # use axum_test::TestServer;
     /// # use serde_json::json;
     /// #
-    /// # let server = TestServer::new(Router::new())?;
+    /// # let server = TestServer::new(Router::new());
     /// #
     /// use std::time::Duration;
     /// use axum_test::expect_json;
     ///
-    /// let server = TestServer::new(Router::new())?;
+    /// let server = TestServer::new(Router::new());
     ///
     /// server.get(&"/latest-comment")
     ///     .await
@@ -118,12 +118,12 @@ impl ExpectIsoDateTime {
     /// # use axum_test::TestServer;
     /// # use serde_json::json;
     /// #
-    /// # let server = TestServer::new(Router::new())?;
+    /// # let server = TestServer::new(Router::new());
     /// #
     /// use std::time::Duration;
     /// use axum_test::expect_json;
     ///
-    /// let server = TestServer::new(Router::new())?;
+    /// let server = TestServer::new(Router::new());
     ///
     /// server.get(&"/latest-comment")
     ///     .await
@@ -166,7 +166,7 @@ impl ExpectIsoDateTime {
     /// use std::time::Duration;
     /// use axum_test::expect_json;
     ///
-    /// let server = TestServer::new(Router::new())?;
+    /// let server = TestServer::new(Router::new());
     ///
     /// server.get(&"/latest-comment")
     ///     .await

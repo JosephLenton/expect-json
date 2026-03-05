@@ -23,11 +23,11 @@ use crate::expect::ops::ExpectUuid;
 /// # use axum_test::TestServer;
 /// # use serde_json::json;
 /// #
-/// # let server = TestServer::new(Router::new())?;
+/// # let server = TestServer::new(Router::new());
 /// #
 /// use axum_test::expect_json;
 ///
-/// let server = TestServer::new(Router::new())?;
+/// let server = TestServer::new(Router::new());
 ///
 /// server.get(&"/user/barrington")
 ///     .await
@@ -56,11 +56,11 @@ pub fn object() -> ExpectObject {
 /// # use axum_test::TestServer;
 /// # use serde_json::json;
 /// #
-/// # let server = TestServer::new(Router::new())?;
+/// # let server = TestServer::new(Router::new());
 /// #
 /// use axum_test::expect_json;
 ///
-/// let server = TestServer::new(Router::new())?;
+/// let server = TestServer::new(Router::new());
 ///
 /// server.get(&"/user/barrington")
 ///     .await
@@ -89,11 +89,11 @@ pub fn float() -> ExpectFloat {
 /// # use axum_test::TestServer;
 /// # use serde_json::json;
 /// #
-/// # let server = TestServer::new(Router::new())?;
+/// # let server = TestServer::new(Router::new());
 /// #
 /// use axum_test::expect_json;
 ///
-/// let server = TestServer::new(Router::new())?;
+/// let server = TestServer::new(Router::new());
 ///
 /// server.get(&"/user/barrington")
 ///     .await
@@ -121,11 +121,11 @@ pub fn integer() -> ExpectInteger {
 /// # use axum_test::TestServer;
 /// # use serde_json::json;
 /// #
-/// # let server = TestServer::new(Router::new())?;
+/// # let server = TestServer::new(Router::new());
 /// #
 /// use axum_test::expect_json;
 ///
-/// let server = TestServer::new(Router::new())?;
+/// let server = TestServer::new(Router::new());
 ///
 /// server.get(&"/user/barrington")
 ///     .await
@@ -153,11 +153,11 @@ pub fn string() -> ExpectString {
 /// # use axum_test::TestServer;
 /// # use serde_json::json;
 /// #
-/// # let server = TestServer::new(Router::new())?;
+/// # let server = TestServer::new(Router::new());
 /// #
 /// use axum_test::expect_json;
 ///
-/// let server = TestServer::new(Router::new())?;
+/// let server = TestServer::new(Router::new());
 ///
 /// server.get(&"/user/barrington")
 ///     .await
@@ -187,12 +187,12 @@ pub fn array() -> ExpectArray {
 /// # use axum_test::TestServer;
 /// # use serde_json::json;
 /// #
-/// # let server = TestServer::new(Router::new())?;
+/// # let server = TestServer::new(Router::new());
 /// #
 /// use axum_test::expect_json;
 /// use std::time::Duration;
 ///
-/// let server = TestServer::new(Router::new())?;
+/// let server = TestServer::new(Router::new());
 ///
 /// server.get(&"/user/barrington")
 ///     .await
@@ -219,12 +219,12 @@ pub fn iso_date_time() -> ExpectIsoDateTime {
 /// # use axum_test::TestServer;
 /// # use serde_json::json;
 /// #
-/// # let server = TestServer::new(Router::new())?;
+/// # let server = TestServer::new(Router::new());
 /// #
 /// use std::time::Duration;
 /// use axum_test::expect_json;
 ///
-/// let server = TestServer::new(Router::new())?;
+/// let server = TestServer::new(Router::new());
 ///
 /// server.get(&"/user/alice")
 ///     .await
@@ -254,11 +254,11 @@ pub fn uuid() -> ExpectUuid {
 /// # use axum_test::TestServer;
 /// # use serde_json::json;
 /// #
-/// # let server = TestServer::new(Router::new())?;
+/// # let server = TestServer::new(Router::new());
 /// #
 /// use axum_test::expect_json;
 ///
-/// let server = TestServer::new(Router::new())?;
+/// let server = TestServer::new(Router::new());
 ///
 /// server.get(&"/user")
 ///     .await

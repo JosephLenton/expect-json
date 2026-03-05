@@ -39,11 +39,11 @@ impl ExpectObject {
     /// # use axum_test::TestServer;
     /// # use serde_json::json;
     /// #
-    /// # let server = TestServer::new(Router::new())?;
+    /// # let server = TestServer::new(Router::new());
     /// #
     /// use axum_test::expect_json;
     ///
-    /// let server = TestServer::new(Router::new())?;
+    /// let server = TestServer::new(Router::new());
     ///
     /// server.get(&"/user/barrington")
     ///     .await

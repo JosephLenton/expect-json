@@ -27,7 +27,7 @@ use std::fmt::Debug;
 /// # use axum_test::TestServer;
 /// # use serde_json::json;
 /// #
-/// # let server = TestServer::new(Router::new())?;
+/// # let server = TestServer::new(Router::new());
 /// #
 /// use axum_test::expect_json;
 /// use axum_test::expect_json::expect_core::ExpectOp;
@@ -61,7 +61,7 @@ use std::fmt::Debug;
 ///         "age": 20,
 ///     }))
 /// }));
-/// let server = TestServer::new(app).unwrap();
+/// let server = TestServer::new(app);
 ///
 /// // 4. Use the new expectation!
 /// server.get(&"/user").await.assert_json(&json!({
