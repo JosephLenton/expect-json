@@ -36,4 +36,4 @@ rstest = "0.26.1"
 
 # For Documentation
 axum = "0.8.8"
-axum-test = { version = "18.4.1", path = "../axum-test" }
+axum-test = { version = "19.1.0", path = "../axum-test" }
