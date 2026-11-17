@@ -17,8 +17,8 @@ publish = true
 expect-json = { version = "1.11.0", path = "./expect-json" }
 expect-json-macros = { version = "1.11.0", path = "./expect-json-macros" }
 
-chrono = "0.4.44"
 email_address = "0.2.9"
+jiff = { version = "1.0.0", default-features = false }
 num = "0.4.3"
 serde = "1.0.228"
 serde_json = "1.0.150"
