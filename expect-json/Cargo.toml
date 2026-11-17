@@ -24,9 +24,9 @@ default = []
 [dependencies]
 expect-json-macros = { workspace = true }
 
-chrono = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 email_address = { workspace = true }
+jiff = { workspace = true, features = ["std"] }
 serde_json = { workspace = true }
 typetag = { workspace = true }
 thiserror = { workspace = true }

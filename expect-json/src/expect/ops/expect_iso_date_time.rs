@@ -5,11 +5,8 @@ use crate::expect_core::ExpectOp;
 use crate::expect_core::ExpectOpError;
 use crate::expect_core::ExpectOpResult;
 use crate::expect_core::expect_op;
-use chrono::DateTime;
-use chrono::Duration as ChronoDuration;
-use chrono::FixedOffset;
-use chrono::Offset;
-use chrono::Utc;
+use jiff::Timestamp;
+use jiff::fmt::temporal::Pieces;
 use std::time::Duration as StdDuration;
 
 ///
@@ -191,38 +188,32 @@ impl ExpectIsoDateTime {
 
 impl ExpectOp for ExpectIsoDateTime {
     fn on_string(&self, context: &mut Context, received: &str) -> ExpectOpResult<()> {
-        let date_time = DateTime::<FixedOffset>::parse_from_rfc3339(received).map_err(|error| {
+        let date_time = received.parse::<Timestamp>().map_err(|error| {
             let error_message = format!("failed to parse string '{received}' as iso date time");
             ExpectOpError::custom_error(self, context, error_message, error)
         })?;
 
-        if self.is_utc_only {
-            let is_date_time_utc = date_time.offset().fix().utc_minus_local() != 0;
-            if is_date_time_utc {
-                let error_message = format!(
-                    "ISO datetime '{received}' is using a non-UTC timezone, expected UTC only"
-                );
-                return Err(ExpectOpError::custom(self, context, error_message));
-            }
+        if self.is_utc_only && has_non_utc_offset(received) {
+            let error_message =
+                format!("ISO datetime '{received}' is using a non-UTC timezone, expected UTC only");
+            return Err(ExpectOpError::custom(self, context, error_message));
         }
 
         match (self.maybe_past_duration, self.maybe_future_duration) {
             (None, None) => {}
             (Some(past_duration), None) => {
-                let is_date_time_outside_past = date_time < Utc::now() - past_duration;
+                let is_date_time_outside_past = date_time < Timestamp::now() - past_duration;
                 if is_date_time_outside_past {
-                    let duration =
-                        DurationFormatter::new(ChronoDuration::from_std(past_duration).unwrap());
+                    let duration = DurationFormatter::new(past_duration);
                     let error_message = format!(
                         "ISO datetime '{received}' is too far from the past, expected between '{duration}' ago and now"
                     );
                     return Err(ExpectOpError::custom(self, context, error_message));
                 }
 
-                let is_date_time_ahead_of_now = date_time > Utc::now();
+                let is_date_time_ahead_of_now = date_time > Timestamp::now();
                 if is_date_time_ahead_of_now {
-                    let duration =
-                        DurationFormatter::new(ChronoDuration::from_std(past_duration).unwrap());
+                    let duration = DurationFormatter::new(past_duration);
                     let error_message = format!(
                         "ISO datetime '{received}' is in the future of now, expected between '{duration}' ago and now"
                     );
@@ -230,20 +221,18 @@ impl ExpectOp for ExpectIsoDateTime {
                 }
             }
             (None, Some(future_duration)) => {
-                let is_date_time_outside_future = date_time > Utc::now() + future_duration;
+                let is_date_time_outside_future = date_time > Timestamp::now() + future_duration;
                 if is_date_time_outside_future {
-                    let duration =
-                        DurationFormatter::new(ChronoDuration::from_std(future_duration).unwrap());
+                    let duration = DurationFormatter::new(future_duration);
                     let error_message = format!(
                         "ISO datetime '{received}' is too far in the future, expected between now and '{duration}' in the future"
                     );
                     return Err(ExpectOpError::custom(self, context, error_message));
                 }
 
-                let is_date_time_behind_of_now = date_time < Utc::now();
+                let is_date_time_behind_of_now = date_time < Timestamp::now();
                 if is_date_time_behind_of_now {
-                    let duration =
-                        DurationFormatter::new(ChronoDuration::from_std(future_duration).unwrap());
+                    let duration = DurationFormatter::new(future_duration);
                     let error_message = format!(
                         "ISO datetime '{received}' is in the past of now, expected between now and '{duration}' in the future"
                     );
@@ -251,20 +240,18 @@ impl ExpectOp for ExpectIsoDateTime {
                 }
             }
             (Some(past_duration), Some(future_duration)) => {
-                let is_date_time_outside_past = date_time < Utc::now() - past_duration;
+                let is_date_time_outside_past = date_time < Timestamp::now() - past_duration;
                 if is_date_time_outside_past {
-                    let duration =
-                        DurationFormatter::new(ChronoDuration::from_std(past_duration).unwrap());
+                    let duration = DurationFormatter::new(past_duration);
                     let error_message = format!(
                         "ISO datetime '{received}' is too far from the past, expected between '{duration}' ago and now"
                     );
                     return Err(ExpectOpError::custom(self, context, error_message));
                 }
 
-                let is_date_time_outside_future = date_time > Utc::now() + future_duration;
+                let is_date_time_outside_future = date_time > Timestamp::now() + future_duration;
                 if is_date_time_outside_future {
-                    let duration =
-                        DurationFormatter::new(ChronoDuration::from_std(future_duration).unwrap());
+                    let duration = DurationFormatter::new(future_duration);
                     let error_message = format!(
                         "ISO datetime '{received}' is too far in the future, expected between now and '{duration}' in the future"
                     );
@@ -279,6 +266,13 @@ impl ExpectOp for ExpectIsoDateTime {
     fn debug_supported_types(&self) -> &'static [JsonType] {
         &[JsonType::String]
     }
+}
+
+fn has_non_utc_offset(received: &str) -> bool {
+    Pieces::parse(received)
+        .ok()
+        .and_then(|pieces| pieces.to_numeric_offset())
+        .is_some_and(|offset| offset.seconds() != 0)
 }
 
 #[cfg(test)]
@@ -316,7 +310,7 @@ mod test_iso_date_time {
             output,
             r#"Json expect::iso_date_time() error at root:
     failed to parse string '2024-01-15T13:45:30' as iso date time,
-    premature end of input"#
+    failed to find offset component, which is required for parsing a timestamp"#
         );
     }
 }
@@ -331,6 +325,15 @@ mod test_utc {
     #[test]
     fn it_should_parse_iso_datetime_with_utc_timezone_when_set() {
         let left = json!("2024-01-15T13:45:30Z");
+        let right = json!(expect::iso_date_time().utc());
+
+        let output = expect_json_eq(&left, &right);
+        assert!(output.is_ok(), "assertion error: {output:#?}");
+    }
+
+    #[test]
+    fn it_should_parse_iso_datetime_with_zero_offset_when_utc_set() {
+        let left = json!("2024-01-15T13:45:30+00:00");
         let right = json!(expect::iso_date_time().utc());
 
         let output = expect_json_eq(&left, &right);
@@ -356,13 +359,14 @@ mod test_within_past {
     use super::*;
     use crate::expect;
     use crate::expect_json_eq;
+    use jiff::SignedDuration;
     use pretty_assertions::assert_eq;
     use serde_json::json;
 
     #[test]
     fn it_should_parse_iso_datetime_within_past_set() {
-        let now = Utc::now();
-        let now_str = (now - ChronoDuration::seconds(30)).to_rfc3339();
+        let now = Timestamp::now();
+        let now_str = (now - SignedDuration::from_secs(30)).to_string();
         let left = json!(now_str);
         let right = json!(expect::iso_date_time().within_past(StdDuration::from_secs(60)));
 
@@ -372,8 +376,8 @@ mod test_within_past {
 
     #[test]
     fn it_should_not_parse_iso_datetime_within_past_too_far() {
-        let now = Utc::now();
-        let now_str = (now - ChronoDuration::seconds(90)).to_rfc3339();
+        let now = Timestamp::now();
+        let now_str = (now - SignedDuration::from_secs(90)).to_string();
         let left = json!(now_str);
         let right = json!(expect::iso_date_time().within_past(StdDuration::from_secs(60)));
 
@@ -389,8 +393,8 @@ mod test_within_past {
 
     #[test]
     fn it_should_not_parse_iso_datetime_ahead_of_now() {
-        let now = Utc::now();
-        let now_str = (now + ChronoDuration::seconds(90)).to_rfc3339();
+        let now = Timestamp::now();
+        let now_str = (now + SignedDuration::from_secs(90)).to_string();
         let left = json!(now_str);
         let right = json!(expect::iso_date_time().within_past(StdDuration::from_secs(60)));
 
@@ -410,13 +414,14 @@ mod test_within_future {
     use super::*;
     use crate::expect;
     use crate::expect_json_eq;
+    use jiff::SignedDuration;
     use pretty_assertions::assert_eq;
     use serde_json::json;
 
     #[test]
     fn it_should_parse_iso_datetime_within_future_set() {
-        let now = Utc::now();
-        let now_str = (now + ChronoDuration::seconds(30)).to_rfc3339();
+        let now = Timestamp::now();
+        let now_str = (now + SignedDuration::from_secs(30)).to_string();
         let left = json!(now_str);
         let right = json!(expect::iso_date_time().within_future(StdDuration::from_secs(60)));
 
@@ -426,8 +431,8 @@ mod test_within_future {
 
     #[test]
     fn it_should_not_parse_iso_datetime_within_past_too_far() {
-        let now = Utc::now();
-        let now_str = (now + ChronoDuration::seconds(90)).to_rfc3339();
+        let now = Timestamp::now();
+        let now_str = (now + SignedDuration::from_secs(90)).to_string();
         let left = json!(now_str);
         let right = json!(expect::iso_date_time().within_future(StdDuration::from_secs(60)));
 
@@ -443,8 +448,8 @@ mod test_within_future {
 
     #[test]
     fn it_should_not_parse_iso_datetime_before_now() {
-        let now = Utc::now();
-        let now_str = (now - ChronoDuration::seconds(90)).to_rfc3339();
+        let now = Timestamp::now();
+        let now_str = (now - SignedDuration::from_secs(90)).to_string();
         let left = json!(now_str);
         let right = json!(expect::iso_date_time().within_future(StdDuration::from_secs(60)));
 
@@ -460,8 +465,8 @@ mod test_within_future {
 
     #[test]
     fn it_should_pass_if_date_within_past_and_future() {
-        let now = Utc::now();
-        let now_str = now.to_rfc3339();
+        let now = Timestamp::now();
+        let now_str = now.to_string();
         let left = json!(now_str);
         let right = json!(
             expect::iso_date_time()
@@ -475,8 +480,8 @@ mod test_within_future {
 
     #[test]
     fn it_should_fail_if_date_behind_past_and_future() {
-        let now = Utc::now();
-        let now_str = (now - ChronoDuration::seconds(90)).to_rfc3339();
+        let now = Timestamp::now();
+        let now_str = (now - SignedDuration::from_secs(90)).to_string();
         let left = json!(now_str);
         let right = json!(
             expect::iso_date_time()
@@ -496,8 +501,8 @@ mod test_within_future {
 
     #[test]
     fn it_should_fail_if_date_ahead_of_past_and_future() {
-        let now = Utc::now();
-        let now_str = (now + ChronoDuration::seconds(90)).to_rfc3339();
+        let now = Timestamp::now();
+        let now_str = (now + SignedDuration::from_secs(90)).to_string();
         let left = json!(now_str);
         let right = json!(
             expect::iso_date_time()
